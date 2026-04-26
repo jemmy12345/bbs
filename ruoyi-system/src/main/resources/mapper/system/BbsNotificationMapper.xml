@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsNotificationMapper">
+    
+    <resultMap type="BbsNotification" id="BbsNotificationResult">
+        <result property="notificationId" column="notification_id" />
+        <result property="userId"        column="user_id"         />
+        <result property="type"          column="type"           />
+        <result property="title"         column="title"          />
+        <result property="content"       column="content"        />
+        <result property="targetType"    column="target_type"    />
+        <result property="targetId"      column="target_id"      />
+        <result property="fromUserId"    column="from_user_id"   />
+        <result property="isRead"       column="is_read"        />
+        <result property="createTime"    column="create_time"    />
+        <result property="fromNickName" column="from_nick_name" />
+        <result property="fromAvatar"   column="from_avatar"    />
+        <result property="isAnonymous"  column="is_anonymous"    />
+    </resultMap>
+    
+    <sql id="selectBbsNotificationVo">
+        <![CDATA[
+        SELECT
+            n.notification_id,
+            n.user_id,
+            n.type,
+            n.title,
+            n.content,
+            n.target_type,
+            n.target_id,
+            n.from_user_id,
+            n.is_read,
+            n.create_time,
+            CASE
+                WHEN n.type IN ('1', '2') AND c.is_anonymous = '1' THEN '匿名用户'
+                WHEN n.type IN ('1', '2') AND c.is_anonymous = '0' THEN n.from_nick_name
+                WHEN n.type IN ('3','4','5') THEN n.from_nick_name
+                ELSE ''
+                END AS from_nick_name,
+            CASE
+                WHEN n.type IN ('1', '2') AND c.is_anonymous = '1' THEN ''
+                WHEN n.type IN ('3','4','5') THEN n.from_avatar
+                ELSE COALESCE(n.from_avatar, '')
+                END AS from_avatar,
+            CASE
+                WHEN n.type IN ('1', '2') THEN COALESCE(c.is_anonymous, '0')
+                ELSE '0'
+                END AS is_anonymous
+        FROM bbs_notification n
+                 LEFT JOIN LATERAL (
+            SELECT
+                c1.is_anonymous
+            FROM bbs_comment c1
+            WHERE c1.del_flag = '0'
+              AND c1.post_id = n.target_id
+              AND c1.user_id = n.from_user_id
+              AND c1.create_time >= n.create_time - INTERVAL 10 MINUTE
+            AND c1.create_time <= n.create_time + INTERVAL 10 MINUTE
+        ORDER BY ABS(TIMESTAMPDIFF(SECOND, c1.create_time, n.create_time)) ASC
+            LIMIT 1
+            ) c ON n.type IN ('1', '2') AND n.target_type = '1'
+        ]]>
+    </sql>
+    
+    <select id="selectBbsNotificationById" parameterType="Long" resultMap="BbsNotificationResult">
+        <include refid="selectBbsNotificationVo"/>
+        where n.notification_id = #{notificationId}
+    </select>
+    
+    <select id="selectBbsNotificationList" parameterType="BbsNotification" resultMap="BbsNotificationResult">
+        <include refid="selectBbsNotificationVo"/>
+        <where>
+            <if test="userId != null">
+                AND FIND_IN_SET(
+                n.user_id,
+                REPLACE(#{userId}, '|', ',')
+                )
+            </if>
+            <if test="type != null and type != ''">
+                AND n.type = #{type}
+            </if>
+            <if test="isRead != null and isRead != ''">
+                AND n.is_read = #{isRead}
+            </if>
+        </where>
+        order by n.create_time desc
+    </select>
+    
+    <insert id="insertBbsNotification" parameterType="BbsNotification" useGeneratedKeys="true" keyProperty="notificationId">
+        insert into bbs_notification
+            (user_id, type, title, content, target_type, target_id, from_user_id, is_read, create_time, from_nick_name, from_avatar)
+        values
+            (#{userId}, #{type}, #{title}, #{content}, #{targetType}, #{targetId}, #{fromUserId}, '0', sysdate(), #{fromNickName}, #{fromAvatar})
+    </insert>
+     
+    <update id="updateBbsNotification" parameterType="BbsNotification">
+        update bbs_notification
+        <set>
+            <if test="isRead != null">is_read = #{isRead},</if>
+        </set>
+        where notification_id = #{notificationId}
+    </update>
+    
+    <delete id="deleteBbsNotificationById" parameterType="Long">
+        delete from bbs_notification where notification_id = #{notificationId}
+    </delete>
+    
+    <delete id="deleteBbsNotificationByIds" parameterType="Long">
+        delete from bbs_notification where notification_id in 
+        <foreach item="notificationId" collection="array" open="(" separator="," close=")">
+            #{notificationId}
+        </foreach>
+    </delete>
+
+    <update id="markAsRead" parameterType="Long">
+        update bbs_notification set is_read = '1' where notification_id = #{notificationId}
+    </update>
+
+    <update id="markAllAsRead" parameterType="String">
+        update bbs_notification set is_read = '1' where user_id = #{userId} and is_read = '0'
+    </update>
+
+    <select id="countUnread" parameterType="String" resultType="int">
+        select count(*) from bbs_notification where
+         FIND_IN_SET(
+            user_id,
+            REPLACE(#{userId}, '|', ',')
+            ) and is_read = '0'
+    </select>
+    
+</mapper>

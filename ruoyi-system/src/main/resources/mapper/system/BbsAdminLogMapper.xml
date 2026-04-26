@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsAdminLogMapper">
+    
+    <resultMap type="BbsAdminLog" id="BbsAdminLogResult">
+        <result property="logId"    column="log_id"    />
+        <result property="adminId"    column="admin_id"    />
+        <result property="adminName"    column="admin_name"    />
+        <result property="operationType"    column="operation_type"    />
+        <result property="operationModule"    column="operation_module"    />
+        <result property="operationDesc"    column="operation_desc"    />
+        <result property="requestUrl"    column="request_url"    />
+        <result property="requestMethod"    column="request_method"    />
+        <result property="requestParams"    column="request_params"    />
+        <result property="responseResult"    column="response_result"    />
+        <result property="ipAddress"    column="ip_address"    />
+        <result property="userAgent"    column="user_agent"    />
+        <result property="executionTime"    column="execution_time"    />
+        <result property="status"    column="status"    />
+        <result property="errorMsg"    column="error_msg"    />
+        <result property="createdTime"    column="created_time"    />
+    </resultMap>
+
+    <sql id="selectBbsAdminLogVo">
+        select log_id, admin_id, admin_name, operation_type, operation_module, operation_desc, request_url, request_method, request_params, response_result, ip_address, user_agent, execution_time, status, error_msg, created_time from bbs_admin_log
+    </sql>
+
+    <select id="selectBbsAdminLogList" parameterType="BbsAdminLog" resultMap="BbsAdminLogResult">
+        <include refid="selectBbsAdminLogVo"/>
+        <where>  
+            <if test="adminId != null "> and admin_id = #{adminId}</if>
+            <if test="adminName != null  and adminName != ''"> and admin_name like concat('%', #{adminName}, '%')</if>
+            <if test="operationType != null  and operationType != ''"> and operation_type = #{operationType}</if>
+            <if test="operationModule != null  and operationModule != ''"> and operation_module = #{operationModule}</if>
+            <if test="operationDesc != null  and operationDesc != ''"> and operation_desc = #{operationDesc}</if>
+            <if test="requestUrl != null  and requestUrl != ''"> and request_url = #{requestUrl}</if>
+            <if test="requestMethod != null  and requestMethod != ''"> and request_method = #{requestMethod}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="keyword != null and keyword != ''">
+                and (
+                    operation_desc like concat('%', #{keyword}, '%')
+                    or request_url like concat('%', #{keyword}, '%')
+                    or admin_name like concat('%', #{keyword}, '%')
+                    or operation_module like concat('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="params != null and params.beginTime != null and params.beginTime != ''">
+                and created_time &gt;= #{params.beginTime}
+            </if>
+            <if test="params != null and params.endTime != null and params.endTime != ''">
+                and created_time &lt;= #{params.endTime}
+            </if>
+        </where>
+        order by created_time desc
+    </select>
+    
+    <select id="selectBbsAdminLogByLogId" parameterType="Long" resultMap="BbsAdminLogResult">
+        <include refid="selectBbsAdminLogVo"/>
+        where log_id = #{logId}
+    </select>
+        
+    <insert id="insertBbsAdminLog" parameterType="BbsAdminLog" useGeneratedKeys="true" keyProperty="logId">
+        insert into bbs_admin_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="adminId != null">admin_id,</if>
+            <if test="adminName != null and adminName != ''">admin_name,</if>
+            <if test="operationType != null and operationType != ''">operation_type,</if>
+            <if test="operationModule != null">operation_module,</if>
+            <if test="operationDesc != null and operationDesc != ''">operation_desc,</if>
+            <if test="requestUrl != null">request_url,</if>
+            <if test="requestMethod != null">request_method,</if>
+            <if test="requestParams != null">request_params,</if>
+            <if test="responseResult != null">response_result,</if>
+            <if test="ipAddress != null">ip_address,</if>
+            <if test="userAgent != null">user_agent,</if>
+            <if test="executionTime != null">execution_time,</if>
+            <if test="status != null">status,</if>
+            <if test="errorMsg != null">error_msg,</if>
+            <if test="createdTime != null">created_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="adminId != null">#{adminId},</if>
+            <if test="adminName != null and adminName != ''">#{adminName},</if>
+            <if test="operationType != null and operationType != ''">#{operationType},</if>
+            <if test="operationModule != null">#{operationModule},</if>
+            <if test="operationDesc != null and operationDesc != ''">#{operationDesc},</if>
+            <if test="requestUrl != null">#{requestUrl},</if>
+            <if test="requestMethod != null">#{requestMethod},</if>
+            <if test="requestParams != null">#{requestParams},</if>
+            <if test="responseResult != null">#{responseResult},</if>
+            <if test="ipAddress != null">#{ipAddress},</if>
+            <if test="userAgent != null">#{userAgent},</if>
+            <if test="executionTime != null">#{executionTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="errorMsg != null">#{errorMsg},</if>
+            <if test="createdTime != null">#{createdTime},</if>
+         </trim>
+    </insert>
+
+    <insert id="batchInsert">
+        insert into bbs_admin_log( log_id, admin_id, admin_name, operation_type, operation_module, operation_desc, request_url, request_method, request_params, response_result, ip_address, user_agent, execution_time, status, error_msg, created_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.logId}, #{item.adminId}, #{item.adminName}, #{item.operationType}, #{item.operationModule}, #{item.operationDesc}, #{item.requestUrl}, #{item.requestMethod}, #{item.requestParams}, #{item.responseResult}, #{item.ipAddress}, #{item.userAgent}, #{item.executionTime}, #{item.status}, #{item.errorMsg}, #{item.createdTime})
+        </foreach>
+    </insert>
+
+    <update id="updateBbsAdminLog" parameterType="BbsAdminLog">
+        update bbs_admin_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="adminId != null">admin_id = #{adminId},</if>
+            <if test="adminName != null and adminName != ''">admin_name = #{adminName},</if>
+            <if test="operationType != null and operationType != ''">operation_type = #{operationType},</if>
+            <if test="operationModule != null">operation_module = #{operationModule},</if>
+            <if test="operationDesc != null and operationDesc != ''">operation_desc = #{operationDesc},</if>
+            <if test="requestUrl != null">request_url = #{requestUrl},</if>
+            <if test="requestMethod != null">request_method = #{requestMethod},</if>
+            <if test="requestParams != null">request_params = #{requestParams},</if>
+            <if test="responseResult != null">response_result = #{responseResult},</if>
+            <if test="ipAddress != null">ip_address = #{ipAddress},</if>
+            <if test="userAgent != null">user_agent = #{userAgent},</if>
+            <if test="executionTime != null">execution_time = #{executionTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="errorMsg != null">error_msg = #{errorMsg},</if>
+            <if test="createdTime != null">created_time = #{createdTime},</if>
+        </trim>
+        where log_id = #{logId}
+    </update>
+
+    <delete id="deleteBbsAdminLogByLogId" parameterType="Long">
+        delete from bbs_admin_log where log_id = #{logId}
+    </delete>
+
+    <delete id="deleteBbsAdminLogByLogIds" parameterType="String">
+        delete from bbs_admin_log where log_id in 
+        <foreach item="logId" collection="array" open="(" separator="," close=")">
+            #{logId}
+        </foreach>
+    </delete>
+</mapper>

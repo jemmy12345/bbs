@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsCollectMapper">
+    
+    <resultMap type="BbsCollect" id="BbsCollectResult">
+        <result property="collectId"     column="collect_id"     />
+        <result property="postId"        column="post_id"        />
+        <result property="userId"        column="user_id"        />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+    
+    <select id="selectBbsCollect" parameterType="BbsCollect" resultMap="BbsCollectResult">
+        select collect_id, post_id, user_id, create_time
+        from bbs_collect
+        where post_id = #{postId} and user_id = #{userId}
+    </select>
+    
+    <insert id="insertBbsCollect" parameterType="BbsCollect">
+        insert into bbs_collect (post_id, user_id, create_time)
+        values (#{postId}, #{userId}, sysdate())
+    </insert>
+    
+    <delete id="deleteBbsCollect" parameterType="BbsCollect">
+        delete from bbs_collect 
+        where post_id = #{postId} and user_id = #{userId}
+    </delete>
+
+    <select id="selectCollectPostList" parameterType="String" resultMap="com.ruoyi.system.mapper.BbsPostMapper.BbsPostResult">
+        select p.post_id, p.category_id, p.user_id, p.title, cast(p.content as char) as content, p.summary,
+               p.view_count, p.like_count, p.comment_count, p.collect_count, p.is_top, p.is_essence,
+               p.is_anonymous, p.is_admin_push, p.status, p.del_flag, p.last_reply_time, p.last_reply_user, p.create_by, p.create_time,
+               p.update_by, p.update_time, p.remark,
+               c.category_name,
+               case when p.is_anonymous = '1' then '匿名用户' else u.nick_name end as nick_name,
+               case when p.is_anonymous = '1' then '' else u.avatar end as avatar
+        from bbs_post p
+        left join bbs_category c on p.category_id = c.category_id
+        left join sys_user u on p.user_id = u.user_id
+        inner join bbs_collect col on p.post_id = col.post_id
+        where col.user_id = #{userId} and p.del_flag = '0'
+        order by col.create_time desc
+    </select>
+
+    <select id="selectBbsCollectListByPostIds" resultMap="BbsCollectResult">
+        select collect_id, post_id, user_id, create_time
+        from bbs_collect
+        where post_id in
+        <foreach item="postId" collection="list" open="(" separator="," close=")">
+            #{postId}
+        </foreach>
+    </select>
+    
+</mapper>

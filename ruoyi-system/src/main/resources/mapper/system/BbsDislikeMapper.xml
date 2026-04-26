@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsDislikeMapper">
+
+    <resultMap type="BbsDislike" id="BbsDislikeResult">
+        <result property="dislikeId" column="dislike_id"/>
+        <result property="targetType" column="target_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="selectBbsDislikeVo">
+        select dislike_id, target_type, target_id, user_id, create_time
+        from bbs_dislike
+    </sql>
+
+    <select id="selectBbsDislikeList" parameterType="BbsDislike" resultMap="BbsDislikeResult">
+        <include refid="selectBbsDislikeVo"/>
+        <where>
+            <if test="targetType != null  and targetType != ''">and target_type = #{targetType}</if>
+            <if test="targetId != null ">and target_id = #{targetId}</if>
+            <if test="userId != null  and userId != ''">and user_id = #{userId}</if>
+        </where>
+    </select>
+
+    <select id="selectBbsDislikeByDislikeId" parameterType="Long" resultMap="BbsDislikeResult">
+        <include refid="selectBbsDislikeVo"/>
+        where dislike_id = #{dislikeId}
+    </select>
+
+    <insert id="insertBbsDislike" parameterType="BbsDislike" useGeneratedKeys="true" keyProperty="dislikeId">
+        insert into bbs_dislike
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="targetType != null and targetType != ''">target_type,</if>
+            <if test="targetId != null">target_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="targetType != null and targetType != ''">#{targetType},</if>
+            <if test="targetId != null">#{targetId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <insert id="batchInsert">
+        insert into bbs_dislike( dislike_id, target_type, target_id, user_id, create_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.dislikeId}, #{item.targetType}, #{item.targetId}, #{item.userId}, #{item.createTime})
+        </foreach>
+    </insert>
+
+    <update id="updateBbsDislike" parameterType="BbsDislike">
+        update bbs_dislike
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="targetType != null and targetType != ''">target_type = #{targetType},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where dislike_id = #{dislikeId}
+    </update>
+
+    <delete id="deleteBbsDislikeByDislikeId" parameterType="Long">
+        delete
+        from bbs_dislike
+        where dislike_id = #{dislikeId}
+    </delete>
+
+    <delete id="deleteBbsDislikeByDislikeIds" parameterType="String">
+        delete from bbs_dislike where dislike_id in
+        <foreach item="dislikeId" collection="array" open="(" separator="," close=")">
+            #{dislikeId}
+        </foreach>
+    </delete>
+
+    <select id="selectBbsDislikeListByTargetIds" resultMap="BbsDislikeResult">
+        select dislike_id, target_type, target_id, user_id, create_time
+        from bbs_dislike
+        where target_id in
+        <foreach item="targetId" collection="targetIds" open="(" separator="," close=")">
+            #{targetId}
+        </foreach>
+        and target_type = #{targetType}
+    </select>
+
+</mapper>

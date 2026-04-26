@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsLikeMapper">
+    
+    <resultMap type="BbsLike" id="BbsLikeResult">
+        <result property="likeId"        column="like_id"        />
+        <result property="targetType"     column="target_type"   />
+        <result property="targetId"       column="target_id"      />
+        <result property="userId"        column="user_id"        />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+    
+    <select id="selectBbsLike" parameterType="BbsLike" resultMap="BbsLikeResult">
+        select like_id, target_type, target_id, user_id, create_time
+        from bbs_like
+        where target_type = #{targetType} and target_id = #{targetId} and user_id = #{userId}
+    </select>
+    
+    <insert id="insertBbsLike" parameterType="BbsLike">
+        insert into bbs_like (target_type, target_id, user_id, create_time)
+        values (#{targetType}, #{targetId}, #{userId}, sysdate())
+    </insert>
+    
+    <delete id="deleteBbsLike" parameterType="BbsLike">
+        delete from bbs_like 
+        where target_type = #{targetType} and target_id = #{targetId} and user_id = #{userId}
+    </delete>
+
+    <select id="countBbsLike" resultType="int">
+        select count(*) from bbs_like 
+        where target_type = #{targetType} and target_id = #{targetId}
+    </select>
+
+    <select id="selectLikePostList" parameterType="String" resultMap="com.ruoyi.system.mapper.BbsPostMapper.BbsPostResult">
+        select p.post_id, p.category_id, p.user_id, p.title, cast(p.content as char) as content, p.summary,
+               p.view_count, p.like_count, p.comment_count, p.collect_count, p.is_top, p.is_essence,
+               p.is_anonymous, p.is_admin_push, p.status, p.del_flag, p.last_reply_time, p.last_reply_user, p.create_by, p.create_time,
+               p.update_by, p.update_time, p.remark,
+               c.category_name,
+               case when p.is_anonymous = '1' then '匿名用户' else u.nick_name end as nick_name,
+               case when p.is_anonymous = '1' then '' else u.avatar end as avatar
+        from bbs_post p
+        left join bbs_category c on p.category_id = c.category_id
+        left join sys_user u on p.user_id = u.user_id
+        inner join bbs_like l on p.post_id = l.target_id
+        where l.user_id = #{userId} and l.target_type = '1' and p.del_flag = '0'
+        order by l.create_time desc
+    </select>
+
+    <select id="countUserReceivedLikes" parameterType="String" resultType="int">
+        select count(*) from bbs_like l
+        left join bbs_post p on l.target_type = '1' and l.target_id = p.post_id
+        left join bbs_comment c on l.target_type = '2' and l.target_id = c.comment_id
+        where (p.user_id = #{userId} and p.del_flag = '0') or (c.user_id = #{userId} and c.del_flag = '0')
+    </select>
+
+    <select id="selectBbsLikeListByPostIds" resultMap="BbsLikeResult">
+        select like_id, target_type, target_id, user_id, create_time
+        from bbs_like
+        where target_id in
+        <foreach item="postId" collection="postIds" open="(" separator="," close=")">
+            #{postId}
+        </foreach>
+        and target_type = #{targetType}
+    </select>
+    
+</mapper>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsCommentMapper">
+    
+    <resultMap type="BbsComment" id="BbsCommentResult">
+        <result property="commentId"     column="comment_id"     />
+        <result property="postId"        column="post_id"        />
+        <result property="userId"        column="user_id"        />
+        <result property="parentId"      column="parent_id"      />
+        <result property="replyUserId"   column="reply_user_id"  />
+        <result property="content"       column="content"         />
+        <result property="images"        column="images"         />
+        <result property="isAnonymous"  column="is_anonymous"    />
+        <result property="likeCount"     column="like_count"      />
+        <result property="status"        column="status"         />
+        <result property="delFlag"      column="del_flag"        />
+        <result property="createBy"      column="create_by"       />
+        <result property="createTime"   column="create_time"     />
+        <result property="updateBy"      column="update_by"       />
+        <result property="updateTime"    column="update_time"     />
+        <result property="nickName"      column="nick_name"       />
+        <result property="avatar"        column="avatar"         />
+        <result property="replyNickName" column="reply_nick_name"/>
+        <result property="deptName"      column="dept_name"       />
+        <result property="isOfficialReply" column="is_official_reply" javaType="java.lang.Boolean" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <sql id="selectBbsCommentVo">
+        select c.comment_id, c.post_id, c.user_id, c.parent_id, c.reply_user_id, cast(c.content as char) as content,
+               c.images, c.is_anonymous, c.like_count, c.status, c.del_flag, c.create_time, c.update_by, c.update_time,
+               case when c.is_anonymous = '1' then '匿名用户' else c.nick_name end as nick_name,
+               case when c.is_anonymous = '1' then '' else c.avatar end as avatar,
+               case when c.is_anonymous = '1' then '' else p.nick_name end as reply_nick_name,
+               case when c.is_anonymous = '1' then '' else c.dept_name end as dept_name,
+               case when c.is_anonymous = '1' then 0 
+                    when p.response_dept_id is not null and dc.contact_user_id = c.user_id and dc.status = '0' then 1 
+                    else 0 end as is_official_reply
+        from bbs_comment c
+                 left join bbs_post p on c.post_id = p.post_id
+                 left join bbs_dept_contact dc on p.response_dept_id = dc.dept_id and dc.status = '0'
+    </sql>
+    
+    <select id="selectBbsCommentById" parameterType="Long" resultMap="BbsCommentResult">
+        <include refid="selectBbsCommentVo"/>
+        where c.comment_id = #{commentId} and c.del_flag = '0'
+    </select>
+
+    <select id="selectBbsCommentForAdminById" parameterType="Long" resultMap="BbsCommentResult">
+        <include refid="selectBbsCommentVo"/>
+        where c.comment_id = #{commentId}
+    </select>
+
+    <select id="selectBbsCommentByHashCode" parameterType="String" resultMap="BbsCommentResult">
+        <include refid="selectBbsCommentVo"/>
+        where c.user_id = #{hashCode} and c.del_flag = '0' order by c.update_time desc
+    </select>
+    
+    <select id="selectBbsCommentList" parameterType="BbsComment" resultMap="BbsCommentResult">
+        <include refid="selectBbsCommentVo"/>
+        <where>
+            c.del_flag = '0'
+            <if test="postId != null">
+                AND c.post_id = #{postId}
+            </if>
+            <if test="userId != null">
+                AND c.user_id = #{userId}
+            </if>
+            <if test="parentId != null">
+                AND c.parent_id = #{parentId}
+            </if>
+        </where>
+        order by c.create_time asc
+    </select>
+    
+    <insert id="insertBbsComment" parameterType="BbsComment" useGeneratedKeys="true" keyProperty="commentId">
+        insert into bbs_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="postId != null">post_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="replyUserId != null">reply_user_id,</if>
+            <if test="content != null">content,</if>
+            <if test="images != null">images,</if>
+            <if test="isAnonymous != null">is_anonymous,</if>
+            <if test="likeCount != null">like_count,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="nickName != null">nick_name,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="postId != null">#{postId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="replyUserId != null">#{replyUserId},</if>
+            <if test="content != null">#{content},</if>
+            <if test="images != null">#{images},</if>
+            <if test="isAnonymous != null">#{isAnonymous},</if>
+            <if test="likeCount != null">#{likeCount},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="nickName != null">#{nickName},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        </trim>
+    </insert>
+     
+    <update id="updateBbsComment" parameterType="BbsComment">
+        update bbs_comment
+        <set>
+            <if test="content != null">content = #{content},</if>
+            <if test="images != null">images = #{images},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where comment_id = #{commentId}
+    </update>
+    
+    <delete id="deleteBbsCommentById" parameterType="Long">
+        update bbs_comment set del_flag = '2' where comment_id = #{commentId}
+    </delete>
+    
+    <delete id="deleteBbsCommentByIds" parameterType="Long">
+        update bbs_comment set del_flag = '2' where comment_id in 
+        <foreach item="commentId" collection="array" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteBbsCommentByParentCommentIds" parameterType="Long">
+        update bbs_comment set del_flag = '2' where parent_id in
+        <foreach item="commentId" collection="array" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+    </delete>
+
+    <update id="incrementLikeCount" parameterType="Long">
+        update bbs_comment set like_count = like_count + 1 where comment_id = #{commentId}
+    </update>
+
+    <update id="decrementLikeCount" parameterType="Long">
+        update bbs_comment set like_count = like_count - 1 where comment_id = #{commentId}
+    </update>
+
+    <select id="countUserReceivedComments" parameterType="String" resultType="int">
+        select count(c.comment_id)
+        from bbs_comment c
+        left join bbs_post p on c.post_id = p.post_id
+        where p.user_id = #{userId} and c.del_flag = '0'
+    </select>
+    <select id="selectBbsPostCommentList" resultType="com.ruoyi.system.domain.vo.CommentManageVo">
+        SELECT
+        post.post_id as postId,
+        post.title,
+        `comment`.comment_id as commentId,
+        `comment`.user_id as commentUserId,
+        `comment`.nick_name as commentNickName,
+        `comment`.content as commentContent,
+        `comment`.status as commentStatus,
+        `comment`.del_flag as commentDelFlag,
+        `comment`.create_time as createTime
+        FROM bbs_comment `comment`
+        LEFT JOIN bbs_post post ON post.post_id = `comment`.post_id
+        WHERE post.del_flag='0' AND `comment`.comment_id IS NOT NULL
+        <if test="title != null and title !=''">
+            AND post.content like concat('%', #{title}, '%')
+        </if>
+        <if test="commentContent != null and commentContent !=''">
+            AND `comment`.content like concat('%', #{commentContent}, '%')
+        </if>
+        ORDER BY `comment`.create_time DESC
+    </select>
+
+    <select id="selectBbsCommentListByPostIds" resultMap="BbsCommentResult">
+        <include refid="selectBbsCommentVo"/>
+        where c.post_id in
+        <foreach item="postId" collection="list" open="(" separator="," close=")">
+            #{postId}
+        </foreach>
+        and c.del_flag = '0'
+    </select>
+</mapper>

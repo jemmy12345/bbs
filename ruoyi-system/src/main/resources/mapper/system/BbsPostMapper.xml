@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsPostMapper">
+    
+    <resultMap type="BbsPost" id="BbsPostResult">
+        <result property="postId"         column="post_id"         />
+        <result property="categoryId"     column="category_id"     />
+        <result property="userId"         column="user_id"         />
+        <result property="title"          column="title"           />
+        <result property="content"        column="content"         />
+        <result property="summary"        column="summary"         />
+        <result property="viewCount"      column="view_count"      />
+        <result property="likeCount"      column="like_count"      />
+        <result property="commentCount"   column="comment_count"   />
+        <result property="collectCount"   column="collect_count"  />
+        <result property="isTop"          column="is_top"          />
+        <result property="isEssence"      column="is_essence"      />
+        <result property="isAnonymous"   column="is_anonymous"    />
+        <result property="isAdminPush"   column="is_admin_push"   />
+        <result property="postType"      column="post_type"       />
+        <result property="responseDeptId" column="response_dept_id"/>
+        <result property="responseDeptName" column="response_dept_name"/>
+        <result property="status"         column="status"          />
+        <result property="auditReason"    column="audit_reason"    />
+        <result property="delFlag"        column="del_flag"        />
+        <result property="lastReplyTime"  column="last_reply_time"/>
+        <result property="lastReplyUser"  column="last_reply_user"/>
+        <result property="createBy"       column="create_by"       />
+        <result property="createTime"     column="create_time"     />
+        <result property="updateBy"       column="update_by"       />
+        <result property="updateTime"     column="update_time"     />
+        <result property="remark"         column="remark"         />
+        <result property="categoryName"   column="category_name"   />
+        <result property="nickName"       column="nick_name"       />
+        <result property="avatar"         column="avatar"         />
+    </resultMap>
+    
+    <sql id="selectBbsPostVo">
+        select p.post_id, p.category_id, p.user_id, p.title, cast(p.content as char) as content, p.summary, 
+               p.view_count, p.like_count, p.comment_count, p.collect_count, p.is_top, p.is_essence, p.is_anonymous, p.is_admin_push,
+               p.post_type, p.response_dept_id, p.status, p.audit_reason, p.del_flag, p.last_reply_time,p.create_time,p.create_by,
+               p.update_by, p.update_time, p.remark,
+               c.category_name, 
+               coalesce(p.response_dept_name, d.dept_name) as response_dept_name,
+               case when p.is_anonymous = '1' then '匿名用户' else p.nick_name end as nick_name,
+               case when p.is_anonymous = '1' then '' else p.avatar end as avatar
+        from bbs_post p
+        left join bbs_category c on p.category_id = c.category_id
+        left join sys_dept d on p.response_dept_id = d.dept_id and d.del_flag = '0'
+    </sql>
+    
+    <select id="selectBbsPostListByHashCode" parameterType="String" resultMap="BbsPostResult">
+        <include refid="selectBbsPostVo"/>
+        where p.user_id = #{hashCode} and p.del_flag = '0' order by p.create_time desc
+    </select>
+
+    <select id="selectBbsPostById" parameterType="Long" resultMap="BbsPostResult">
+        <include refid="selectBbsPostVo"/>
+        where p.post_id = #{postId} and p.del_flag = '0'
+    </select>
+
+
+    <select id="selectBbsPostList" parameterType="BbsPost" resultMap="BbsPostResult">
+        <include refid="selectBbsPostVo"/>
+        <where>
+            p.del_flag = '0'
+            <if test="title != null and title != ''">
+                AND p.title like concat('%', #{title}, '%')
+            </if>
+            <if test="categoryId != null">
+                AND p.category_id = #{categoryId}
+            </if>
+            <if test="userId != null">
+                AND p.user_id = #{userId}
+            </if>
+            <if test="status != null and status != ''">
+                <choose>
+                    <when test='status == "4"'>
+                        <!-- 如果status是'4'，只查询草稿 -->
+                        AND p.status = '4'
+                    </when>
+                    <otherwise>
+                        <!-- 如果status不是'4'，查询指定状态且排除草稿 -->
+                        AND p.status = #{status} AND p.status != '4'
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="status == null or status == ''">
+                <!-- 如果status参数为空，排除草稿状态（status != '4'） -->
+                AND p.status != '4'
+            </if>
+            <if test="isTop != null and isTop != ''">
+                AND p.is_top = #{isTop}
+            </if>
+            <if test="isEssence != null and isEssence != ''">
+                AND p.is_essence = #{isEssence}
+            </if>
+            <if test="sortType == 'hot'">
+                order by p.is_top desc, p.view_count desc, p.like_count desc, p.comment_count desc
+            </if>
+            <if test="sortType == 'latest'">
+                order by p.is_top desc, p.create_time desc
+            </if>
+            <if test="sortType == null or sortType == ''">
+                order by p.is_top desc, p.create_time desc
+            </if>
+        </where>
+    </select>
+    
+    <insert id="insertBbsPost" parameterType="BbsPost" useGeneratedKeys="true" keyProperty="postId">
+        insert into bbs_post
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="content != null">content,</if>
+            <if test="summary != null">summary,</if>
+            <if test="viewCount != null">view_count,</if>
+            <if test="likeCount != null">like_count,</if>
+            <if test="commentCount != null">comment_count,</if>
+            <if test="collectCount != null">collect_count,</if>
+            <if test="isTop != null">is_top,</if>
+            <if test="isEssence != null">is_essence,</if>
+            <if test="isAnonymous != null">is_anonymous,</if>
+            <if test="isAdminPush != null">is_admin_push,</if>
+            <if test="postType != null">post_type,</if>
+            <if test="responseDeptId != null">response_dept_id,</if>
+            <if test="responseDeptName != null and responseDeptName != ''">response_dept_name,</if>
+            <if test="status != null">status,</if>
+            <if test="auditReason != null">audit_reason,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="remark != null">remark,</if>
+            <if test="nickName != null">nick_name,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="summary != null">#{summary},</if>
+            <if test="viewCount != null">#{viewCount},</if>
+            <if test="likeCount != null">#{likeCount},</if>
+            <if test="commentCount != null">#{commentCount},</if>
+            <if test="collectCount != null">#{collectCount},</if>
+            <if test="isTop != null">#{isTop},</if>
+            <if test="isEssence != null">#{isEssence},</if>
+            <if test="isAnonymous != null">#{isAnonymous},</if>
+            <if test="isAdminPush != null">#{isAdminPush},</if>
+            <if test="postType != null">#{postType},</if>
+            <if test="responseDeptId != null">#{responseDeptId},</if>
+            <if test="responseDeptName != null and responseDeptName != ''">#{responseDeptName},</if>
+            <if test="status != null">#{status},</if>
+            <if test="auditReason != null">#{auditReason},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="nickName != null">#{nickName},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        </trim>
+    </insert>
+     
+    <update id="updateBbsPost" parameterType="BbsPost">
+        update bbs_post
+        <set>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+            <if test="isEssence != null">is_essence = #{isEssence},</if>
+            <if test="isAnonymous != null">is_anonymous = #{isAnonymous},</if>
+            <if test="isAdminPush != null">is_admin_push = #{isAdminPush},</if>
+            <if test="postType != null">post_type = #{postType},</if>
+            <if test="responseDeptId != null">response_dept_id = #{responseDeptId},</if>
+            <if test="responseDeptName != null">response_dept_name = #{responseDeptName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="auditReason != null">audit_reason = #{auditReason},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where post_id = #{postId}
+    </update>
+    
+    <delete id="deleteBbsPostById" parameterType="Long">
+        update bbs_post set status = '1', del_flag = '2', update_time = sysdate() where post_id = #{postId} and del_flag = '0'
+    </delete>
+    
+    <delete id="deleteBbsPostByIds" parameterType="Long">
+        update bbs_post set status = '1', del_flag = '2', update_time = sysdate() where post_id in
+        <foreach item="postId" collection="array" open="(" separator="," close=")">
+            #{postId}
+        </foreach>
+        and del_flag = '0'
+    </delete>
+    
+    <!-- 真正删除草稿（设置del_flag='2'） -->
+    <update id="realDeleteBbsPostByIds" parameterType="Long">
+        update bbs_post set del_flag = '2', update_time = sysdate() where post_id in 
+        <foreach item="postId" collection="array" open="(" separator="," close=")">
+            #{postId}
+        </foreach>
+        and del_flag = '0'
+    </update>
+
+    <update id="incrementViewCount" parameterType="Long">
+        update bbs_post set view_count = view_count + 1 where post_id = #{postId}
+    </update>
+
+    <update id="incrementLikeCount" parameterType="Long">
+        update bbs_post set like_count = like_count + 1 where post_id = #{postId}
+    </update>
+
+    <update id="decrementLikeCount" parameterType="Long">
+        update bbs_post set like_count = like_count - 1 where post_id = #{postId}
+    </update>
+
+    <update id="incrementCommentCount" parameterType="Long">
+        update bbs_post set comment_count = comment_count + 1, last_reply_time = sysdate() where post_id = #{postId}
+    </update>
+
+    <update id="decrementCommentCount" parameterType="Long">
+        update bbs_post set comment_count = comment_count - 1 where post_id = #{postId}
+    </update>
+
+    <update id="incrementCollectCount" parameterType="Long">
+        update bbs_post set collect_count = collect_count + 1 where post_id = #{postId}
+    </update>
+
+    <update id="decrementCollectCount" parameterType="Long">
+        update bbs_post set collect_count = collect_count - 1 where post_id = #{postId}
+    </update>
+
+    <update id="updateLastReply" parameterType="BbsPost">
+        update bbs_post set last_reply_time = sysdate(), last_reply_user = #{lastReplyUser} where post_id = #{postId}
+    </update>
+
+    <select id="selectHotPostList" parameterType="Integer" resultMap="BbsPostResult">
+        <include refid="selectBbsPostVo"/>
+        where p.del_flag = '0' and p.status = '0'
+        order by (p.view_count + p.like_count * 2 + p.comment_count) desc, p.create_time desc
+        limit #{limit}
+    </select>
+
+    <select id="selectUserPostList" parameterType="String" resultMap="BbsPostResult">
+        <include refid="selectBbsPostVo"/>
+        where p.user_id = #{userId} and p.del_flag = '0' and p.status != '4'
+        order by p.create_time desc
+    </select>
+
+    <select id="countUserPosts" parameterType="String" resultType="int">
+        select count(*) from bbs_post where user_id = #{userId} and del_flag = '0' and status != '4'
+    </select>
+    
+</mapper>

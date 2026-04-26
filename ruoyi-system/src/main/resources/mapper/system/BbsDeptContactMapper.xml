@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsDeptContactMapper">
+    
+    <resultMap type="BbsDeptContact" id="BbsDeptContactResult">
+        <result property="contactId"      column="contact_id"      />
+        <result property="deptId"        column="dept_id"        />
+        <result property="deptName"       column="dept_name"      />
+        <result property="contactName"    column="contact_name"   />
+        <result property="contactUserId"  column="contact_user_id"/>
+        <result property="status"         column="status"         />
+        <result property="createBy"      column="create_by"      />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"      column="update_by"      />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"        column="remark"         />
+    </resultMap>
+    
+    <sql id="selectBbsDeptContactVo">
+        select contact_id, dept_id, dept_name, contact_name, contact_user_id, status, create_by, create_time, update_by, update_time, remark 
+        from bbs_dept_contact
+    </sql>
+    
+    <select id="selectBbsDeptContactById" parameterType="Long" resultMap="BbsDeptContactResult">
+        <include refid="selectBbsDeptContactVo"/>
+        where contact_id = #{contactId}
+    </select>
+    
+    <select id="selectBbsDeptContactByDeptId" parameterType="Long" resultMap="BbsDeptContactResult">
+        <include refid="selectBbsDeptContactVo"/>
+        where dept_id = #{deptId} and status = '0'
+    </select>
+    
+    <select id="selectBbsDeptContactList" parameterType="BbsDeptContact" resultMap="BbsDeptContactResult">
+        <include refid="selectBbsDeptContactVo"/>
+        <where>
+            <if test="deptId != null">
+                AND dept_id = #{deptId}
+            </if>
+            <if test="deptName != null and deptName != ''">
+                AND dept_name like concat('%', #{deptName}, '%')
+            </if>
+            <if test="contactName != null and contactName != ''">
+                AND contact_name like concat('%', #{contactName}, '%')
+            </if>
+            <if test="contactUserId != null and contactUserId != ''">
+                AND contact_user_id = #{contactUserId}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <insert id="insertBbsDeptContact" parameterType="BbsDeptContact" useGeneratedKeys="true" keyProperty="contactId">
+        insert into bbs_dept_contact
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">dept_id,</if>
+            <if test="deptName != null and deptName != ''">dept_name,</if>
+            <if test="contactName != null and contactName != ''">contact_name,</if>
+            <if test="contactUserId != null and contactUserId != ''">contact_user_id,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">#{deptId},</if>
+            <if test="deptName != null and deptName != ''">#{deptName},</if>
+            <if test="contactName != null and contactName != ''">#{contactName},</if>
+            <if test="contactUserId != null and contactUserId != ''">#{contactUserId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        </trim>
+    </insert>
+     
+    <update id="updateBbsDeptContact" parameterType="BbsDeptContact">
+        update bbs_dept_contact
+        <set>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="deptName != null and deptName != ''">dept_name = #{deptName},</if>
+            <if test="contactName != null and contactName != ''">contact_name = #{contactName},</if>
+            <if test="contactUserId != null and contactUserId != ''">contact_user_id = #{contactUserId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where contact_id = #{contactId}
+    </update>
+    
+    <delete id="deleteBbsDeptContactById" parameterType="Long">
+        delete from bbs_dept_contact where contact_id = #{contactId}
+    </delete>
+    
+    <delete id="deleteBbsDeptContactByIds" parameterType="Long">
+        delete from bbs_dept_contact where contact_id in 
+        <foreach item="contactId" collection="array" open="(" separator="," close=")">
+            #{contactId}
+        </foreach>
+    </delete>
+    
+</mapper>
