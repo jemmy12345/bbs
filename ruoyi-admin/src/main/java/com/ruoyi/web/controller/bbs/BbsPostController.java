@@ -23,6 +23,7 @@ import com.ruoyi.system.service.IBbsPostFollowupRecordService;
 import com.ruoyi.system.service.IBbsPointService;
 import com.ruoyi.system.service.IBbsSensitiveWordService;
 import com.ruoyi.system.service.IBbsDeptContactService;
+import com.ruoyi.system.service.IBbsTagFollowService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.domain.SysConfig;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -105,6 +106,9 @@ public class BbsPostController extends BaseController
 
     @Autowired
     private IBbsPointService bbsPointService;
+
+    @Autowired
+    private IBbsTagFollowService bbsTagFollowService;
 
     /**
      * 获取运营看板统计数据
@@ -459,10 +463,47 @@ public class BbsPostController extends BaseController
                 String remindUserid = adminConfig.replaceAll(",", "|");
                 sendWeChatMessageToAdmin(bbsPost, remindUserid);
             }
+            // 通知订阅了本帖标签的用户
+            if (bbsPost.getTags() != null && !bbsPost.getTags().isEmpty() && !"1".equals(bbsPost.getIsAnonymous()))
+            {
+                notifyTagFollowers(bbsPost);
+            }
             returnStr = "发布成功";
             return success(returnStr);
         }else{
             return error("发布失败");
+        }
+    }
+
+    private void notifyTagFollowers(BbsPost bbsPost)
+    {
+        try
+        {
+            for (BbsTag tag : bbsPost.getTags())
+            {
+                if (tag.getTagId() == null) continue;
+                List<String> followers = bbsTagFollowService.getFollowerUserIds(tag.getTagId());
+                for (String followerId : followers)
+                {
+                    // 不通知帖子作者自己
+                    if (followerId.equals(bbsPost.getUserId())) continue;
+                    BbsNotification notification = new BbsNotification();
+                    notification.setUserId(followerId);
+                    notification.setType("5");
+                    notification.setTitle("订阅的标签有新帖");
+                    notification.setContent("你订阅的标签 #" + tag.getTagName() + " 有新帖子：《" + bbsPost.getTitle() + "》");
+                    notification.setTargetType("1");
+                    notification.setTargetId(bbsPost.getPostId());
+                    notification.setFromUserId(bbsPost.getUserId());
+                    notification.setFromNickName(bbsPost.getNickName());
+                    notification.setFromAvatar(bbsPost.getAvatar());
+                    bbsNotificationService.insertBbsNotification(notification);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("标签订阅通知发送失败", e);
         }
     }
 

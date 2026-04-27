@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsCheckinMapper">
+
+    <resultMap id="BbsCheckinResult" type="com.ruoyi.system.domain.BbsCheckin">
+        <id     property="checkinId"   column="checkin_id"/>
+        <result property="userId"      column="user_id"/>
+        <result property="checkinDate" column="checkin_date"/>
+        <result property="streak"      column="streak"/>
+        <result property="pointsEarned" column="points_earned"/>
+        <result property="createTime"  column="create_time"/>
+    </resultMap>
+
+    <select id="selectByUserAndDate" resultMap="BbsCheckinResult">
+        SELECT checkin_id, user_id, checkin_date, streak, points_earned, create_time
+        FROM bbs_checkin
+        WHERE user_id = #{userId}
+          AND checkin_date = #{date}
+        LIMIT 1
+    </select>
+
+    <select id="selectLatestByUser" resultMap="BbsCheckinResult">
+        SELECT checkin_id, user_id, checkin_date, streak, points_earned, create_time
+        FROM bbs_checkin
+        WHERE user_id = #{userId}
+        ORDER BY checkin_date DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.system.domain.BbsCheckin"
+            useGeneratedKeys="true" keyProperty="checkinId">
+        INSERT INTO bbs_checkin (user_id, checkin_date, streak, points_earned, create_time)
+        VALUES (#{userId}, #{checkinDate}, #{streak}, #{pointsEarned}, now())
+    </insert>
+
+</mapper>

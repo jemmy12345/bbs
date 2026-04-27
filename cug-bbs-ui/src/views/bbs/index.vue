@@ -32,6 +32,34 @@
       </el-radio-group>
     </div>
 
+    <!-- 每日签到卡片 -->
+    <div class="checkin-bar">
+      <div class="checkin-info">
+        <span class="checkin-flame">🗓️</span>
+        <span class="checkin-text" v-if="checkinInfo.checked">
+          今日已签到 · 连续 <b>{{ checkinInfo.streak }}</b> 天
+          <el-tag size="mini" type="success" style="margin-left:6px;">+{{ checkinInfo.pointsEarned }} 积分</el-tag>
+        </span>
+        <span class="checkin-text" v-else>
+          今日还未签到
+          <template v-if="checkinInfo.streak > 0">
+            · 已连续 <b>{{ checkinInfo.streak }}</b> 天
+          </template>
+        </span>
+      </div>
+      <el-button
+        class="checkin-btn"
+        :type="checkinInfo.checked ? 'info' : 'primary'"
+        :plain="checkinInfo.checked"
+        size="small"
+        :disabled="checkinInfo.checked"
+        :loading="checkinLoading"
+        @click="handleCheckin"
+      >
+        {{ checkinInfo.checked ? '已签到' : '立即签到' }}
+      </el-button>
+    </div>
+
     <div v-if="hotPostList.length || radarTopics.length || pointRankList.length" class="forum-intelligence">
       <!-- 全站热议榜 -->
       <div class="intelligence-card hot-card">
@@ -86,6 +114,9 @@
                 {{ (item.nickName || '用').slice(0, 1) }}
               </el-avatar>
               <span class="point-rank-name">{{ item.nickName || '未知用户' }}</span>
+              <span class="level-badge" :style="{ background: getUserLevel(item.points).color }">
+                {{ getUserLevel(item.points).icon }} {{ getUserLevel(item.points).name }}
+              </span>
             </div>
             <span class="point-rank-score">{{ item.points || 0 }} 分</span>
           </div>
@@ -447,7 +478,7 @@
 </template>
 
 <script>
-import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts, getHotTags, getPointRank } from "@/api/bbs/post";
+import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts, getHotTags, getPointRank, getTodayCheckin, doCheckin, getMyFollowedTagIds } from "@/api/bbs/post";
 import { listCategory } from "@/api/bbs/category";
 import { checkSensitiveWords } from "@/api/bbs/sensitive";
 import { listDeptForPost, listDept } from "@/api/system/dept";
@@ -507,6 +538,11 @@ export default {
       hotPostList: [],
       pointRankList: [],
       tagOptions: [],
+      // 每日签到
+      checkinInfo: { checked: false, streak: 0, pointsEarned: 0 },
+      checkinLoading: false,
+      // 标签订阅
+      followedTagIds: [],
     };
   },
   computed: {
@@ -663,6 +699,8 @@ export default {
     this.getHotPostList();
     this.getPointRankList();
     this.getTagOptions();
+    this.loadCheckinStatus();
+    this.loadFollowedTags();
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
 
@@ -833,6 +871,43 @@ export default {
         .catch(() => {
           this.pointRankList = [];
         });
+    },
+    // 每日签到
+    loadCheckinStatus() {
+      getTodayCheckin()
+        .then((res) => {
+          this.checkinInfo = res.data || { checked: false, streak: 0, pointsEarned: 0 };
+        })
+        .catch(() => {});
+    },
+    handleCheckin() {
+      if (this.checkinInfo.checked || this.checkinLoading) return;
+      this.checkinLoading = true;
+      doCheckin()
+        .then((res) => {
+          const data = res.data || {};
+          this.checkinInfo = {
+            checked: true,
+            streak: data.streak || 0,
+            pointsEarned: data.pointsEarned || 0,
+          };
+          this.$message.success(`签到成功！连续签到 ${data.streak} 天，获得 ${data.pointsEarned} 积分 🎉`);
+          this.getPointRankList();
+        })
+        .catch(() => {
+          this.$message.error('签到失败，请稍后重试');
+        })
+        .finally(() => {
+          this.checkinLoading = false;
+        });
+    },
+    // 标签订阅
+    loadFollowedTags() {
+      getMyFollowedTagIds()
+        .then((res) => {
+          this.followedTagIds = res.data || [];
+        })
+        .catch(() => {});
     },
     getTagOptions() {
       getHotTags(50)
@@ -1181,6 +1256,14 @@ export default {
       const topBonus = post.isTop === "1" ? 20 : 0;
       return viewCount + likeCount * 5 + commentCount * 8 + topBonus;
     },
+    getUserLevel(points) {
+      const p = points || 0;
+      if (p >= 1000) return { level: 5, name: '传说', color: '#9b59b6', icon: '👑' };
+      if (p >= 500)  return { level: 4, name: '达人',  color: '#e67e22', icon: '🔥' };
+      if (p >= 200)  return { level: 3, name: '资深',  color: '#2980b9', icon: '💎' };
+      if (p >= 50)   return { level: 2, name: '活跃',  color: '#27ae60', icon: '⭐' };
+      return           { level: 1, name: '新人',  color: '#95a5a6', icon: '🌱' };
+    },
     extractTopicKeywords(posts) {
       const stopWords = [
         "大家",
@@ -1521,6 +1604,47 @@ export default {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 1px solid #eee;
+}
+
+.checkin-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  background: linear-gradient(90deg, #f0f7ff 0%, #fff8f0 100%);
+  border: 1px solid #e8f4fd;
+  border-radius: 10px;
+}
+
+.checkin-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.checkin-flame {
+  font-size: 18px;
+}
+
+.checkin-text b {
+  color: #e67e22;
+}
+
+.checkin-btn {
+  flex-shrink: 0;
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: #fff;
+  font-weight: 600;
+  margin-left: 4px;
 }
 
 .point-rank-board {

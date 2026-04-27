@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsTagFollowMapper">
+
+    <select id="countByUserAndTag" resultType="int">
+        SELECT COUNT(1) FROM bbs_tag_follow
+        WHERE user_id = #{userId} AND tag_id = #{tagId}
+    </select>
+
+    <insert id="insert">
+        INSERT IGNORE INTO bbs_tag_follow (user_id, tag_id, create_time)
+        VALUES (#{userId}, #{tagId}, now())
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM bbs_tag_follow WHERE user_id = #{userId} AND tag_id = #{tagId}
+    </delete>
+
+    <select id="selectTagIdsByUser" resultType="java.lang.Long">
+        SELECT tag_id FROM bbs_tag_follow WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectUserIdsByTag" resultType="java.lang.String">
+        SELECT user_id FROM bbs_tag_follow WHERE tag_id = #{tagId}
+    </select>
+
+</mapper>

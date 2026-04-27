@@ -14,16 +14,33 @@
         >
           全部专题
         </el-tag>
-        <el-tag
+
+        <span
           v-for="tag in hotTags"
           :key="tag.tagId || tag.tagName"
-          :type="activeTag === tag.tagName ? 'primary' : 'info'"
-          effect="plain"
-          @click="handleTagChange(tag.tagName)"
+          class="tag-follow-item"
         >
-          #{{ tag.tagName }}
-        </el-tag>
+          <el-tag
+            :type="activeTag === tag.tagName ? 'primary' : 'info'"
+            effect="plain"
+            @click="handleTagChange(tag.tagName)"
+          >
+            #{{ tag.tagName }}
+          </el-tag>
+          <span
+            v-if="tag.tagId"
+            class="tag-follow-icon"
+            :title="followedTagIds.includes(tag.tagId) ? '取消订阅' : '订阅此标签'"
+            @click.stop="handleToggleFollow(tag)"
+          >
+            <i
+              :class="followedTagIds.includes(tag.tagId) ? 'el-icon-star-on' : 'el-icon-star-off'"
+              :style="{ color: followedTagIds.includes(tag.tagId) ? '#e6a23c' : '#c0c4cc' }"
+            ></i>
+          </span>
+        </span>
       </div>
+
       <el-input
         v-model="searchKeyword"
         placeholder="搜索专题内帖子标题"
@@ -90,7 +107,7 @@
 </template>
 
 <script>
-import { listPost, getHotTags } from '@/api/bbs/post'
+import { listPost, getHotTags, toggleTagFollow, getMyFollowedTagIds } from '@/api/bbs/post'
 
 export default {
   name: 'BbsTopic',
@@ -102,6 +119,7 @@ export default {
       total: 0,
       activeTag: '',
       searchKeyword: '',
+      followedTagIds: [],
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -115,6 +133,7 @@ export default {
     this.queryParams.title = this.searchKeyword || null
     this.getHotTags()
     this.getList()
+    this.loadFollowedTags()
   },
   watch: {
     $route(to) {
@@ -182,6 +201,30 @@ export default {
         },
       })
     },
+    loadFollowedTags() {
+      getMyFollowedTagIds()
+        .then((res) => {
+          this.followedTagIds = res.data || []
+        })
+        .catch(() => {})
+    },
+    handleToggleFollow(tag) {
+      if (!tag.tagId) return
+      toggleTagFollow(tag.tagId)
+        .then((res) => {
+          const following = res.data && res.data.following
+          if (following) {
+            if (!this.followedTagIds.includes(tag.tagId)) {
+              this.followedTagIds.push(tag.tagId)
+            }
+            this.$message.success(`已订阅标签 #${tag.tagName}，有新帖将收到通知`)
+          } else {
+            this.followedTagIds = this.followedTagIds.filter((id) => id !== tag.tagId)
+            this.$message.info(`已取消订阅 #${tag.tagName}`)
+          }
+        })
+        .catch(() => this.$message.error('操作失败'))
+    },
   },
 }
 </script>
@@ -219,6 +262,23 @@ export default {
 
 .tag-list .el-tag {
   cursor: pointer;
+}
+
+.tag-follow-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tag-follow-icon {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 2px;
+  transition: color 0.2s;
+}
+
+.tag-follow-icon:hover i {
+  color: #e6a23c !important;
 }
 
 .search-input {

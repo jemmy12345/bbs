@@ -209,3 +209,30 @@ export function getPointRank(limit = 5) {
     params: { limit }
   })
 }
+
+// ======= 每日签到 =======
+// 查询今日签到状态
+export function getTodayCheckin() {
+  return request({ url: '/bbs/checkin/today', method: 'get' })
+}
+
+// 执行签到
+export function doCheckin() {
+  return request({ url: '/bbs/checkin', method: 'post' })
+}
+
+// ======= 标签订阅 =======
+// 切换标签订阅
+export function toggleTagFollow(tagId) {
+  return request({ url: '/bbs/tag/follow/' + tagId, method: 'post' })
+}
+
+// 查询标签订阅状态
+export function getTagFollowStatus(tagId) {
+  return request({ url: '/bbs/tag/follow/status/' + tagId, method: 'get' })
+}
+
+// 我的订阅标签ID列表
+export function getMyFollowedTagIds() {
+  return request({ url: '/bbs/tag/follow/my', method: 'get' })
+}
