@@ -104,3 +104,12 @@ gen:
   tablePrefix: sys_
   # 是否允许生成文件覆盖到本地（自定义路径），默认不允许
   allowOverwrite: false
+
+# AI（豆包）配置
+ai:
+  doubao:
+    enabled: false
+    apiUrl: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+    apiKey:
+    model:
+    timeoutMillis: 20000

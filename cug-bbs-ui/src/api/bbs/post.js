@@ -149,3 +149,21 @@ export function delByPersonal(postId) {
     method: 'delete'
   })
 }
+
+// AI助写帖子内容
+export function generatePostByAi(data) {
+  return request({
+    url: '/bbs/post/ai/generate',
+    method: 'post',
+    data: data
+  })
+}
+
+// 更新建议/意见类帖子的闭环状态
+export function updatePostFollowup(data) {
+  return request({
+    url: '/bbs/post/followup',
+    method: 'post',
+    data: data
+  })
+}

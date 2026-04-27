@@ -132,7 +132,54 @@ public class SecurityUtils
      */
     public static boolean isAdmin(String userId)
     {
-        return userId != null;
+        return "1".equals(userId) || "admin".equalsIgnoreCase(userId);
+    }
+
+    /**
+     * 判断用户是否命中配置化管理员名单（sys.account.admin）
+     *
+     * @param adminConfig 逗号分隔的管理员账号配置
+     * @param user 用户信息
+     * @return 结果
+     */
+    public static boolean isConfigAdmin(String adminConfig, com.ruoyi.common.core.domain.entity.SysUser user)
+    {
+        if (user == null)
+        {
+            return false;
+        }
+        return isConfigAdmin(adminConfig, user.getUserId(), user.getUserName());
+    }
+
+    /**
+     * 判断用户是否命中配置化管理员名单（sys.account.admin）
+     *
+     * @param adminConfig 逗号分隔的管理员账号配置
+     * @param userId 用户ID
+     * @param userName 登录名
+     * @return 结果
+     */
+    public static boolean isConfigAdmin(String adminConfig, String userId, String userName)
+    {
+        if (!StringUtils.hasText(adminConfig))
+        {
+            return false;
+        }
+        String trimmedUserId = StringUtils.trim(userId);
+        String trimmedUserName = StringUtils.trim(userName);
+        for (String token : adminConfig.split(","))
+        {
+            String admin = StringUtils.trim(token);
+            if (!StringUtils.hasText(admin))
+            {
+                continue;
+            }
+            if (StringUtils.equals(admin, trimmedUserId) || StringUtils.equals(admin, trimmedUserName))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

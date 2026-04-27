@@ -147,10 +147,11 @@ public class BbsSensitiveWordController extends BaseController
     public AjaxResult checkSensitiveWords(@RequestBody JSONObject text)
     {
         List<String> sensitiveWords = bbsSensitiveWordService.checkSensitiveWords(text.getString("text"));
-        if (sensitiveWords != null && !sensitiveWords.isEmpty())
-        {
-            return error("内容包含敏感词：" + String.join("、", sensitiveWords));
-        }
-        return success("内容检测通过");
+        AjaxResult ajax = AjaxResult.success();
+        boolean hit = sensitiveWords != null && !sensitiveWords.isEmpty();
+        ajax.put("hit", hit);
+        ajax.put("words", sensitiveWords);
+        ajax.put("message", hit ? "内容包含敏感词：" + String.join("、", sensitiveWords) : "内容检测通过");
+        return ajax;
     }
 }

@@ -188,7 +188,7 @@ public class BbsPostServiceImpl implements IBbsPostService
             }
             
             // 如果审核开关开启，且当前状态未设置，则设置为待审核
-            if (Convert.toBool(auditEnabled) && (bbsPost.getStatus() == null || "0".equals(bbsPost.getStatus())))
+            if (Convert.toBool(auditEnabled) && bbsPost.getStatus() == null)
             {
                 bbsPost.setStatus("2"); // 待审核
             }

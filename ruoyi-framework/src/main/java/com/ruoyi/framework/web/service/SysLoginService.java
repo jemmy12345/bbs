@@ -77,34 +77,44 @@ public class SysLoginService
      * @param password 密码
      * @param code 验证码
      * @param uuid 唯一标识
+     * @param loginType 登录类型（password/sso）
      * @return 结果
      */
-    public String login(String username, String password, String code, String uuid)
+    public String login(String username, String password, String code, String uuid, String loginType)
     {
-        // 验证码校验
-//        validateCaptcha(username, code, uuid);
+        boolean ssoMode = "sso".equalsIgnoreCase(loginType);
+
+        // SSO 模式可不传密码；账号密码模式必须校验密码
+        if (!ssoMode && StringUtils.isEmpty(password))
+        {
+            throw new ServiceException("密码不能为空");
+        }
+
+        // 验证码仅在账号密码模式启用
+        if (!ssoMode)
+        {
+            validateCaptcha(username, code, uuid);
+        }
+
         // 登录前置校验
-//        loginPreCheck(username, password);
+        loginPreCheck(username, password);
+
         // 用户验证
         Authentication authentication = null;
         try
         {
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(username, "");
+                    new UsernamePasswordAuthenticationToken(username, ssoMode ? "" : password);
             AuthenticationContextHolder.setContext(authenticationToken);
             // 调用UserDetailsServiceImpl.loadUserByUsername加载用户信息
             authentication = authenticationManager.authenticate(authenticationToken);
-//            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-//            AuthenticationContextHolder.setContext(authenticationToken);
-//            // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
-//            authentication = authenticationManager.authenticate(authenticationToken);
         }
         catch (Exception e)
         {
             if (e instanceof BadCredentialsException)
             {
                 AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match")));
-//                throw new UserPasswordNotMatchException();
+                throw new ServiceException(MessageUtils.message("user.password.not.match"));
             }
             else
             {
@@ -116,7 +126,8 @@ public class SysLoginService
         {
             AuthenticationContextHolder.clearContext();
         }
-        AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
+        String successMsg = ssoMode ? "企业微信单点登录成功" : MessageUtils.message("user.login.success");
+        AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, successMsg));
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         //放匿名追踪
 //        recordLoginInfo(loginUser.getUserId());
@@ -251,6 +262,12 @@ public class SysLoginService
 //            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match")));
 //            throw new UserPasswordNotMatchException();
 //        }
+        if (StringUtils.isEmpty(username))
+        {
+            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("not.null")));
+            throw new UserNotExistsException();
+        }
+
         // 用户名不在指定范围内 错误
         if (username.length() < UserConstants.USERNAME_MIN_LENGTH
                 || username.length() > UserConstants.USERNAME_MAX_LENGTH)

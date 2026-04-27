@@ -98,6 +98,49 @@
                 </div>
               </div>
             </div>
+            <div v-if="showFollowupSystemNotice" class="followup-status-card">
+              <div class="followup-status-header">
+                <div>
+                  <div class="followup-status-title">建议闭环状态</div>
+                  <div class="followup-status-desc">
+                    面向建议/意见类帖子，用于展示部门受理和处理进度。
+                  </div>
+                </div>
+                <el-tag :type="followupMeta.tagType" size="small">
+                  {{ followupMeta.label }}
+                </el-tag>
+              </div>
+              <div v-if="followupMeta.note" class="followup-note">
+                {{ followupMeta.note }}
+              </div>
+              <div v-if="canManageFollowup" class="followup-form">
+                <el-select
+                  v-model="followupForm.followupStatus"
+                  size="small"
+                  style="width: 180px"
+                >
+                  <el-option label="已受理" value="accepted" />
+                  <el-option label="处理中" value="processing" />
+                  <el-option label="已反馈" value="feedback" />
+                  <el-option label="已解决" value="resolved" />
+                </el-select>
+                <el-input
+                  v-model="followupForm.followupNote"
+                  size="small"
+                  maxlength="120"
+                  show-word-limit
+                  placeholder="可填写处理说明、结论或下一步安排"
+                />
+                <el-button
+                  type="primary"
+                  size="small"
+                  :loading="followupSubmitting"
+                  @click="handleFollowupUpdate"
+                >
+                  更新状态
+                </el-button>
+              </div>
+            </div>
             <div class="post-actions">
               <el-button
                 :type="post.isLiked ? 'primary' : ''"
@@ -457,7 +500,7 @@
 </template>
 
 <script>
-import { getPost, toggleLike, toggleCollect } from "@/api/bbs/post";
+import { getPost, toggleLike, toggleCollect, updatePostFollowup } from "@/api/bbs/post";
 import {
   listComment,
   addComment,
@@ -515,6 +558,11 @@ export default {
       pendingAnonymousSubmit: null,
       pendingAnonymousPayload: null,
       currentAnonymousUserHash: "",
+      followupSubmitting: false,
+      followupForm: {
+        followupStatus: "accepted",
+        followupNote: "",
+      },
     };
   },
   created() {
@@ -568,7 +616,7 @@ export default {
     window.removeEventListener("resize", this.checkMobile);
   },
   computed: {
-    ...mapGetters(["id"]),
+    ...mapGetters(["id", "roles", "permissions"]),
     showFollowupSystemNotice() {
       return (
         this.post &&
@@ -576,6 +624,14 @@ export default {
           this.post.postType === "opinion") &&
         !!this.post.responseDeptId
       );
+    },
+    isCurrentUserAdmin() {
+      const permissions = this.permissions || [];
+      const roles = this.roles || [];
+      return permissions.includes("*:*:*") || roles.includes("admin");
+    },
+    canManageFollowup() {
+      return this.showFollowupSystemNotice && (this.isDeptContact || this.isCurrentUserAdmin);
     },
     followupSystemNoticeText() {
       if (!this.showFollowupSystemNotice) return "";
@@ -587,6 +643,9 @@ export default {
         return this.$t("bbs.followupNoticeWithDept", { deptName });
       }
       return this.$t("bbs.followupNoticeWithoutDept");
+    },
+    followupMeta() {
+      return this.parseFollowupMeta(this.post ? this.post.auditReason : "");
     },
   },
   methods: {
@@ -696,6 +755,7 @@ export default {
       const postId = this.$route.params.postId;
       getPost(postId).then((response) => {
         this.post = response.data;
+        this.syncFollowupForm();
         this.loading = false;
 
         // 判断当前用户是否是部门接口人
@@ -729,6 +789,59 @@ export default {
         this.isDeptContact = false;
         this.disableAnonymous = false;
       }
+    },
+    parseFollowupMeta(auditReason) {
+      const defaultMeta = {
+        code: "accepted",
+        label: "待受理",
+        note: "部门接口人或管理员可在这里维护处理进展。",
+        tagType: "info",
+      };
+      const text = String(auditReason || "");
+      if (!text.startsWith("[FOLLOWUP]")) {
+        return defaultMeta;
+      }
+      const payload = text.substring("[FOLLOWUP]".length);
+      const separatorIndex = payload.indexOf("|");
+      const code = separatorIndex >= 0 ? payload.substring(0, separatorIndex) : payload;
+      const note = separatorIndex >= 0 ? payload.substring(separatorIndex + 1) : "";
+      const metaMap = {
+        accepted: { label: "已受理", tagType: "info" },
+        processing: { label: "处理中", tagType: "warning" },
+        feedback: { label: "已反馈", tagType: "success" },
+        resolved: { label: "已解决", tagType: "success" },
+      };
+      const target = metaMap[code] || metaMap.accepted;
+      return {
+        code,
+        label: target.label,
+        note: note || defaultMeta.note,
+        tagType: target.tagType,
+      };
+    },
+    syncFollowupForm() {
+      const meta = this.parseFollowupMeta(this.post ? this.post.auditReason : "");
+      this.followupForm.followupStatus = meta.code || "accepted";
+      this.followupForm.followupNote =
+        meta.note === "部门接口人或管理员可在这里维护处理进展。" ? "" : meta.note;
+    },
+    handleFollowupUpdate() {
+      if (!this.post || !this.post.postId) {
+        return;
+      }
+      this.followupSubmitting = true;
+      updatePostFollowup({
+        postId: String(this.post.postId),
+        followupStatus: this.followupForm.followupStatus,
+        followupNote: this.followupForm.followupNote,
+      })
+        .then((response) => {
+          this.$modal.msgSuccess(response.msg || "闭环状态已更新");
+          this.getPostDetail();
+        })
+        .finally(() => {
+          this.followupSubmitting = false;
+        });
     },
     getCommentList() {
       const postId = this.$route.params.postId;
@@ -787,6 +900,19 @@ export default {
 
         checkSensitiveWords({ text: contentText })
           .then((response) => {
+            const hit = !!response.hit;
+            const words = response.words || [];
+            if (hit) {
+              const message = words.length
+                ? `检测到敏感词：${words.join("、")}。请修改后再提交。`
+                : "内容命中敏感词，请修改后再提交。";
+              this.$alert(message, "风险提示", {
+                type: "warning",
+                confirmButtonText: "我知道了",
+              });
+              loading.close();
+              return;
+            }
             loading.close();
             // 如果检测通过，继续提交
             this.doSubmitComment();
@@ -889,6 +1015,19 @@ export default {
 
         checkSensitiveWords({ text: contentText })
           .then((response) => {
+            const hit = !!response.hit;
+            const words = response.words || [];
+            if (hit) {
+              const message = words.length
+                ? `检测到敏感词：${words.join("、")}。请修改后再提交。`
+                : "内容命中敏感词，请修改后再提交。";
+              this.$alert(message, "风险提示", {
+                type: "warning",
+                confirmButtonText: "我知道了",
+              });
+              loading.close();
+              return;
+            }
             loading.close();
             this.doSubmitReply(comment);
           })
@@ -1038,6 +1177,13 @@ export default {
 @media screen and (max-width: 768px) {
   .bbs-post-detail {
     padding: 10px;
+  }
+
+  .followup-status-header,
+  .followup-form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .post-detail {
@@ -1212,6 +1358,43 @@ export default {
   font-size: 13px;
   line-height: 1.6;
   color: #606266;
+}
+
+.followup-status-card {
+  margin-bottom: 18px;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e4e7ed;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.followup-status-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.followup-status-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.followup-status-desc,
+.followup-note {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #606266;
+}
+
+.followup-form {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  gap: 10px;
+  align-items: center;
 }
 
 // 使用深度选择器确保样式能应用到 v-html 渲染的内容

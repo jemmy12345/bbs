@@ -32,6 +32,60 @@
       </el-radio-group>
     </div>
 
+    <div
+      v-if="dashboardStats.length || hotPostList.length || radarTopics.length"
+      class="forum-intelligence"
+    >
+      <div class="intelligence-card metrics-card">
+        <div class="intelligence-title">论坛运营看板</div>
+        <div class="metric-grid">
+          <div
+            v-for="item in dashboardStats"
+            :key="item.label"
+            class="metric-item"
+          >
+            <div class="metric-value">{{ item.value }}</div>
+            <div class="metric-label">{{ item.label }}</div>
+            <div class="metric-tip">{{ item.tip }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="intelligence-card hot-card">
+        <div class="intelligence-title">全站热议榜</div>
+        <div v-if="hotPostList.length" class="hot-list">
+          <div
+            v-for="(post, index) in hotPostList"
+            :key="post.postId"
+            class="hot-item"
+            @click="handlePostClick(post.postId)"
+          >
+            <span class="hot-rank">{{ index + 1 }}</span>
+            <div class="hot-body">
+              <div class="hot-title">{{ truncateTitle(post.title) }}</div>
+              <div class="hot-meta">{{ getHotReason(post) }}</div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="intelligence-empty">暂无热议帖子</div>
+      </div>
+      <div class="intelligence-card radar-card">
+        <div class="intelligence-title">话题雷达</div>
+        <div v-if="radarTopics.length" class="topic-chip-list">
+          <button
+            v-for="topic in radarTopics"
+            :key="topic.word"
+            type="button"
+            class="topic-chip"
+            @click="applyTopicToAi(topic)"
+          >
+            <span>{{ topic.word }}</span>
+            <span class="topic-count">{{ topic.count }}</span>
+          </button>
+        </div>
+        <div class="radar-tip">点击热词可直接填入 AI 助写关键词。</div>
+      </div>
+    </div>
+
     <!-- 帖子列表 -->
     <div class="post-list" v-loading="loading">
       <div
@@ -218,6 +272,92 @@
             show-word-limit
           />
         </el-form-item>
+        <el-form-item label="AI助写">
+          <div class="ai-assist-row">
+            <el-input
+              v-model="aiKeywords"
+              placeholder="请输入关键词，例如：食堂改进建议、流程优化、技术分享"
+              clearable
+            />
+            <el-button type="success" :loading="aiGenerating" @click="handleAiGenerate">AI生成内容</el-button>
+          </div>
+          <div style="font-size: 12px; color: #999; margin-top: 6px;">AI生成后你仍可继续编辑优化。</div>
+        </el-form-item>
+        <el-form-item label="灵感胶囊">
+          <div class="inspiration-panel">
+            <div class="assist-section">
+              <div class="assist-section-title">热点关键词</div>
+              <div class="capsule-list">
+                <button
+                  v-for="topic in inspirationTopics"
+                  :key="topic.word"
+                  type="button"
+                  class="capsule-button"
+                  @click="applyTopicToAi(topic)"
+                >
+                  {{ topic.word }}
+                </button>
+              </div>
+            </div>
+            <div class="assist-section">
+              <div class="assist-section-title">结构模板</div>
+              <div class="capsule-list">
+                <button
+                  v-for="template in templateOptions"
+                  :key="template.type"
+                  type="button"
+                  class="capsule-button capsule-button-ghost"
+                  @click="insertTemplate(template.type)"
+                >
+                  {{ template.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </el-form-item>
+        <el-form-item label="发布质量">
+          <div class="quality-panel">
+            <div class="quality-score-panel">
+              <el-progress
+                type="dashboard"
+                :percentage="publishAdvisor.score"
+                :color="publishAdvisor.color"
+                :width="isMobile ? 110 : 128"
+              />
+              <div class="quality-level">{{ publishAdvisor.level }}</div>
+              <div class="quality-meta">
+                预计阅读 {{ publishAdvisor.minutes }} 分钟 · 正文 {{ publishAdvisor.contentLength }} 字
+              </div>
+            </div>
+            <div class="quality-detail-panel">
+              <div class="quality-block">
+                <div class="quality-block-title">当前亮点</div>
+                <div class="quality-tag-list">
+                  <el-tag
+                    v-for="item in publishAdvisor.highlights"
+                    :key="item"
+                    size="mini"
+                    type="success"
+                  >
+                    {{ item }}
+                  </el-tag>
+                </div>
+              </div>
+              <div class="quality-block">
+                <div class="quality-block-title">建议补强</div>
+                <div class="quality-suggestion-list">
+                  <div
+                    v-for="item in publishAdvisor.tips"
+                    :key="item"
+                    class="quality-suggestion-item"
+                  >
+                    {{ item }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </el-form-item>
         <el-form-item :label="$t('bbs.postContent')" prop="content">
           <editor
             v-model="form.content"
@@ -268,11 +408,10 @@
 </template>
 
 <script>
-import { listPost, addPost, getPost, updatePost } from "@/api/bbs/post";
+import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts } from "@/api/bbs/post";
 import { listCategory } from "@/api/bbs/category";
 import { checkSensitiveWords } from "@/api/bbs/sensitive";
 import { listDeptForPost, listDept } from "@/api/system/dept";
-import { getToken } from "@/utils/auth";
 import { mapGetters } from "vuex";
 import {
   setAnonymousKey,
@@ -323,12 +462,17 @@ export default {
       keyDialogVisible: false,
       keyNotFoundHint: false,
       pendingPostData: null,
+      aiKeywords: "",
+      aiGenerating: false,
+      hotPostList: [],
     };
   },
   computed: {
-    ...mapGetters(["id", "permissions"]),
+    ...mapGetters(["id", "permissions", "roles"]),
     isCurrentUserAdmin() {
-      return this.permissions && this.permissions.length > 0;;
+      const permissions = this.permissions || [];
+      const roles = this.roles || [];
+      return permissions.includes("*:*:*") || roles.includes("admin");
     },
     currentCategoryName() {
       if (!this.activeCategory) return "";
@@ -336,6 +480,129 @@ export default {
         (c) => c.categoryId === this.activeCategory
       );
       return category ? category.categoryName : "";
+    },
+    dashboardStats() {
+      const posts = this.postList || [];
+      const unansweredCount = posts.filter(
+        (item) => Number(item.commentCount || 0) === 0
+      ).length;
+      const highHeatCount = posts.filter(
+        (item) => this.calculateHotScore(item) >= 80
+      ).length;
+      const anonymousRatio = posts.length
+        ? `${Math.round(
+            (posts.filter((item) => item.isAnonymous === "1").length * 100) /
+              posts.length
+          )}%`
+        : "0%";
+      return [
+        { label: "当前筛选帖子", value: this.total || 0, tip: "用于观察当前分类活跃度" },
+        { label: "当前页待回应", value: unansweredCount, tip: "评论数为 0 的帖子建议优先跟进" },
+        { label: "当前页高热度", value: highHeatCount, tip: "热度分 >= 80，适合置顶或运营扩散" },
+        { label: "匿名占比", value: anonymousRatio, tip: "反映员工表达安全感与真实议题浓度" },
+      ];
+    },
+    radarTopics() {
+      return this.extractTopicKeywords([
+        ...(this.hotPostList || []),
+        ...(this.postList || []),
+      ]).slice(0, 8);
+    },
+    inspirationTopics() {
+      return this.radarTopics.slice(0, 5);
+    },
+    templateOptions() {
+      return [
+        { type: "share", label: "经验分享模板" },
+        { type: "suggestion", label: "建议闭环模板" },
+        { type: "opinion", label: "观点讨论模板" },
+      ];
+    },
+    publishAdvisor() {
+      const titleText = this.extractPlainText(this.form.title);
+      const contentText = this.extractPlainText(this.form.content);
+      const contentLength = contentText.length;
+      const suggestions = [];
+      const highlights = [];
+      let score = 0;
+
+      if (titleText.length >= 8 && titleText.length <= 40) {
+        score += 25;
+        highlights.push("标题长度合适");
+      } else {
+        suggestions.push("标题建议控制在 8 到 40 个字，便于阅读与检索。");
+      }
+
+      if (this.form.postType) {
+        score += 15;
+        highlights.push("帖子类型已明确");
+      } else {
+        suggestions.push("先选择帖子类型，系统才能给出更准确的治理与协同建议。");
+      }
+
+      if (contentLength >= 200) {
+        score += 35;
+        highlights.push("正文信息量充足");
+      } else if (contentLength >= 80) {
+        score += 25;
+        highlights.push("正文已具备基本表达");
+      } else if (contentLength >= 30) {
+        score += 15;
+      } else {
+        suggestions.push("正文偏短，建议补充背景、现状、问题和期望结果。");
+      }
+
+      if (
+        this.form.postType === "share" ||
+        ((this.form.postType === "suggestion" || this.form.postType === "opinion") &&
+          this.form.responseDeptId)
+      ) {
+        score += 15;
+        highlights.push("协同对象已明确");
+      } else if (
+        this.form.postType === "suggestion" ||
+        this.form.postType === "opinion"
+      ) {
+        suggestions.push("建议/意见类帖子最好指定回应部门，便于闭环处理。");
+      }
+
+      if (/(问题|建议|方案|收益|背景|现状|一、|二、|1\.|2\.)/.test(contentText)) {
+        score += 10;
+        highlights.push("正文结构清晰");
+      } else {
+        suggestions.push("可以按“背景 - 问题 - 建议 - 预期收益”结构组织内容。");
+      }
+
+      const safeScore = Math.min(100, score);
+      let level = "待完善";
+      let color = "#f56c6c";
+      if (safeScore >= 85) {
+        level = "可直接发布";
+        color = "#67c23a";
+      } else if (safeScore >= 65) {
+        level = "质量较好";
+        color = "#409eff";
+      } else if (safeScore >= 45) {
+        level = "建议优化";
+        color = "#e6a23c";
+      }
+
+      if (!highlights.length) {
+        highlights.push("已开启 AI 助写，可先生成初稿再细化。");
+      }
+      if (!suggestions.length) {
+        suggestions.push("内容已较完整，建议再检查措辞是否具体、可执行。");
+      }
+
+      return {
+        score: safeScore,
+        level,
+        color,
+        minutes: Math.max(1, Math.ceil(Math.max(contentLength, 1) / 260)),
+        contentLength,
+        highlights,
+        tips: suggestions,
+      };
     },
     rules() {
       const rules = {
@@ -372,6 +639,7 @@ export default {
   created() {
     this.getCategoryList();
     this.getDeptList();
+    this.getHotPostList();
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
 
@@ -523,6 +791,15 @@ export default {
         })
         .catch(() => {
           this.loading = false;
+        });
+    },
+    getHotPostList() {
+      getHotPosts(5)
+        .then((response) => {
+          this.hotPostList = response.data || [];
+        })
+        .catch(() => {
+          this.hotPostList = [];
         });
     },
     handlePagination(pagination) {
@@ -740,6 +1017,19 @@ export default {
 
           checkSensitiveWords({ text: checkText })
             .then((response) => {
+              const hit = !!response.hit;
+              const words = response.words || [];
+              if (hit) {
+                const message = words.length
+                  ? `检测到敏感词：${words.join("、")}。请修改后再发布。`
+                  : "内容命中敏感词，请修改后再发布。";
+                this.$alert(message, "风险提示", {
+                  type: "warning",
+                  confirmButtonText: "我知道了",
+                });
+                loading.close();
+                return;
+              }
               loading.close();
               // 如果检测通过，继续提交
               const summary = this.form.content
@@ -786,6 +1076,7 @@ export default {
           this.dialogVisible = false;
           this.resetForm();
           this.getList();
+          this.getHotPostList();
           this.getCategoryList();
           this.$root.$emit("bbs:post-published", this.form.categoryId);
         })
@@ -798,6 +1089,149 @@ export default {
             this.$modal.msgError(this.$t("bbs.publishFailed"));
           }
         });
+    },
+    handleAiGenerate() {
+      if (!this.aiKeywords || !this.aiKeywords.trim()) {
+        this.$modal.msgWarning("请先输入关键词");
+        return;
+      }
+      this.aiGenerating = true;
+      generatePostByAi({
+        keywords: this.aiKeywords.trim(),
+        postType: this.form.postType,
+      })
+        .then((response) => {
+          const generatedText = typeof response.data === "string" ? response.data : "";
+          if (!generatedText) {
+            this.$modal.msgWarning("AI未返回可用内容，请稍后重试");
+            return;
+          }
+          const htmlText = generatedText
+            .replace(/\n\n/g, "<br/><br/>")
+            .replace(/\n/g, "<br/>");
+          this.form.content = this.form.content
+            ? `${this.form.content}<p><br/></p><p>${htmlText}</p>`
+            : `<p>${htmlText}</p>`;
+          this.$modal.msgSuccess("AI助写内容已生成，可继续编辑后发布");
+        })
+        .finally(() => {
+          this.aiGenerating = false;
+        });
+    },
+    extractPlainText(content) {
+      return String(content || "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    },
+    calculateHotScore(post) {
+      const viewCount = Number(post.viewCount || 0);
+      const likeCount = Number(post.likeCount || 0);
+      const commentCount = Number(post.commentCount || 0);
+      const topBonus = post.isTop === "1" ? 20 : 0;
+      return viewCount + likeCount * 5 + commentCount * 8 + topBonus;
+    },
+    extractTopicKeywords(posts) {
+      const stopWords = [
+        "大家",
+        "我们",
+        "这个",
+        "那个",
+        "关于",
+        "建议",
+        "意见",
+        "分享",
+        "讨论",
+        "论坛",
+        "内容",
+        "帖子",
+        "工作",
+        "进行",
+        "可以",
+        "需要",
+        "以及",
+        "the",
+        "with",
+        "from",
+      ];
+      const keywordMap = {};
+      (posts || []).forEach((post) => {
+        const sourceText = this.extractPlainText(
+          `${post.title || ""} ${post.summary || ""}`
+        );
+        const words = sourceText.match(/[\u4e00-\u9fa5]{2,6}|[A-Za-z]{4,}/g) || [];
+        words.forEach((word) => {
+          const normalized = word.toLowerCase();
+          if (stopWords.includes(normalized) || stopWords.includes(word)) {
+            return;
+          }
+          keywordMap[word] = (keywordMap[word] || 0) + 1;
+        });
+        if (post.postType) {
+          const postTypeLabel = this.getPostTypeName(post.postType);
+          if (postTypeLabel) {
+            keywordMap[postTypeLabel] = (keywordMap[postTypeLabel] || 0) + 1;
+          }
+        }
+      });
+      return Object.keys(keywordMap)
+        .map((word) => ({ word, count: keywordMap[word] }))
+        .sort((left, right) => right.count - left.count)
+        .slice(0, 12);
+    },
+    getHotReason(post) {
+      const hotScore = this.calculateHotScore(post);
+      const commentCount = Number(post.commentCount || 0);
+      const likeCount = Number(post.likeCount || 0);
+      if (commentCount > 0) {
+        return `${commentCount} 条讨论 · 热度 ${hotScore}`;
+      }
+      if (likeCount > 0) {
+        return `${likeCount} 次点赞 · 热度 ${hotScore}`;
+      }
+      return `${post.viewCount || 0} 次浏览 · 热度 ${hotScore}`;
+    },
+    applyTopicToAi(topic) {
+      this.aiKeywords = topic.word;
+      this.$modal.msgSuccess(`已将“${topic.word}”填入 AI 助写关键词`);
+    },
+    insertTemplate(templateType) {
+      const templateMap = {
+        share: {
+          title: "经验分享：",
+          keywords: "经验复盘、最佳实践、避坑总结",
+          content:
+            "<p><strong>背景</strong></p><p>本次分享适用于哪些场景？先交代清楚问题背景。</p><p><strong>实践过程</strong></p><p>拆分为 2 到 3 个关键动作，说明怎么做、为什么这么做。</p><p><strong>结果与建议</strong></p><p>总结收益、踩坑点，以及可复用的建议。</p>",
+        },
+        suggestion: {
+          title: "优化建议：",
+          keywords: "流程优化、效率提升、员工体验",
+          content:
+            "<p><strong>现状描述</strong></p><p>当前流程或场景中遇到了什么具体问题？</p><p><strong>影响分析</strong></p><p>问题对效率、体验或协同造成了哪些影响？</p><p><strong>建议方案</strong></p><p>建议的调整动作、执行方式和优先级。</p><p><strong>预期收益</strong></p><p>如果落地，预计会带来哪些改善？</p>",
+        },
+        opinion: {
+          title: "观点讨论：",
+          keywords: "制度优化、组织协同、管理改进",
+          content:
+            "<p><strong>观点结论</strong></p><p>先用 1 到 2 句话明确你的核心观点。</p><p><strong>支撑依据</strong></p><p>结合事实、案例或数据说明原因。</p><p><strong>开放问题</strong></p><p>列出希望大家一起讨论或决策的问题点。</p>",
+        },
+      };
+      const template = templateMap[templateType];
+      if (!template) {
+        return;
+      }
+      this.form.postType = templateType;
+      if (!this.form.title) {
+        this.form.title = template.title;
+      }
+      if (!this.aiKeywords) {
+        this.aiKeywords = template.keywords;
+      }
+      this.form.content = this.extractPlainText(this.form.content)
+        ? `${this.form.content}<p><br/></p>${template.content}`
+        : template.content;
+      this.$modal.msgSuccess("已插入结构模板，可继续编辑或结合 AI 扩写。");
     },
     /** 匿名秘钥对话框确认：保存秘钥并提交待发帖子 */
     onAnonymousKeyConfirm(key, rememberInBrowser) {
@@ -886,6 +1320,7 @@ export default {
         responseDeptId: null,
         responseDeptName: null,
       };
+      this.aiKeywords = "";
       // 重置表单验证
       if (this.$refs.form) {
         this.$refs.form.clearValidate();
@@ -938,6 +1373,74 @@ export default {
   box-sizing: border-box;
 }
 
+.ai-assist-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.inspiration-panel,
+.quality-panel {
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fafcff;
+}
+
+.assist-section + .assist-section,
+.quality-block + .quality-block {
+  margin-top: 12px;
+}
+
+.assist-section-title,
+.quality-block-title,
+.quality-level {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 8px;
+}
+
+.quality-panel {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.quality-score-panel {
+  min-width: 160px;
+  text-align: center;
+}
+
+.quality-detail-panel {
+  flex: 1;
+}
+
+.quality-suggestion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quality-suggestion-item {
+  position: relative;
+  padding-left: 14px;
+  font-size: 13px;
+  color: #606266;
+  line-height: 1.6;
+}
+
+.quality-suggestion-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #409eff;
+}
+
 .category-header {
   margin-bottom: 20px;
   padding-bottom: 15px;
@@ -964,6 +1467,138 @@ export default {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 1px solid #eee;
+}
+
+.forum-intelligence {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.intelligence-card {
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  padding: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 8px 24px rgba(31, 45, 61, 0.06);
+}
+
+.intelligence-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 14px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid #f0f3f7;
+}
+
+.metric-value {
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.metric-label {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #606266;
+}
+
+.metric-tip,
+.radar-tip,
+.quality-meta,
+.hot-meta,
+.intelligence-empty {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #909399;
+}
+
+.hot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hot-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.hot-rank {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f56c6c;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.hot-body {
+  min-width: 0;
+}
+
+.hot-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  line-height: 1.5;
+}
+
+.topic-chip-list,
+.capsule-list,
+.quality-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topic-chip,
+.capsule-button {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #eef5ff;
+  color: #2f5bea;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.capsule-button-ghost {
+  background: #fff7ed;
+  color: #d97706;
+}
+
+.topic-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(47, 91, 234, 0.12);
+  font-size: 12px;
+  line-height: 18px;
 }
 
 .post-list {
@@ -1064,6 +1699,28 @@ export default {
 }
 /* 移动端适配 */
 @media screen and (max-width: 768px) {
+  .forum-intelligence {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .quality-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quality-score-panel {
+    min-width: 0;
+  }
+
+  .ai-assist-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .editor {
     min-height: 450px;
   }

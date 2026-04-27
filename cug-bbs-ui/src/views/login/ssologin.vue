@@ -33,6 +33,7 @@ export default {
     return {
       loginParams: {
         username: "",
+        loginType: "sso",
       },
       redirect: undefined,
       agentid: process.env.NODE_ENV === "production" ? '1000063' :'1000165',

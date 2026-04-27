@@ -11,6 +11,10 @@ import com.ruoyi.common.core.wx.WeChatApi;
 import com.ruoyi.common.utils.http.HttpUtils;
 import com.ruoyi.system.domain.BbsPost;
 import com.ruoyi.system.domain.BbsDeptContact;
+import com.ruoyi.system.domain.BbsNotification;
+import com.ruoyi.system.domain.ai.BbsAiModerationResult;
+import com.ruoyi.system.service.IBbsAiService;
+import com.ruoyi.system.service.IBbsNotificationService;
 import com.ruoyi.system.service.IBbsPostService;
 import com.ruoyi.system.service.IBbsSensitiveWordService;
 import com.ruoyi.system.service.IBbsDeptContactService;
@@ -57,6 +61,7 @@ import org.slf4j.LoggerFactory;
 public class BbsPostController extends BaseController
 {
     private static final Logger log = LoggerFactory.getLogger(BbsPostController.class);
+    private static final String FOLLOWUP_PREFIX = "[FOLLOWUP]";
 
     @Value("${msg.url}")
     private String redirectUrl;
@@ -80,6 +85,12 @@ public class BbsPostController extends BaseController
 
     @Autowired
     private ISysConfigService sysConfigService;
+
+    @Autowired
+    private IBbsAiService bbsAiService;
+
+    @Autowired
+    private IBbsNotificationService bbsNotificationService;
 
     /**
      * 查询帖子列表
@@ -160,6 +171,71 @@ public class BbsPostController extends BaseController
     }
 
     /**
+     * 更新建议/意见类帖子的闭环状态
+     */
+    @ApiOperation("更新建议/意见类帖子的闭环状态")
+    @PostMapping("/followup")
+    public AjaxResult updateFollowup(@RequestBody Map<String, String> params)
+    {
+        String postIdText = params.get("postId");
+        String followupStatus = params.get("followupStatus");
+        String followupNote = params.get("followupNote");
+
+        if (StringUtils.isEmpty(postIdText))
+        {
+            return error("帖子编号不能为空");
+        }
+        if (!isValidFollowupStatus(followupStatus))
+        {
+            return error("闭环状态不合法");
+        }
+
+        Long postId = Convert.toLong(postIdText);
+        if (postId == null || postId <= 0)
+        {
+            return error("帖子编号不合法");
+        }
+
+        BbsPost post = bbsPostService.selectBbsPostById(postId);
+        if (post == null)
+        {
+            return error("帖子不存在");
+        }
+        if (!isSuggestionFollowupPost(post))
+        {
+            return error("仅建议/意见类帖子支持闭环状态");
+        }
+        if (!"0".equals(post.getStatus()))
+        {
+            return error("仅已发布帖子可更新闭环状态");
+        }
+        if (!canManageFollowup(post))
+        {
+            return error("无权限更新闭环状态");
+        }
+
+        post.setAuditReason(buildFollowupAuditReason(followupStatus, followupNote));
+        return toAjax(bbsPostService.updateBbsPost(post));
+    }
+
+    /**
+     * AI助写帖子内容
+     */
+    @ApiOperation("AI助写帖子内容")
+    @PostMapping("/ai/generate")
+    public AjaxResult generateByAi(@RequestBody Map<String, String> params)
+    {
+        String keywords = params.get("keywords");
+        if (StringUtils.isEmpty(keywords))
+        {
+            return error("请输入关键词");
+        }
+        String postType = params.get("postType");
+        String content = bbsAiService.generatePostContent(keywords, postType);
+        return AjaxResult.success("操作成功", content);
+    }
+
+    /**
      * 新增帖子
      */
     @ApiOperation("新增帖子")
@@ -180,33 +256,48 @@ public class BbsPostController extends BaseController
         
         // 如果不是草稿，才进行管理员判断和状态设置
         boolean isAdmin = false;
+        boolean aiRisk = false;
+        String aiRiskReason = null;
         String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
-        // linjh46@chinaunicom.cn,jiangry19@chinaunicom.cn,hez12@chinaunicom.cn
+        SysUser currentUser = SecurityUtils.getLoginUser().getUser();
 
         if (!isDraft)
         {
             // 检查是否为管理员，管理员发布帖子直接通过审核
-            SysUser currentUser = SecurityUtils.getLoginUser().getUser();
-            
-//            // 方法1：检查用户角色中是否包含admin角色（需要先检查roles是否为null）
-//            if (currentUser.getRoles() != null && !currentUser.getRoles().isEmpty())
-//            {
-//                isAdmin = currentUser.getRoles().stream()
-//                    .anyMatch(role -> Constants.SUPER_ADMIN.equals(role.getRoleKey()));
-//            }
-            
-            // 方法2：如果方法1没找到，检查管理员配置
-            if (!isAdmin)
-            {
-                if (StringUtils.isNotEmpty(adminConfig))
-                {
-                    isAdmin = StringUtils.contains(adminConfig, currentUser.getUserId());
-                }
-            }
+            isAdmin = SecurityUtils.isConfigAdmin(adminConfig, currentUser)
+                || (currentUser.getRoles() != null && currentUser.getRoles().stream()
+                .anyMatch(role -> Constants.SUPER_ADMIN.equals(role.getRoleKey())));
             
             if (isAdmin)
             {
                 bbsPost.setStatus("0"); // 管理员直接设置为正常状态
+            }
+            else
+            {
+                try
+                {
+                    BbsAiModerationResult moderation = bbsAiService.moderatePost(bbsPost.getTitle(), bbsPost.getContent());
+                    if (moderation != null && moderation.isRisk())
+                    {
+                        aiRisk = true;
+                        aiRiskReason = moderation.getRiskSummary();
+                        bbsPost.setStatus("2");
+                        bbsPost.setAuditReason(aiRiskReason);
+                    }
+                    else
+                    {
+                        bbsPost.setStatus("0");
+                        bbsPost.setAuditReason(null);
+                    }
+                }
+                catch (Exception e)
+                {
+                    log.error("AI审核失败，降级为人工审核", e);
+                    aiRisk = true;
+                    aiRiskReason = "AI审核服务异常，请管理员人工复核";
+                    bbsPost.setStatus("2");
+                    bbsPost.setAuditReason(aiRiskReason);
+                }
             }
         }
         bbsPost.setDelFlag("0");
@@ -237,72 +328,51 @@ public class BbsPostController extends BaseController
             bbsPost.setAvatar(SecurityUtils.getLoginUser().getUser().getAvatar());
         }
 
-        // 检查审核开关，返回相应的提示信息
-        String auditEnabled = sysConfigService.selectConfigByKey("bbs.post.audit.enabled");
-        // 使用默认值false，如果配置不存在或为空，则默认关闭审核
-        boolean auditOn = Convert.toBool(auditEnabled, false);
         String returnStr = null;
         Long postId = bbsPostService.insertBbsPost(bbsPost);
         if (postId > 0)
         {
+            bbsPost.setPostId(postId);
             // 如果是草稿，返回草稿保存成功
             if (isDraft)
             {
                 return success("草稿保存成功");
+            }
+
+            // AI识别风险则进入待审核并通知管理员
+            if (aiRisk)
+            {
+                createAiRiskNotification(postId, bbsPost, aiRiskReason, currentUser, adminConfig);
+                return success("AI检测到风险，已提交管理员审核");
             }
             
             // 如果帖子类型是建议或意见，并且选择了回应部门，则发送企业微信消息
             if (bbsPost.getResponseDeptId() != null &&
                 ("suggestion".equals(bbsPost.getPostType()) || "opinion".equals(bbsPost.getPostType())))
             {
-                if(!isAdmin){ //非管理员
-                    if(!auditOn){ //不需要审核
-                        //发送通知
-                        try
-                        {
-                            // 根据回应部门ID查询部门接口人
-                            BbsDeptContact deptContact = bbsDeptContactService.selectBbsDeptContactByDeptId(bbsPost.getResponseDeptId());
-                            if (deptContact != null && StringUtils.isNotEmpty(deptContact.getContactUserId()))
-                            {
-                                // 发送企业微信消息（功能待定，先留接口）
-                                bbsPost.setPostId(postId);
-                                sendWeChatWorkMessage(deptContact, bbsPost);
-                            }
-                            returnStr = "发布成功";
-                        }
-                        catch (Exception e)
-                        {
-                            // 发送消息失败不影响帖子发布，记录日志即可
-                            log.error("发送企业微信消息失败：", e);
-                        }
-                    }else {
-                        returnStr = "已提交，待管理员审核";
-                    }
-                }else{ //管理员直接发布 无需审核
-                    returnStr = "发布成功";
-                    try
+                try
+                {
+                    // 根据回应部门ID查询部门接口人
+                    BbsDeptContact deptContact = bbsDeptContactService.selectBbsDeptContactByDeptId(bbsPost.getResponseDeptId());
+                    if (deptContact != null && StringUtils.isNotEmpty(deptContact.getContactUserId()))
                     {
-                        // 根据回应部门ID查询部门接口人
-                        BbsDeptContact deptContact = bbsDeptContactService.selectBbsDeptContactByDeptId(bbsPost.getResponseDeptId());
-                        if (deptContact != null && StringUtils.isNotEmpty(deptContact.getContactUserId()))
-                        {
-                            // 发送企业微信消息（功能待定，先留接口）
-                            bbsPost.setPostId(postId);
-                            sendWeChatWorkMessage(deptContact, bbsPost);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        // 发送消息失败不影响帖子发布，记录日志即可
-                        log.error("发送企业微信消息失败：", e);
+                        // 发送企业微信消息（功能待定，先留接口）
+                        sendWeChatWorkMessage(deptContact, bbsPost);
                     }
                 }
+                catch (Exception e)
+                {
+                    // 发送消息失败不影响帖子发布，记录日志即可
+                    log.error("发送企业微信消息失败：", e);
+                }
             }
-            if(!auditOn){ //不需要审核
-                // 直接发布的帖子,即发送消息通知至管理员企微账号,点击消息通知跳转到BBS首页
+            // 直接发布的帖子，发送消息通知至管理员
+            if (StringUtils.isNotEmpty(adminConfig))
+            {
                 String remindUserid = adminConfig.replaceAll(",", "|");
                 sendWeChatMessageToAdmin(bbsPost, remindUserid);
             }
+            returnStr = "发布成功";
             return success(returnStr);
         }else{
             return error("发布失败");
@@ -366,6 +436,69 @@ public class BbsPostController extends BaseController
         }
     }
 
+    private void createAiRiskNotification(Long postId, BbsPost bbsPost, String riskReason, SysUser currentUser, String adminConfig)
+    {
+        if (StringUtils.isEmpty(adminConfig))
+        {
+            return;
+        }
+        String[] admins = adminConfig.split(",");
+        for (String token : admins)
+        {
+            String adminUser = StringUtils.trim(token);
+            if (StringUtils.isEmpty(adminUser))
+            {
+                continue;
+            }
+            BbsNotification notification = new BbsNotification();
+            notification.setUserId(adminUser);
+            notification.setType("5");
+            notification.setTitle("AI风控待审核");
+            notification.setContent("帖子《" + bbsPost.getTitle() + "》疑似风险：" + (StringUtils.isEmpty(riskReason) ? "请人工复核" : riskReason));
+            notification.setTargetType("1");
+            notification.setTargetId(postId);
+            notification.setFromUserId(currentUser.getUserId());
+            notification.setFromNickName(currentUser.getNickName());
+            notification.setFromAvatar(currentUser.getAvatar());
+            bbsNotificationService.insertBbsNotification(notification);
+        }
+        sendWeChatRiskMessageToAdmin(bbsPost, riskReason, adminConfig.replaceAll(",", "|"));
+    }
+
+    private void sendWeChatRiskMessageToAdmin(BbsPost bbsPost, String riskReason, String remindUserid)
+    {
+        try
+        {
+            String accessToken = WeChatApi.getToken(agentid);
+            JSONObject msgInfo = new JSONObject();
+            msgInfo.put("msgtype", "textcard");
+            msgInfo.put("touser", remindUserid);
+            msgInfo.put("content", bbsPost.getContent());
+            msgInfo.put("agentid", agentid);
+
+            String url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx786a96dd52ea3edb&redirect_uri="
+                + homePage
+                + "&response_type=code&scope=snsapi_base&agentid="
+                + agentid
+                + "&state=STATE#wechat_redirect";
+
+            JSONObject textcard = new JSONObject();
+            textcard.put("title", "BBS通知-AI风控待审核");
+            textcard.put("description", "<div class=\"normal\">帖子《" + bbsPost.getTitle() + "》被AI识别为风险内容，风险摘要："
+                + (StringUtils.isEmpty(riskReason) ? "请尽快审核" : riskReason)
+                + "</div>");
+            textcard.put("url", url);
+            msgInfo.put("textcard", textcard);
+
+            String sendUrl = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=" + accessToken;
+            HttpUtils.sendPost(sendUrl, JSONObject.toJSONString(msgInfo));
+        }
+        catch (Exception e)
+        {
+            log.error("发送AI风险企业微信消息失败", e);
+        }
+    }
+
     /**
      * 修改帖子
      */
@@ -401,14 +534,14 @@ public class BbsPostController extends BaseController
         if (!isAdmin)
         {
             String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
-            if (StringUtils.isNotEmpty(adminConfig))
-            {
-                isAdmin = StringUtils.contains(adminConfig, currentUser.getUserId());
-            }
+            isAdmin = SecurityUtils.isConfigAdmin(adminConfig, currentUser);
         }
         String returnStr = null;
+        boolean aiRisk = false;
+        String aiRiskReason = null;
         // 如果是从草稿发布（status从"4"变为其他状态），需要设置正确的状态
         boolean isPublishingFromDraft = false;
+        String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
         if (!isDraft && bbsPost.getPostId() != null)
         {
             // 检查原帖子是否为草稿
@@ -424,72 +557,64 @@ public class BbsPostController extends BaseController
                 }
                 else
                 {
-                    // 检查审核开关
-                    String auditEnabled = sysConfigService.selectConfigByKey("bbs.post.audit.enabled");
-                    boolean auditOn = Convert.toBool(auditEnabled, false);
-                    if (auditOn)
-                    {
-                        bbsPost.setStatus("2"); // 待审核
-                    }
-                    else
-                    {
-                        bbsPost.setStatus("0"); // 正常
-                    }
-                }
-            }
-        }
-        // 检查审核开关
-        String auditEnabled = sysConfigService.selectConfigByKey("bbs.post.audit.enabled");
-        boolean auditOn = Convert.toBool(auditEnabled, false);
-
-        int result = bbsPostService.updateBbsPost(bbsPost);
-        if (result > 0)
-        {
-            // 如果是从草稿发布，并且帖子类型是建议或意见，并且选择了回应部门，则发送企业微信消息
-            if (isPublishingFromDraft && bbsPost.getResponseDeptId() != null &&
-                ("suggestion".equals(bbsPost.getPostType()) || "opinion".equals(bbsPost.getPostType())))
-            {
-                if(!isAdmin) { //非管理员
-                    if (!auditOn) { //不需要审核
-                        //发送通知
-                        try
-                        {
-                            // 根据回应部门ID查询部门接口人
-                            BbsDeptContact deptContact = bbsDeptContactService.selectBbsDeptContactByDeptId(bbsPost.getResponseDeptId());
-                            if (deptContact != null && StringUtils.isNotEmpty(deptContact.getContactUserId()))
-                            {
-                                // 发送企业微信消息（功能待定，先留接口）
-                                sendWeChatWorkMessage(deptContact, bbsPost);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            // 发送消息失败不影响帖子发布，记录日志即可
-                            log.error("发送企业微信消息失败：", e);
-                        }
-                    }else {
-                        returnStr = "已提交，待管理员审核";
-                    }
-                }else{ //管理员直接发布 无需审核
-                    returnStr = "发布成功";
                     try
                     {
-                        // 根据回应部门ID查询部门接口人
-                        BbsDeptContact deptContact = bbsDeptContactService.selectBbsDeptContactByDeptId(bbsPost.getResponseDeptId());
-                        if (deptContact != null && StringUtils.isNotEmpty(deptContact.getContactUserId()))
+                        BbsAiModerationResult moderation = bbsAiService.moderatePost(bbsPost.getTitle(), bbsPost.getContent());
+                        if (moderation != null && moderation.isRisk())
                         {
-                            // 发送企业微信消息（功能待定，先留接口）
-                            sendWeChatWorkMessage(deptContact, bbsPost);
+                            aiRisk = true;
+                            aiRiskReason = moderation.getRiskSummary();
+                            bbsPost.setStatus("2");
+                            bbsPost.setAuditReason(aiRiskReason);
+                        }
+                        else
+                        {
+                            bbsPost.setStatus("0");
+                            bbsPost.setAuditReason(null);
                         }
                     }
                     catch (Exception e)
                     {
-                        // 发送消息失败不影响帖子发布，记录日志即可
-                        log.error("发送企业微信消息失败：", e);
+                        log.error("AI审核失败，降级为人工审核", e);
+                        aiRisk = true;
+                        aiRiskReason = "AI审核服务异常，请管理员人工复核";
+                        bbsPost.setStatus("2");
+                        bbsPost.setAuditReason(aiRiskReason);
                     }
                 }
+            }
+        }
+
+        int result = bbsPostService.updateBbsPost(bbsPost);
+        if (result > 0)
+        {
+            if (isPublishingFromDraft && aiRisk)
+            {
+                createAiRiskNotification(bbsPost.getPostId(), bbsPost, aiRiskReason, currentUser, adminConfig);
+                return success("AI检测到风险，已提交管理员审核");
+            }
+
+            // 如果是从草稿发布，并且帖子类型是建议或意见，并且选择了回应部门，则发送企业微信消息
+            if (isPublishingFromDraft && bbsPost.getResponseDeptId() != null &&
+                ("suggestion".equals(bbsPost.getPostType()) || "opinion".equals(bbsPost.getPostType())))
+            {
+                try
+                {
+                    // 根据回应部门ID查询部门接口人
+                    BbsDeptContact deptContact = bbsDeptContactService.selectBbsDeptContactByDeptId(bbsPost.getResponseDeptId());
+                    if (deptContact != null && StringUtils.isNotEmpty(deptContact.getContactUserId()))
+                    {
+                        // 发送企业微信消息（功能待定，先留接口）
+                        sendWeChatWorkMessage(deptContact, bbsPost);
+                    }
+                }
+                catch (Exception e)
+                {
+                    // 发送消息失败不影响帖子发布，记录日志即可
+                    log.error("发送企业微信消息失败：", e);
+                }
             }else{
-                returnStr = "草稿保存成功";
+                returnStr = isDraft ? "草稿保存成功" : "发布成功";
             }
             // 如果是保存草稿
             if (isDraft)
@@ -513,8 +638,7 @@ public class BbsPostController extends BaseController
     public AjaxResult remove(@PathVariable Long[] postIds)
     {
         String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
-        // linjh46@chinaunicom.cn,jiangry19@chinaunicom.cn,hez12@chinaunicom.cn
-        if(adminConfig.indexOf(SecurityUtils.getLoginUser().getUsername()) == -1){
+        if (!SecurityUtils.isConfigAdmin(adminConfig, SecurityUtils.getLoginUser().getUser())) {
             return error("无权限操作");
         }
 
@@ -649,6 +773,51 @@ public class BbsPostController extends BaseController
         return success(list);
     }
 
+    private boolean isSuggestionFollowupPost(BbsPost post)
+    {
+        return post != null
+            && ("suggestion".equals(post.getPostType()) || "opinion".equals(post.getPostType()))
+            && post.getResponseDeptId() != null;
+    }
+
+    private boolean isValidFollowupStatus(String followupStatus)
+    {
+        return "accepted".equals(followupStatus)
+            || "processing".equals(followupStatus)
+            || "feedback".equals(followupStatus)
+            || "resolved".equals(followupStatus);
+    }
+
+    private boolean canManageFollowup(BbsPost post)
+    {
+        if (post == null)
+        {
+            return false;
+        }
+
+        SysUser currentUser = SecurityUtils.getLoginUser().getUser();
+        String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
+        boolean isAdmin = SecurityUtils.isConfigAdmin(adminConfig, currentUser)
+            || (currentUser.getRoles() != null && currentUser.getRoles().stream()
+            .anyMatch(role -> Constants.SUPER_ADMIN.equals(role.getRoleKey())));
+        if (isAdmin)
+        {
+            return true;
+        }
+
+        BbsDeptContact deptContact = bbsDeptContactService.selectBbsDeptContactByDeptId(post.getResponseDeptId());
+        return deptContact != null
+            && "0".equals(deptContact.getStatus())
+            && StringUtils.isNotEmpty(deptContact.getContactUserId())
+            && deptContact.getContactUserId().equals(SecurityUtils.getUserId());
+    }
+
+    private String buildFollowupAuditReason(String followupStatus, String followupNote)
+    {
+        String sanitizedNote = StringUtils.isEmpty(followupNote) ? "" : followupNote.trim();
+        return FOLLOWUP_PREFIX + followupStatus + "|" + sanitizedNote;
+    }
+
     /**
      * 获取审核开关状态
      */
@@ -728,7 +897,10 @@ public class BbsPostController extends BaseController
         }
 
         String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
-        // linjh46@chinaunicom.cn,jiangry19@chinaunicom.cn,hez12@chinaunicom.cn
+        if (!SecurityUtils.isConfigAdmin(adminConfig, SecurityUtils.getLoginUser().getUser()))
+        {
+            return error("无权限操作");
+        }
 
         int count = bbsPostService.approvePosts(postIds);
         List<String> approvedTitles = new ArrayList<>();
@@ -773,6 +945,12 @@ public class BbsPostController extends BaseController
     @AdminLog(module = "帖子管理", operationType = AdminOperationType.REJECT, description = "批量审核驳回文章")
     public AjaxResult rejectPosts(@RequestBody Map<String, Object> params)
     {
+        String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
+        if (!SecurityUtils.isConfigAdmin(adminConfig, SecurityUtils.getLoginUser().getUser()))
+        {
+            return error("无权限操作");
+        }
+
         Long[] postIds = null;
         String auditReason = null;
         
@@ -849,6 +1027,12 @@ public class BbsPostController extends BaseController
     @AdminLog(module = "帖子管理", operationType = AdminOperationType.UPDATE)
     public AjaxResult toggleTop(@PathVariable Long postId)
     {
+        String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
+        if (!SecurityUtils.isConfigAdmin(adminConfig, SecurityUtils.getLoginUser().getUser()))
+        {
+            return error("无权限操作");
+        }
+
         BbsPost post = bbsPostService.selectBbsPostById(postId);
         String title = post != null ? post.getTitle() : String.valueOf(postId);
         int result = bbsPostService.toggleTop(postId);

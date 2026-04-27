@@ -269,10 +269,9 @@ public class BbsCommentServiceImpl implements IBbsCommentService
     @Transactional
     public int delByAdmin(Long[] commentIds) {
         SysUser user = SecurityUtils.getLoginUser().getUser();
-        String userName = user.getUserName();
 
         String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
-        if(adminConfig.indexOf(userName) > -1){
+        if (SecurityUtils.isConfigAdmin(adminConfig, user)) {
             bbsCommentMapper.deleteBbsCommentByParentCommentIds(commentIds);
             return bbsCommentMapper.deleteBbsCommentByIds(commentIds);
         }else{

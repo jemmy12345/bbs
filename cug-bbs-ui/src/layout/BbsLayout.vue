@@ -65,7 +65,7 @@
                 </span>
               </el-dropdown-item>
               <el-dropdown-item v-if="hasPermissions" command="profile">{{ $t('bbs.admin') }}</el-dropdown-item>
-              <!-- <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item> -->
+              <el-dropdown-item command="logout" divided>{{ $t('bbs.logout') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -152,7 +152,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['user', 'permissions']),
+    ...mapGetters(['user', 'permissions', 'roles']),
     isLoggedIn() {
       return !!getToken();
     },
@@ -160,7 +160,9 @@ export default {
       return this.$store.state.user || {};
     },
     hasPermissions() {
-      return this.permissions && this.permissions.length > 0;
+      const permissions = this.permissions || [];
+      const roles = this.roles || [];
+      return permissions.includes('*:*:*') || roles.includes('admin');
     }
   },
   created() {
@@ -308,12 +310,17 @@ export default {
         this.$router.push({ path: "/notification" });
       } else if (command === 'profile') {
         this.$router.push({ path: "/admin/article" });
+      } else if (command === 'logout') {
+        this.$confirm('确定注销并退出系统吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('LogOut').then(() => {
+            this.$router.push({ path: '/login' });
+          });
+        }).catch(() => {});
       }
-      // if (command === 'logout') {
-      //   this.$store.dispatch('LogOut').then(() => {
-      //     this.$router.push({ path: "/login" });
-      //   });
-      // }
     },
     goHome() {
       this.$router.push({ path: "/index" });

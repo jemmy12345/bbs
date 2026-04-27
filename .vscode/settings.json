@@ -1,0 +1,53 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "bbs-local",
+            "group": "bbs",
+            "database": "bbsdb",
+            "username": "root",
+            "password": "Qwer1234"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "bbs-local",
+            "group": "bbs",
+            "database": "mysql",
+            "username": "root",
+            "password": "Qwer1234"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "10.120.63.212",
+            "port": 3309,
+            "driver": "MySQL",
+            "name": "bbs-cug",
+            "group": "bbs-cug",
+            "database": "bbsdb",
+            "username": "root",
+            "password": "Cug#2022"
+        }
+    ],
+    "java.debug.settings.onBuildFailureProceed": true
+}

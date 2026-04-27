@@ -53,6 +53,16 @@
           <router-link class="link-type" :to="'/register'">立即注册</router-link>
         </div>
       </el-form-item>
+      <el-form-item style="width:100%; margin-top: -10px;">
+        <el-button
+          size="medium"
+          plain
+          style="width:100%;"
+          @click="handleWeChatLogin"
+        >
+          企业微信登录
+        </el-button>
+      </el-form-item>
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
@@ -153,6 +163,10 @@ export default {
           })
         }
       })
+    },
+    handleWeChatLogin() {
+      const redirect = this.redirect || '/'
+      this.$router.push({ path: '/ssologin', query: { redirect } })
     }
   }
 }

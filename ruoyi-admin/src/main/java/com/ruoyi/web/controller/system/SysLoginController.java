@@ -73,12 +73,11 @@ public class SysLoginController
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
     {
-        log.info("===================================WeChat Login=================================");
-        System.out.println("===================================WeChat Login=================================");
+        log.info("login request, type={}", loginBody.getLoginType());
         AjaxResult ajax = AjaxResult.success();
         // 生成令牌
         String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
-                loginBody.getUuid());
+            loginBody.getUuid(), loginBody.getLoginType());
         ajax.put(Constants.TOKEN, token);
         return ajax;
     }

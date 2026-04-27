@@ -12,6 +12,7 @@ import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysRoleService;
@@ -42,8 +43,10 @@ public class SysPermissionService
     public Set<String> getRolePermission(SysUser user)
     {
         Set<String> roles = new HashSet<String>();
+        String adminConfig = configService.selectConfigByKey("sys.account.admin");
+        boolean isAdmin = user.isAdmin() || SecurityUtils.isConfigAdmin(adminConfig, user);
         // 管理员拥有所有权限
-        if (user.isAdmin())
+        if (isAdmin)
         {
             roles.add(Constants.SUPER_ADMIN);
         }
@@ -64,7 +67,7 @@ public class SysPermissionService
     {
         String admin = configService.selectConfigByKey("sys.account.admin");
         Set<String> perms = new HashSet<String>();
-        boolean contains = StringUtils.contains(admin, user.getUserId());
+        boolean contains = user.isAdmin() || SecurityUtils.isConfigAdmin(admin, user);
         // 管理员拥有所有权限
         if (contains){
             perms.add(Constants.ALL_PERMISSION);

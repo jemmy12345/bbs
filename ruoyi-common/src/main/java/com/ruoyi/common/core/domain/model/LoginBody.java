@@ -27,6 +27,11 @@ public class LoginBody
      */
     private String uuid;
 
+    /**
+     * 登录类型（password: 账号密码登录；sso: 单点登录）
+     */
+    private String loginType;
+
     public String getUsername()
     {
         return username;
@@ -65,5 +70,15 @@ public class LoginBody
     public void setUuid(String uuid)
     {
         this.uuid = uuid;
+    }
+
+    public String getLoginType()
+    {
+        return loginType;
+    }
+
+    public void setLoginType(String loginType)
+    {
+        this.loginType = loginType;
     }
 }

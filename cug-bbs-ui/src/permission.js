@@ -69,8 +69,7 @@ if(to.query.code && !from.query.redirect){
       next()
     } else {
       console.log('重定向到登录页')
-      // https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx786a96dd52ea3edb&redirect_uri=https://oaapptest.cugsw.solutions:8088/bbs/ssologin&response_type=code&scope=snsapi_base&agentid=1000165&state=STATE#wechat_redirect
-      next(`/ssologin?redirect=${encodeURIComponent(to.fullPath)}`) // 否则全部重定向到登录页
+      next(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
       NProgress.done()
     }
   }

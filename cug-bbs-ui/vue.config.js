@@ -7,9 +7,9 @@ function resolve(dir) {
 
 const CompressionPlugin = require('compression-webpack-plugin')
 
-const name = process.env.VUE_APP_TITLE || 'CUGer BBS' // 网页标题
+const name = process.env.VUE_APP_TITLE || 'BBS' // 网页标题
 
-const baseUrl = 'http://localhost:8080' // 后端接口
+const baseUrl = 'http://localhost:9082' // 后端接口
 
 const port = process.env.port || process.env.npm_config_port || 80 // 端口
 
@@ -38,7 +38,7 @@ module.exports = {
       // 验证码、登录等接口不需要 /forum 前缀，直接代理到根路径
       // 注意：更具体的规则要放在通用规则之前
       ['^' + process.env.VUE_APP_BASE_API ]: {
-        target: 'http://10.120.64.61:9082',
+        target: baseUrl,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
