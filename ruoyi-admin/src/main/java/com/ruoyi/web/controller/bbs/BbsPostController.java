@@ -20,6 +20,7 @@ import com.ruoyi.system.service.IBbsAiService;
 import com.ruoyi.system.service.IBbsNotificationService;
 import com.ruoyi.system.service.IBbsPostService;
 import com.ruoyi.system.service.IBbsPostFollowupRecordService;
+import com.ruoyi.system.service.IBbsPointService;
 import com.ruoyi.system.service.IBbsSensitiveWordService;
 import com.ruoyi.system.service.IBbsDeptContactService;
 import com.ruoyi.system.service.ISysConfigService;
@@ -101,6 +102,9 @@ public class BbsPostController extends BaseController
 
     @Autowired
     private BbsTagMapper bbsTagMapper;
+
+    @Autowired
+    private IBbsPointService bbsPointService;
 
     /**
      * 获取运营看板统计数据
@@ -286,6 +290,17 @@ public class BbsPostController extends BaseController
         return AjaxResult.success(tags);
     }
 
+    @ApiOperation("获取积分榜")
+    @GetMapping("/points/rank")
+    public AjaxResult getPointRank(Integer limit)
+    {
+        if (limit == null || limit <= 0)
+        {
+            limit = 5;
+        }
+        return AjaxResult.success(bbsPointService.getTopPointUsers(limit));
+    }
+
     /**
      * AI助写帖子内容
      */
@@ -401,6 +416,10 @@ public class BbsPostController extends BaseController
         if (postId > 0)
         {
             bbsPost.setPostId(postId);
+            if (!isDraft && "0".equals(bbsPost.getStatus()))
+            {
+                bbsPointService.awardPostPublishPoints(SecurityUtils.getUserId(), postId);
+            }
             // 如果是草稿，返回草稿保存成功
             if (isDraft)
             {

@@ -20,6 +20,7 @@ import com.ruoyi.system.domain.BbsComment;
 import com.ruoyi.system.domain.BbsPost;
 import com.ruoyi.system.domain.BbsDeptContact;
 import com.ruoyi.system.service.IBbsCommentService;
+import com.ruoyi.system.service.IBbsPointService;
 import com.ruoyi.system.service.IBbsPostService;
 import com.ruoyi.system.service.IBbsDeptContactService;
 
@@ -42,6 +43,9 @@ public class BbsCommentController extends BaseController
 
     @Autowired
     private IBbsDeptContactService bbsDeptContactService;
+
+    @Autowired
+    private IBbsPointService bbsPointService;
 
     /**
      * 查询评论列表
@@ -160,6 +164,10 @@ public class BbsCommentController extends BaseController
             bbsComment.setParentId(0L);
         }
         bbsCommentService.insertBbsComment(bbsComment);
+        if (bbsComment.getCommentId() != null)
+        {
+            bbsPointService.awardCommentPublishPoints(SecurityUtils.getUserId(), bbsComment.getCommentId());
+        }
 
         return AjaxResult.success();
     }

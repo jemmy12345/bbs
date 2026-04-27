@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsPointRecordMapper">
+
+    <insert id="insertIgnore" parameterType="BbsPointRecord" useGeneratedKeys="true" keyProperty="recordId">
+        insert ignore into bbs_point_record
+        (user_id, action_type, biz_type, biz_id, point_change, remark, del_flag, create_by, create_time, update_by, update_time)
+        values
+        (#{userId}, #{actionType}, #{bizType}, #{bizId}, #{pointChange}, #{remark}, #{delFlag}, #{createBy}, now(), #{updateBy}, now())
+    </insert>
+
+</mapper>

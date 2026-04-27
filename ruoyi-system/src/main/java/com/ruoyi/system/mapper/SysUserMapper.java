@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import com.ruoyi.common.core.domain.entity.SysUser;
 
@@ -144,4 +145,21 @@ public interface SysUserMapper
      * @return 结果
      */
     public SysUser checkEmailUnique(String email);
+
+    /**
+     * 增加用户论坛积分
+     *
+     * @param userId 用户ID
+     * @param points 增加积分
+     * @return 结果
+     */
+    public int incrementBbsPoints(@Param("userId") String userId, @Param("points") Integer points);
+
+    /**
+     * 查询论坛积分榜
+     *
+     * @param limit 返回条数
+     * @return 排行列表
+     */
+    public List<Map<String, Object>> selectTopPointUsers(@Param("limit") Integer limit);
 }

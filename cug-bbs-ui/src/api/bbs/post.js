@@ -200,3 +200,12 @@ export function getPostFollowupHistory(postId) {
     method: 'get'
   })
 }
+
+// 获取积分榜
+export function getPointRank(limit = 5) {
+  return request({
+    url: '/bbs/post/points/rank',
+    method: 'get',
+    params: { limit }
+  })
+}

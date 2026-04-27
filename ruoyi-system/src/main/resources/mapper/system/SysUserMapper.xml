@@ -10,6 +10,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="userName"      column="user_name"       />
         <result property="nickName"      column="nick_name"       />
         <result property="email"         column="email"           />
+		<result property="bbsPoints"     column="bbs_points"      />
         <result property="phonenumber"   column="phonenumber"     />
         <result property="sex"           column="sex"             />
         <result property="avatar"        column="avatar"          />
@@ -48,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 	
 	<sql id="selectUserVo">
-        select u.user_id, u.dept_id, u.user_name, u.nick_name, u.email, u.avatar, u.phonenumber, u.password, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.pwd_update_date, u.create_by, u.create_time, u.remark, 
+	select u.user_id, u.dept_id, u.user_name, u.nick_name, u.email, u.bbs_points, u.avatar, u.phonenumber, u.password, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.pwd_update_date, u.create_by, u.create_time, u.remark, 
         d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.status as dept_status,
         r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
         from sys_user u
@@ -57,8 +58,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		    left join sys_role r on r.role_id = ur.role_id
     </sql>
     
-    <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
-		select u.user_id, u.dept_id, u.nick_name, u.user_name, u.email, u.avatar, u.phonenumber, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark, d.dept_name, d.leader from sys_user u
+	<select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
+		select u.user_id, u.dept_id, u.nick_name, u.user_name, u.email, u.bbs_points, u.avatar, u.phonenumber, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark, d.dept_name, d.leader from sys_user u
 		left join sys_dept d on u.dept_id = d.dept_id
 		where u.del_flag = '0'
 		<if test="userId != null and userId != ''">
@@ -212,6 +213,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<update id="resetUserPwd" parameterType="SysUser">
  		update sys_user set pwd_update_date = sysdate(), password = #{password}, update_time = sysdate() where user_id = #{userId}
 	</update>
+
+	<update id="incrementBbsPoints">
+		update sys_user
+		set bbs_points = ifnull(bbs_points, 0) + #{points}, update_time = sysdate()
+		where user_id = #{userId} and del_flag = '0'
+	</update>
+
+	<select id="selectTopPointUsers" resultType="java.util.Map">
+		select
+			u.user_id as userId,
+			u.nick_name as nickName,
+			u.avatar as avatar,
+			ifnull(u.bbs_points, 0) as points
+		from sys_user u
+		where u.del_flag = '0' and u.status = '0'
+		order by ifnull(u.bbs_points, 0) desc, u.update_time asc, u.create_time asc
+		limit #{limit}
+	</select>
 	
 	<delete id="deleteUserById" parameterType="Long">
  		update sys_user set del_flag = '2' where user_id = #{userId}

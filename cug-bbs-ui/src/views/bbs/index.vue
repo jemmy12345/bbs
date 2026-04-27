@@ -32,57 +32,65 @@
       </el-radio-group>
     </div>
 
-    <div
-      v-if="dashboardStats.length || hotPostList.length || radarTopics.length"
-      class="forum-intelligence"
-    >
-      <div class="intelligence-card metrics-card">
-        <div class="intelligence-title">论坛运营看板</div>
-        <div class="metric-grid">
-          <div
-            v-for="item in dashboardStats"
-            :key="item.label"
-            class="metric-item"
-          >
-            <div class="metric-value">{{ item.value }}</div>
-            <div class="metric-label">{{ item.label }}</div>
-            <div class="metric-tip">{{ item.tip }}</div>
-          </div>
-        </div>
-      </div>
+    <div v-if="hotPostList.length || radarTopics.length || pointRankList.length" class="forum-intelligence">
+      <!-- 全站热议榜 -->
       <div class="intelligence-card hot-card">
-        <div class="intelligence-title">全站热议榜</div>
+        <div class="intelligence-title">🔥 全站热议榜</div>
         <div v-if="hotPostList.length" class="hot-list">
           <div
-            v-for="(post, index) in hotPostList"
+            v-for="(post, index) in hotPostList.slice(0, 5)"
             :key="post.postId"
             class="hot-item"
             @click="handlePostClick(post.postId)"
           >
             <span class="hot-rank">{{ index + 1 }}</span>
             <div class="hot-body">
-              <div class="hot-title">{{ truncateTitle(post.title) }}</div>
-              <div class="hot-meta">{{ getHotReason(post) }}</div>
+              <div class="hot-title">{{ truncateTitle(post.title, 30) }}</div>
+              <div class="hot-meta">{{ post.viewCount || 0 }} 浏览 · {{ post.commentCount || 0 }} 评论</div>
             </div>
           </div>
         </div>
         <div v-else class="intelligence-empty">暂无热议帖子</div>
       </div>
+
+      <!-- 话题雷达 -->
       <div class="intelligence-card radar-card">
-        <div class="intelligence-title">话题雷达</div>
+        <div class="intelligence-title">📡 话题雷达</div>
         <div v-if="radarTopics.length" class="topic-chip-list">
-          <button
-            v-for="topic in radarTopics"
-            :key="topic.word"
-            type="button"
+          <span
+            v-for="(topic, index) in radarTopics"
+            :key="index"
             class="topic-chip"
-            @click="applyTopicToAi(topic)"
+            @click="handleSearch(topic.word)"
           >
             <span>{{ topic.word }}</span>
             <span class="topic-count">{{ topic.count }}</span>
-          </button>
+          </span>
         </div>
-        <div class="radar-tip">点击热词可直接填入 AI 助写关键词。</div>
+        <div v-else class="intelligence-empty">暂无话题数据</div>
+      </div>
+
+      <!-- 积分榜 Top5 -->
+      <div class="intelligence-card point-rank-card">
+        <div class="intelligence-title">🏆 积分榜 TOP 5</div>
+        <div class="point-rank-subtitle" style="margin-bottom:12px;">发布帖子/评论可累计积分</div>
+        <div v-if="pointRankList.length" class="point-rank-list">
+          <div
+            v-for="(item, index) in pointRankList"
+            :key="item.userId || index"
+            class="point-rank-item"
+          >
+            <div class="point-rank-left">
+              <span class="point-rank-no">{{ index + 1 }}</span>
+              <el-avatar :size="32" :src="item.avatar">
+                {{ (item.nickName || '用').slice(0, 1) }}
+              </el-avatar>
+              <span class="point-rank-name">{{ item.nickName || '未知用户' }}</span>
+            </div>
+            <span class="point-rank-score">{{ item.points || 0 }} 分</span>
+          </div>
+        </div>
+        <div v-else class="intelligence-empty">暂无积分数据</div>
       </div>
     </div>
 
@@ -439,7 +447,7 @@
 </template>
 
 <script>
-import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts, getHotTags } from "@/api/bbs/post";
+import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts, getHotTags, getPointRank } from "@/api/bbs/post";
 import { listCategory } from "@/api/bbs/category";
 import { checkSensitiveWords } from "@/api/bbs/sensitive";
 import { listDeptForPost, listDept } from "@/api/system/dept";
@@ -497,6 +505,7 @@ export default {
       aiKeywords: "",
       aiGenerating: false,
       hotPostList: [],
+      pointRankList: [],
       tagOptions: [],
     };
   },
@@ -513,27 +522,6 @@ export default {
         (c) => c.categoryId === this.activeCategory
       );
       return category ? category.categoryName : "";
-    },
-    dashboardStats() {
-      const posts = this.postList || [];
-      const unansweredCount = posts.filter(
-        (item) => Number(item.commentCount || 0) === 0
-      ).length;
-      const highHeatCount = posts.filter(
-        (item) => this.calculateHotScore(item) >= 80
-      ).length;
-      const anonymousRatio = posts.length
-        ? `${Math.round(
-            (posts.filter((item) => item.isAnonymous === "1").length * 100) /
-              posts.length
-          )}%`
-        : "0%";
-      return [
-        { label: "当前筛选帖子", value: this.total || 0, tip: "用于观察当前分类活跃度" },
-        { label: "当前页待回应", value: unansweredCount, tip: "评论数为 0 的帖子建议优先跟进" },
-        { label: "当前页高热度", value: highHeatCount, tip: "热度分 >= 80，适合置顶或运营扩散" },
-        { label: "匿名占比", value: anonymousRatio, tip: "反映员工表达安全感与真实议题浓度" },
-      ];
     },
     radarTopics() {
       return this.extractTopicKeywords([
@@ -673,6 +661,7 @@ export default {
     this.getCategoryList();
     this.getDeptList();
     this.getHotPostList();
+    this.getPointRankList();
     this.getTagOptions();
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
@@ -834,6 +823,15 @@ export default {
         })
         .catch(() => {
           this.hotPostList = [];
+        });
+    },
+    getPointRankList() {
+      getPointRank(5)
+        .then((response) => {
+          this.pointRankList = response.data || [];
+        })
+        .catch(() => {
+          this.pointRankList = [];
         });
     },
     getTagOptions() {
@@ -1127,6 +1125,7 @@ export default {
           this.resetForm();
           this.getList();
           this.getHotPostList();
+          this.getPointRankList();
           this.getCategoryList();
           this.$root.$emit("bbs:post-published", this.form.categoryId);
         })
@@ -1524,9 +1523,80 @@ export default {
   border-bottom: 1px solid #eee;
 }
 
+.point-rank-board {
+  margin-bottom: 20px;
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  padding: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.point-rank-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.point-rank-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.point-rank-subtitle {
+  font-size: 12px;
+  color: #909399;
+}
+
+.point-rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.point-rank-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #eef1f6;
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px 12px;
+}
+
+.point-rank-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.point-rank-no {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #409eff;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  line-height: 22px;
+  font-weight: 700;
+}
+
+.point-rank-name {
+  font-size: 14px;
+  color: #303133;
+}
+
+.point-rank-score {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e67e22;
+}
+
 .forum-intelligence {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -1760,6 +1830,12 @@ export default {
 }
 /* 移动端适配 */
 @media screen and (max-width: 768px) {
+  .point-rank-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
   .forum-intelligence {
     grid-template-columns: 1fr;
   }

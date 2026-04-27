@@ -43,6 +43,9 @@ public class SysUser extends BaseEntity
     @Excel(name = "用户邮箱")
     private String email;
 
+    /** 论坛积分 */
+    private Integer bbsPoints;
+
     /** 手机号码 */
     @Excel(name = "手机号码", cellType = ColumnType.TEXT)
     private String phonenumber;
@@ -164,6 +167,16 @@ public class SysUser extends BaseEntity
     public void setEmail(String email)
     {
         this.email = email;
+    }
+
+    public Integer getBbsPoints()
+    {
+        return bbsPoints;
+    }
+
+    public void setBbsPoints(Integer bbsPoints)
+    {
+        this.bbsPoints = bbsPoints;
     }
 
     @Size(min = 0, max = 11, message = "手机号码长度不能超过11个字符")
@@ -316,6 +329,7 @@ public class SysUser extends BaseEntity
             .append("userName", getUserName())
             .append("nickName", getNickName())
             .append("email", getEmail())
+            .append("bbsPoints", getBbsPoints())
             .append("phonenumber", getPhonenumber())
             .append("sex", getSex())
             .append("avatar", getAvatar())
