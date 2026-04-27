@@ -15,11 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.system.domain.BbsLike;
 import com.ruoyi.system.domain.BbsCollect;
 import com.ruoyi.system.domain.BbsPost;
+import com.ruoyi.system.domain.BbsTag;
 import com.ruoyi.system.mapper.BbsLikeMapper;
 import com.ruoyi.system.mapper.BbsCollectMapper;
 import com.ruoyi.system.mapper.BbsPostMapper;
 import com.ruoyi.system.mapper.BbsCommentMapper;
 import com.ruoyi.system.mapper.BbsCategoryMapper;
+import com.ruoyi.system.mapper.BbsTagMapper;
+import com.ruoyi.system.mapper.BbsPostTagMapper;
 import com.ruoyi.system.service.IBbsPostService;
 import com.ruoyi.system.service.IBbsNotificationService;
 import com.ruoyi.system.service.ISysConfigService;
@@ -50,6 +53,12 @@ public class BbsPostServiceImpl implements IBbsPostService
     private BbsCommentMapper bbsCommentMapper;
 
     @Autowired
+    private BbsTagMapper bbsTagMapper;
+
+    @Autowired
+    private BbsPostTagMapper bbsPostTagMapper;
+
+    @Autowired
     private ISysConfigService sysConfigService;
 
     @Autowired
@@ -67,6 +76,7 @@ public class BbsPostServiceImpl implements IBbsPostService
         BbsPost post = bbsPostMapper.selectBbsPostById(postId);
         if (post != null)
         {
+            post.setTags(bbsTagMapper.selectTagsByPostId(post.getPostId()));
             // 如果用户未登录，设置为false
             post.setIsLiked(false);
             post.setIsCollected(false);
@@ -85,6 +95,10 @@ public class BbsPostServiceImpl implements IBbsPostService
     public BbsPost selectBbsPostById(Long postId, String userId)
     {
         BbsPost post = bbsPostMapper.selectBbsPostById(postId);
+        if (post != null)
+        {
+            post.setTags(bbsTagMapper.selectTagsByPostId(post.getPostId()));
+        }
         if (post != null && StringUtils.isNotEmpty(userId))
         {
             // 查询用户是否已点赞
@@ -144,6 +158,7 @@ public class BbsPostServiceImpl implements IBbsPostService
                     .collect(Collectors.groupingBy(BbsLike::getTargetId, Collectors.counting()));
 
             for (BbsPost post : bbsPosts) {
+                post.setTags(bbsTagMapper.selectTagsByPostId(post.getPostId()));
                 // 更新收藏、评论、点赞数
                 post.setCollectCount(collectCountMap.getOrDefault(post.getPostId(), 0L).intValue());
                 post.setCommentCount(commentCountMap.getOrDefault(post.getPostId(), 0L).intValue());
@@ -199,6 +214,10 @@ public class BbsPostServiceImpl implements IBbsPostService
         }
 
         int rows = bbsPostMapper.insertBbsPost(bbsPost);
+        if (rows > 0)
+        {
+            syncPostTags(bbsPost.getPostId(), bbsPost.getTags());
+        }
         // 增加分类帖子数（只有审核通过或直接发布的才增加，草稿不增加）
         if (bbsPost.getCategoryId() != null && "0".equals(bbsPost.getStatus()))
         {
@@ -216,7 +235,12 @@ public class BbsPostServiceImpl implements IBbsPostService
     @Override
     public int updateBbsPost(BbsPost bbsPost)
     {
-        return bbsPostMapper.updateBbsPost(bbsPost);
+        int rows = bbsPostMapper.updateBbsPost(bbsPost);
+        if (rows > 0 && bbsPost.getTags() != null)
+        {
+            syncPostTags(bbsPost.getPostId(), bbsPost.getTags());
+        }
+        return rows;
     }
 
     /**
@@ -533,5 +557,112 @@ public class BbsPostServiceImpl implements IBbsPostService
         }
 
         return bbsPostMapper.deleteBbsPostById(postId);
+    }
+
+    @Override
+    public Map<String, Object> getPostStats() {
+        java.util.HashMap<String, Object> stats = new java.util.HashMap<>();
+        // 总体汇总
+        Map<String, Object> summary = bbsPostMapper.selectPostSummary();
+        stats.put("summary", summary);
+        // 各状态分布
+        stats.put("statusStats", bbsPostMapper.selectPostStatusStats());
+        // 各类型分布
+        stats.put("typeStats", bbsPostMapper.selectPostTypeStats());
+        // 7天趋势
+        stats.put("dailyTrend", bbsPostMapper.selectPostDailyTrend());
+        // 活跃用户Top10
+        stats.put("topUsers", bbsPostMapper.selectTopActiveUsers(10));
+        return stats;
+    }
+
+    @Transactional
+    protected void syncPostTags(Long postId, List<BbsTag> inputTags)
+    {
+        if (postId == null)
+        {
+            return;
+        }
+
+        List<Long> oldTagIds = bbsPostTagMapper.selectTagIdsByPostId(postId);
+        List<Long> newTagIds = resolveTagIds(inputTags);
+
+        bbsPostTagMapper.deleteBbsPostTagByPostId(postId);
+        for (Long tagId : newTagIds)
+        {
+            bbsPostTagMapper.insertBbsPostTag(postId, tagId);
+        }
+
+        for (Long oldTagId : oldTagIds)
+        {
+            if (!newTagIds.contains(oldTagId))
+            {
+                bbsTagMapper.decrementUseCount(oldTagId);
+            }
+        }
+        for (Long newTagId : newTagIds)
+        {
+            if (!oldTagIds.contains(newTagId))
+            {
+                bbsTagMapper.incrementUseCount(newTagId);
+            }
+        }
+    }
+
+    protected List<Long> resolveTagIds(List<BbsTag> inputTags)
+    {
+        java.util.LinkedHashSet<Long> tagIdSet = new java.util.LinkedHashSet<>();
+        if (inputTags == null)
+        {
+            return new java.util.ArrayList<>();
+        }
+
+        for (BbsTag inputTag : inputTags)
+        {
+            if (inputTag == null)
+            {
+                continue;
+            }
+
+            Long tagId = inputTag.getTagId();
+            if (tagId != null)
+            {
+                BbsTag existById = bbsTagMapper.selectBbsTagById(tagId);
+                if (existById != null)
+                {
+                    tagIdSet.add(existById.getTagId());
+                    continue;
+                }
+            }
+
+            String tagName = StringUtils.trim(inputTag.getTagName());
+            if (StringUtils.isEmpty(tagName))
+            {
+                continue;
+            }
+            if (tagName.length() > 50)
+            {
+                tagName = tagName.substring(0, 50);
+            }
+
+            BbsTag existByName = bbsTagMapper.selectBbsTagByName(tagName);
+            if (existByName != null)
+            {
+                tagIdSet.add(existByName.getTagId());
+                continue;
+            }
+
+            BbsTag newTag = new BbsTag();
+            newTag.setTagName(tagName);
+            newTag.setTagColor(StringUtils.isEmpty(inputTag.getTagColor()) ? "#409EFF" : inputTag.getTagColor());
+            newTag.setUseCount(0);
+            bbsTagMapper.insertBbsTag(newTag);
+            if (newTag.getTagId() != null)
+            {
+                tagIdSet.add(newTag.getTagId());
+            }
+        }
+
+        return new java.util.ArrayList<>(tagIdSet);
     }
 }

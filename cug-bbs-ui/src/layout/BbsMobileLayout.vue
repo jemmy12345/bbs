@@ -3,7 +3,7 @@
     <!-- 顶部导航栏 -->
     <div class="bbs-mobile-header">
       <div class="header-top">
-        <div class="logo" @click="goHome">CUGer BBS</div>
+        <div class="logo" @click="goHome">Smart BBS</div>
         <div class="header-actions">
           <el-button type="primary" icon="el-icon-edit" size="mini" circle @click="handlePublish"
             class="publish-btn"></el-button>
@@ -45,6 +45,9 @@
       <div class="nav-tabs">
         <div class="nav-tab" :class="{ active: currentNav === 'home' }" @click="handleNavClick('home')">
           {{ $t('bbs.home') }}
+        </div>
+        <div class="nav-tab" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
+          专题
         </div>
         <!-- <div 
           class="nav-tab" 
@@ -94,9 +97,9 @@
     <!-- 底部导航栏 -->
     <div class="bbs-mobile-footer">
 
-      <div class="footer-item" :class="{ active: currentNav === 'hot' }" @click="handleNavClick('hot')">
+      <div class="footer-item" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
         <i class="el-icon-star-on"></i>
-        <span>{{ $t('bbs.hot') }}</span>
+        <span>专题</span>
       </div>
       <div class="footer-item" :class="{ active: currentNav === 'home' }" @click="handleNavClick('home')">
         <i class="el-icon-menu"></i>
@@ -208,14 +211,17 @@ export default {
   },
   methods: {
     updateFromRoute() {
+      if (this.$route.path === '/topic') {
+        this.currentNav = 'topic';
+      }
       if (this.$route.query.categoryId) {
         this.activeCategory = parseInt(this.$route.query.categoryId);
       } else {
         this.activeCategory = null;
       }
-      if (this.$route.query.nav) {
+      if (this.$route.path !== '/topic' && this.$route.query.nav) {
         this.currentNav = this.$route.query.nav;
-      } else {
+      } else if (this.$route.path !== '/topic') {
         this.currentNav = 'home';
       }
       if (this.$route.query.keyword) {
@@ -253,6 +259,10 @@ export default {
     },
     handleNavClick(nav) {
       this.currentNav = nav;
+      if (nav === 'topic') {
+        this.$router.push({ path: '/topic' });
+        return;
+      }
       this.$router.push({
         path: '/index',
         query: {

@@ -89,4 +89,12 @@ public interface BbsTagMapper
      * @return 标签集合
      */
     public List<BbsTag> selectTagsByPostId(Long postId);
+
+    /**
+     * 查询热门标签
+     *
+     * @param limit 限制数量
+     * @return 标签集合
+     */
+    public List<BbsTag> selectHotTags(Integer limit);
 }

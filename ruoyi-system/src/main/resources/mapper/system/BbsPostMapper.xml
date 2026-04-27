@@ -97,6 +97,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="isEssence != null and isEssence != ''">
                 AND p.is_essence = #{isEssence}
             </if>
+            <if test="topicTagName != null and topicTagName != ''">
+                AND EXISTS (
+                    select 1
+                    from bbs_post_tag pt
+                    inner join bbs_tag t on t.tag_id = pt.tag_id
+                    where pt.post_id = p.post_id and t.tag_name = #{topicTagName}
+                )
+            </if>
             <if test="sortType == 'hot'">
                 order by p.is_top desc, p.view_count desc, p.like_count desc, p.comment_count desc
             </if>
@@ -259,5 +267,58 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="countUserPosts" parameterType="String" resultType="int">
         select count(*) from bbs_post where user_id = #{userId} and del_flag = '0' and status != '4'
     </select>
-    
+
+    <!-- 运营看板：各状态帖子数量 -->
+    <select id="selectPostStatusStats" resultType="java.util.Map">
+        select status, count(*) as cnt
+        from bbs_post
+        where del_flag = '0' and status != '4'
+        group by status
+    </select>
+
+    <!-- 运营看板：各类型帖子数量 -->
+    <select id="selectPostTypeStats" resultType="java.util.Map">
+        select coalesce(post_type, 'share') as post_type, count(*) as cnt
+        from bbs_post
+        where del_flag = '0' and status != '4'
+        group by post_type
+    </select>
+
+    <!-- 运营看板：最近7天每日发帖趋势 -->
+    <select id="selectPostDailyTrend" resultType="java.util.Map">
+        select date_format(create_time, '%Y-%m-%d') as date_str, count(*) as cnt
+        from bbs_post
+        where del_flag = '0' and status != '4'
+          and create_time >= date_sub(now(), interval 6 day)
+        group by date_format(create_time, '%Y-%m-%d')
+        order by date_str asc
+    </select>
+
+    <!-- 运营看板：活跃用户排行 -->
+    <select id="selectTopActiveUsers" resultType="java.util.Map">
+        select p.nick_name, count(*) as post_cnt, sum(p.view_count) as total_views,
+               sum(p.like_count) as total_likes
+        from bbs_post p
+        where p.del_flag = '0' and p.status = '0' and p.is_anonymous = '0'
+        group by p.nick_name
+        order by post_cnt desc
+        limit #{limit}
+    </select>
+
+    <!-- 运营看板：总体汇总数据 -->
+    <select id="selectPostSummary" resultType="java.util.Map">
+        select
+            count(*) as total_posts,
+            sum(case when status = '2' then 1 else 0 end) as pending_count,
+            sum(case when status = '0' then 1 else 0 end) as published_count,
+            sum(case when status = '3' then 1 else 0 end) as rejected_count,
+            sum(case when status = '1' then 1 else 0 end) as closed_count,
+            sum(case when is_anonymous = '1' then 1 else 0 end) as anonymous_count,
+            sum(view_count) as total_views,
+            sum(like_count) as total_likes,
+            sum(comment_count) as total_comments
+        from bbs_post
+        where del_flag = '0' and status != '4'
+    </select>
+
 </mapper>

@@ -19,7 +19,7 @@ export default {
     my: 'My'
   },
   bbs: {
-    title: 'CUGer BBS',
+    title: 'Smart BBS',
     home: 'Home',
     hot: 'Hot',
     latest: 'Latest',

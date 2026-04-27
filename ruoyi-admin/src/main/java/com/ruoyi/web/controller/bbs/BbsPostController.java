@@ -10,12 +10,16 @@ import com.alibaba.fastjson2.JSONObject;
 import com.ruoyi.common.core.wx.WeChatApi;
 import com.ruoyi.common.utils.http.HttpUtils;
 import com.ruoyi.system.domain.BbsPost;
+import com.ruoyi.system.domain.BbsTag;
 import com.ruoyi.system.domain.BbsDeptContact;
 import com.ruoyi.system.domain.BbsNotification;
+import com.ruoyi.system.domain.BbsPostFollowupRecord;
 import com.ruoyi.system.domain.ai.BbsAiModerationResult;
+import com.ruoyi.system.mapper.BbsTagMapper;
 import com.ruoyi.system.service.IBbsAiService;
 import com.ruoyi.system.service.IBbsNotificationService;
 import com.ruoyi.system.service.IBbsPostService;
+import com.ruoyi.system.service.IBbsPostFollowupRecordService;
 import com.ruoyi.system.service.IBbsSensitiveWordService;
 import com.ruoyi.system.service.IBbsDeptContactService;
 import com.ruoyi.system.service.ISysConfigService;
@@ -91,6 +95,22 @@ public class BbsPostController extends BaseController
 
     @Autowired
     private IBbsNotificationService bbsNotificationService;
+
+    @Autowired
+    private IBbsPostFollowupRecordService bbsPostFollowupRecordService;
+
+    @Autowired
+    private BbsTagMapper bbsTagMapper;
+
+    /**
+     * 获取运营看板统计数据
+     */
+    @ApiOperation("获取运营看板统计数据")
+    @GetMapping("/stats")
+    public AjaxResult getStats()
+    {
+        return AjaxResult.success(bbsPostService.getPostStats());
+    }
 
     /**
      * 查询帖子列表
@@ -180,6 +200,8 @@ public class BbsPostController extends BaseController
         String postIdText = params.get("postId");
         String followupStatus = params.get("followupStatus");
         String followupNote = params.get("followupNote");
+        String ownerUserId = params.get("ownerUserId");
+        String ownerUserName = params.get("ownerUserName");
 
         if (StringUtils.isEmpty(postIdText))
         {
@@ -214,8 +236,54 @@ public class BbsPostController extends BaseController
             return error("无权限更新闭环状态");
         }
 
+        BbsDeptContact deptContact = bbsDeptContactService.selectBbsDeptContactByDeptId(post.getResponseDeptId());
+        SysUser currentUser = SecurityUtils.getLoginUser().getUser();
+
+        BbsPostFollowupRecord record = new BbsPostFollowupRecord();
+        record.setPostId(postId);
+        record.setFollowupStatus(followupStatus);
+        record.setProcessNote(StringUtils.isEmpty(followupNote) ? "" : StringUtils.trim(followupNote));
+        record.setOwnerUserId(StringUtils.isNotEmpty(ownerUserId) ? StringUtils.trim(ownerUserId)
+            : (deptContact != null ? deptContact.getContactUserId() : ""));
+        record.setOwnerUserName(StringUtils.isNotEmpty(ownerUserName) ? StringUtils.trim(ownerUserName)
+            : (deptContact != null ? deptContact.getContactName() : ""));
+        record.setHandledBy(SecurityUtils.getUsername());
+        record.setHandledByName(currentUser.getNickName());
+        record.setHandleTime(new java.util.Date());
+        record.setCreateBy(SecurityUtils.getUsername());
+        record.setUpdateBy(SecurityUtils.getUsername());
+        record.setDelFlag("0");
+        bbsPostFollowupRecordService.insertBbsPostFollowupRecord(record);
+
         post.setAuditReason(buildFollowupAuditReason(followupStatus, followupNote));
-        return toAjax(bbsPostService.updateBbsPost(post));
+        bbsPostService.updateBbsPost(post);
+        return AjaxResult.success("更新成功", record);
+    }
+
+    @ApiOperation("获取帖子最新闭环记录")
+    @GetMapping("/followup/latest/{postId}")
+    public AjaxResult getFollowupLatest(@PathVariable Long postId)
+    {
+        return AjaxResult.success(bbsPostFollowupRecordService.selectLatestByPostId(postId));
+    }
+
+    @ApiOperation("获取帖子闭环记录历史")
+    @GetMapping("/followup/history/{postId}")
+    public AjaxResult getFollowupHistory(@PathVariable Long postId)
+    {
+        return AjaxResult.success(bbsPostFollowupRecordService.selectListByPostId(postId));
+    }
+
+    @ApiOperation("获取热门标签")
+    @GetMapping("/tags/hot")
+    public AjaxResult getHotTags(Integer limit)
+    {
+        if (limit == null || limit <= 0)
+        {
+            limit = 20;
+        }
+        List<BbsTag> tags = bbsTagMapper.selectHotTags(limit);
+        return AjaxResult.success(tags);
     }
 
     /**
@@ -1074,7 +1142,7 @@ public class BbsPostController extends BaseController
         msgInfo.put("agentid", 1000063);
         JSONObject textcard = new JSONObject();
         textcard.put("title", "BBS通知");
-        String description = "<div class=\"normal\">您好，贵部在CUGer BBS收到了一条新的建议/意见，还请前往查看并给予反馈!\r\n</div> <div class=\"highlight\">"+post.getTitle()+"</div>";
+        String description = "<div class=\"normal\">您好，贵部在Smart BBS收到了一条新的建议/意见，还请前往查看并给予反馈!\r\n</div> <div class=\"highlight\">"+post.getTitle()+"</div>";
         textcard.put("description", description);
         String detailUrlInfo = detailUrl + post.getPostId();
         String redirectUrl1 = redirectUrl.replace("redirectUri", detailUrlInfo);

@@ -19,7 +19,7 @@ export default {
     my: '我的'
   },
   bbs: {
-    title: 'CUGer BBS',
+    title: 'Smart BBS',
     home: '首页',
     hot: '热门',
     latest: '最新',

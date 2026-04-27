@@ -90,6 +90,14 @@ export function getHotPosts(limit = 5) {
   })
 }
 
+// 获取运营看板统计数据
+export function getPostStats() {
+  return request({
+    url: '/bbs/post/stats',
+    method: 'get'
+  })
+}
+
 // 获取审核开关状态
 export function getAuditEnabled() {
   return request({
@@ -159,11 +167,36 @@ export function generatePostByAi(data) {
   })
 }
 
-// 更新建议/意见类帖子的闭环状态
+// 查询热门标签
+export function getHotTags(limit = 20) {
+  return request({
+    url: '/bbs/post/tags/hot',
+    method: 'get',
+    params: { limit }
+  })
+}
+
+// 更新建议/意见帖闭环状态
 export function updatePostFollowup(data) {
   return request({
     url: '/bbs/post/followup',
     method: 'post',
     data: data
+  })
+}
+
+// 获取最新闭环记录
+export function getPostFollowupLatest(postId) {
+  return request({
+    url: '/bbs/post/followup/latest/' + postId,
+    method: 'get'
+  })
+}
+
+// 获取闭环记录历史
+export function getPostFollowupHistory(postId) {
+  return request({
+    url: '/bbs/post/followup/history/' + postId,
+    method: 'get'
   })
 }

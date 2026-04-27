@@ -4,10 +4,13 @@
     <div class="bbs-header">
       <div class="header-content">
         <div class="nav-left">
-          <div class="logo" @click="goHome">CUGer BBS</div>
+          <div class="logo" @click="goHome">Smart BBS</div>
           <div class="nav-menu">
             <span class="nav-item" :class="{ active: currentNav === 'home' }" @click="handleNavClick('home')">
               {{ $t('bbs.home') }}
+            </span>
+            <span class="nav-item" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
+              专题
             </span>
             <!-- <el-dropdown @command="handleCategoryNav" trigger="hover">
               <span class="nav-item">
@@ -201,14 +204,17 @@ export default {
       this.isMobile = window.innerWidth < 768;
     },
     updateFromRoute() {
+      if (this.$route.path === '/topic') {
+        this.currentNav = 'topic';
+      }
       if (this.$route.query.categoryId) {
         this.activeCategory = parseInt(this.$route.query.categoryId);
       } else {
         this.activeCategory = null;
       }
-      if (this.$route.query.nav) {
+      if (this.$route.path !== '/topic' && this.$route.query.nav) {
         this.currentNav = this.$route.query.nav;
-      } else {
+      } else if (this.$route.path !== '/topic') {
         this.currentNav = 'home';
       }
       if (this.$route.query.keyword) {
@@ -242,6 +248,10 @@ export default {
     },
     handleNavClick(nav) {
       this.currentNav = nav;
+      if (nav === 'topic') {
+        this.$router.push({ path: '/topic' });
+        return;
+      }
       this.$router.push({
         path: '/index',
         query: {

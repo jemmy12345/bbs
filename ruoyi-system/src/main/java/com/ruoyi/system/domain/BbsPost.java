@@ -100,6 +100,9 @@ public class BbsPost extends BaseEntity
 
     /** 标签列表 */
     private List<BbsTag> tags;
+
+    /** 专题标签过滤条件 */
+    private String topicTagName;
     private String sortType;
 
     public String getSortType() {
@@ -108,6 +111,16 @@ public class BbsPost extends BaseEntity
 
     public void setSortType(String sortType) {
         this.sortType = sortType;
+    }
+
+    public String getTopicTagName()
+    {
+        return topicTagName;
+    }
+
+    public void setTopicTagName(String topicTagName)
+    {
+        this.topicTagName = topicTagName;
     }
 
     public Long getPostId()

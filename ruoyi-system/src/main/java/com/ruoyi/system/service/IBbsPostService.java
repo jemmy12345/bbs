@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.system.domain.BbsPost;
 
 /**
@@ -154,4 +155,10 @@ public interface IBbsPostService
      * @return
      */
     public int delByPersonal(Long postId);
+
+    /**
+     * 获取运营看板统计数据
+     * @return 统计数据Map
+     */
+    public Map<String, Object> getPostStats();
 }

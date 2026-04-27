@@ -122,6 +122,17 @@
 
               {{ truncateTitle(post.title) }}
             </h3>
+            <div v-if="post.tags && post.tags.length" class="post-tag-list">
+              <el-tag
+                v-for="tag in post.tags"
+                :key="tag.tagId || tag.tagName"
+                size="mini"
+                effect="plain"
+                :style="{ borderColor: tag.tagColor || '#409EFF', color: tag.tagColor || '#409EFF' }"
+              >
+                #{{ tag.tagName }}
+              </el-tag>
+            </div>
             <span
               v-if="
                 (post.postType === 'suggestion' ||
@@ -272,6 +283,26 @@
             show-word-limit
           />
         </el-form-item>
+        <el-form-item label="标签">
+          <el-select
+            v-model="form.tags"
+            multiple
+            filterable
+            allow-create
+            default-first-option
+            clearable
+            style="width: 100%"
+            placeholder="可输入标签并回车，例如：流程优化、知识库、体验改进"
+          >
+            <el-option
+              v-for="tag in tagOptions"
+              :key="tag.tagId || tag.tagName"
+              :label="tag.tagName"
+              :value="tag.tagName"
+            />
+          </el-select>
+          <div style="font-size: 12px; color: #999; margin-top: 5px">最多建议 5 个标签，便于形成专题沉淀。</div>
+        </el-form-item>
         <el-form-item label="AI助写">
           <div class="ai-assist-row">
             <el-input
@@ -408,7 +439,7 @@
 </template>
 
 <script>
-import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts } from "@/api/bbs/post";
+import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts, getHotTags } from "@/api/bbs/post";
 import { listCategory } from "@/api/bbs/category";
 import { checkSensitiveWords } from "@/api/bbs/sensitive";
 import { listDeptForPost, listDept } from "@/api/system/dept";
@@ -457,6 +488,7 @@ export default {
         postType: "",
         responseDeptId: null,
         responseDeptName: null,
+        tags: [],
       },
       isMobile: false,
       keyDialogVisible: false,
@@ -465,6 +497,7 @@ export default {
       aiKeywords: "",
       aiGenerating: false,
       hotPostList: [],
+      tagOptions: [],
     };
   },
   computed: {
@@ -640,6 +673,7 @@ export default {
     this.getCategoryList();
     this.getDeptList();
     this.getHotPostList();
+    this.getTagOptions();
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
 
@@ -802,6 +836,15 @@ export default {
           this.hotPostList = [];
         });
     },
+    getTagOptions() {
+      getHotTags(50)
+        .then((response) => {
+          this.tagOptions = response.data || [];
+        })
+        .catch(() => {
+          this.tagOptions = [];
+        });
+    },
     handlePagination(pagination) {
       // 更新页数和每页条数
       if (pagination.page !== undefined) {
@@ -952,6 +995,9 @@ export default {
               postType: draft.postType || "",
               responseDeptId: draft.responseDeptId || null,
               responseDeptName: draft.responseDeptName || null,
+              tags: (draft.tags || [])
+                .map((item) => item.tagName)
+                .filter((name) => !!name),
             };
             this.dialogVisible = true;
           } else {
@@ -1042,6 +1088,10 @@ export default {
               const data = {
                 ...this.form,
                 summary: summary,
+                tags: (this.form.tags || [])
+                  .filter((name) => !!name)
+                  .slice(0, 5)
+                  .map((name) => ({ tagName: String(name).trim() })),
               };
 
               // 匿名发帖：需要本地秘钥并提交秘钥哈希
@@ -1277,6 +1327,10 @@ export default {
         ...this.form,
         summary: summary,
         status: "4", // 草稿状态
+        tags: (this.form.tags || [])
+          .filter((name) => !!name)
+          .slice(0, 5)
+          .map((name) => ({ tagName: String(name).trim() })),
       };
 
       // 如果是编辑草稿，使用update接口
@@ -1319,6 +1373,7 @@ export default {
         postType: "",
         responseDeptId: null,
         responseDeptName: null,
+        tags: [],
       };
       this.aiKeywords = "";
       // 重置表单验证
@@ -1624,6 +1679,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.post-tag-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .category-tag {

@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.system.domain.BbsPost;
 
 /**
@@ -160,4 +161,29 @@ public interface BbsPostMapper
      * @return 帖子数量
      */
     public int countUserPosts(String userId);
+
+    /**
+     * 运营看板：各状态帖子数量
+     */
+    public List<Map<String, Object>> selectPostStatusStats();
+
+    /**
+     * 运营看板：各类型帖子数量
+     */
+    public List<Map<String, Object>> selectPostTypeStats();
+
+    /**
+     * 运营看板：最近7天每日发帖趋势
+     */
+    public List<Map<String, Object>> selectPostDailyTrend();
+
+    /**
+     * 运营看板：活跃用户排行
+     */
+    public List<Map<String, Object>> selectTopActiveUsers(int limit);
+
+    /**
+     * 运营看板：总体汇总数据
+     */
+    public Map<String, Object> selectPostSummary();
 }

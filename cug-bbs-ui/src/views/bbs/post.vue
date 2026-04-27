@@ -19,6 +19,17 @@
                 </el-tag>
                 <span>{{ post.title }}</span>
               </h1>
+              <div v-if="post.tags && post.tags.length" class="post-tags-inline">
+                <el-tag
+                  v-for="tag in post.tags"
+                  :key="tag.tagId || tag.tagName"
+                  size="mini"
+                  effect="plain"
+                  :style="{ borderColor: tag.tagColor || '#409EFF', color: tag.tagColor || '#409EFF' }"
+                >
+                  #{{ tag.tagName }}
+                </el-tag>
+              </div>
             </div>
             <div class="post-meta">
               <el-avatar
@@ -113,6 +124,10 @@
               <div v-if="followupMeta.note" class="followup-note">
                 {{ followupMeta.note }}
               </div>
+              <div v-if="followupLatest" class="followup-note">
+                责任人：{{ followupLatest.ownerUserName || followupLatest.ownerUserId || '未指定' }}
+                <span v-if="followupLatest.handleTime">，处理时间：{{ parseTime(followupLatest.handleTime, '{y}-{m}-{d} {h}:{i}') }}</span>
+              </div>
               <div v-if="canManageFollowup" class="followup-form">
                 <el-select
                   v-model="followupForm.followupStatus"
@@ -131,6 +146,12 @@
                   show-word-limit
                   placeholder="可填写处理说明、结论或下一步安排"
                 />
+                <el-input
+                  v-model="followupForm.ownerUserName"
+                  size="small"
+                  maxlength="50"
+                  placeholder="责任人名称（可选）"
+                />
                 <el-button
                   type="primary"
                   size="small"
@@ -139,6 +160,19 @@
                 >
                   更新状态
                 </el-button>
+              </div>
+              <div v-if="followupHistory && followupHistory.length" class="followup-history">
+                <div class="followup-history-title">处理记录</div>
+                <div
+                  v-for="item in followupHistory.slice(0, 5)"
+                  :key="item.recordId"
+                  class="followup-history-item"
+                >
+                  <span class="history-status">{{ parseFollowupRecordMeta(item).label }}</span>
+                  <span class="history-owner">{{ item.ownerUserName || item.ownerUserId || '未指定责任人' }}</span>
+                  <span class="history-time">{{ parseTime(item.handleTime, '{y}-{m}-{d} {h}:{i}') }}</span>
+                  <span class="history-note">{{ item.processNote || '-' }}</span>
+                </div>
               </div>
             </div>
             <div class="post-actions">
@@ -500,7 +534,14 @@
 </template>
 
 <script>
-import { getPost, toggleLike, toggleCollect, updatePostFollowup } from "@/api/bbs/post";
+import {
+  getPost,
+  toggleLike,
+  toggleCollect,
+  updatePostFollowup,
+  getPostFollowupLatest,
+  getPostFollowupHistory,
+} from "@/api/bbs/post";
 import {
   listComment,
   addComment,
@@ -559,9 +600,13 @@ export default {
       pendingAnonymousPayload: null,
       currentAnonymousUserHash: "",
       followupSubmitting: false,
+      followupLatest: null,
+      followupHistory: [],
       followupForm: {
         followupStatus: "accepted",
         followupNote: "",
+        ownerUserId: "",
+        ownerUserName: "",
       },
     };
   },
@@ -645,6 +690,9 @@ export default {
       return this.$t("bbs.followupNoticeWithoutDept");
     },
     followupMeta() {
+      if (this.followupLatest) {
+        return this.parseFollowupRecordMeta(this.followupLatest);
+      }
       return this.parseFollowupMeta(this.post ? this.post.auditReason : "");
     },
   },
@@ -755,7 +803,7 @@ export default {
       const postId = this.$route.params.postId;
       getPost(postId).then((response) => {
         this.post = response.data;
-        this.syncFollowupForm();
+        this.loadFollowupRecords();
         this.loading = false;
 
         // 判断当前用户是否是部门接口人
@@ -819,11 +867,59 @@ export default {
         tagType: target.tagType,
       };
     },
+    parseFollowupRecordMeta(record) {
+      if (!record) {
+        return this.parseFollowupMeta("");
+      }
+      const metaMap = {
+        accepted: { label: "已受理", tagType: "info" },
+        processing: { label: "处理中", tagType: "warning" },
+        feedback: { label: "已反馈", tagType: "success" },
+        resolved: { label: "已解决", tagType: "success" },
+      };
+      const code = record.followupStatus || "accepted";
+      const target = metaMap[code] || metaMap.accepted;
+      return {
+        code,
+        label: target.label,
+        note: record.processNote || "部门接口人或管理员可在这里维护处理进展。",
+        tagType: target.tagType,
+      };
+    },
+    loadFollowupRecords() {
+      if (!this.post || !this.post.postId || !this.showFollowupSystemNotice) {
+        this.followupLatest = null;
+        this.followupHistory = [];
+        this.syncFollowupForm();
+        return;
+      }
+
+      getPostFollowupLatest(this.post.postId)
+        .then((response) => {
+          this.followupLatest = response.data || null;
+          this.syncFollowupForm();
+        })
+        .catch(() => {
+          this.followupLatest = null;
+          this.syncFollowupForm();
+        });
+
+      getPostFollowupHistory(this.post.postId)
+        .then((response) => {
+          this.followupHistory = response.data || [];
+        })
+        .catch(() => {
+          this.followupHistory = [];
+        });
+    },
     syncFollowupForm() {
-      const meta = this.parseFollowupMeta(this.post ? this.post.auditReason : "");
+      const meta = this.followupLatest
+        ? this.parseFollowupRecordMeta(this.followupLatest)
+        : this.parseFollowupMeta(this.post ? this.post.auditReason : "");
       this.followupForm.followupStatus = meta.code || "accepted";
-      this.followupForm.followupNote =
-        meta.note === "部门接口人或管理员可在这里维护处理进展。" ? "" : meta.note;
+      this.followupForm.followupNote = meta.note === "部门接口人或管理员可在这里维护处理进展。" ? "" : meta.note;
+      this.followupForm.ownerUserId = this.followupLatest ? (this.followupLatest.ownerUserId || "") : "";
+      this.followupForm.ownerUserName = this.followupLatest ? (this.followupLatest.ownerUserName || "") : "";
     },
     handleFollowupUpdate() {
       if (!this.post || !this.post.postId) {
@@ -834,6 +930,8 @@ export default {
         postId: String(this.post.postId),
         followupStatus: this.followupForm.followupStatus,
         followupNote: this.followupForm.followupNote,
+        ownerUserId: this.followupForm.ownerUserId,
+        ownerUserName: this.followupForm.ownerUserName,
       })
         .then((response) => {
           this.$modal.msgSuccess(response.msg || "闭环状态已更新");
@@ -1186,6 +1284,10 @@ export default {
     align-items: stretch;
   }
 
+  .followup-history-item {
+    grid-template-columns: 1fr;
+  }
+
   .post-detail {
     padding: 15px !important;
   }
@@ -1273,6 +1375,13 @@ export default {
   .el-tag {
     font-size: 11px;
   }
+}
+
+.post-tags-inline {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .post-meta {
@@ -1392,9 +1501,35 @@ export default {
 .followup-form {
   margin-top: 14px;
   display: grid;
-  grid-template-columns: 180px 1fr auto;
+  grid-template-columns: 180px 1fr 220px auto;
   gap: 10px;
   align-items: center;
+}
+
+.followup-history {
+  margin-top: 12px;
+  border-top: 1px dashed #ebeef5;
+  padding-top: 10px;
+}
+
+.followup-history-title {
+  font-size: 13px;
+  color: #606266;
+  margin-bottom: 8px;
+}
+
+.followup-history-item {
+  display: grid;
+  grid-template-columns: 80px 120px 140px 1fr;
+  gap: 8px;
+  font-size: 12px;
+  color: #606266;
+  line-height: 1.6;
+  padding: 4px 0;
+}
+
+.history-status {
+  color: #409eff;
 }
 
 // 使用深度选择器确保样式能应用到 v-html 渲染的内容

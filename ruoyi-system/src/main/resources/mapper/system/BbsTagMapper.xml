@@ -41,6 +41,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         inner join bbs_post_tag pt on t.tag_id = pt.tag_id
         where pt.post_id = #{postId}
     </select>
+
+    <select id="selectHotTags" parameterType="Integer" resultMap="BbsTagResult">
+        select tag_id, tag_name, tag_color, use_count, create_time
+        from bbs_tag
+        order by use_count desc, create_time desc
+        limit #{limit}
+    </select>
     
     <insert id="insertBbsTag" parameterType="BbsTag" useGeneratedKeys="true" keyProperty="tagId">
         insert into bbs_tag (tag_name, tag_color, use_count, create_time)

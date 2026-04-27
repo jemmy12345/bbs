@@ -96,11 +96,17 @@ export const constantRoutes = [
   {
     path: '/admin',
     component: Layout,
-    redirect: '/admin/article',
+    redirect: '/admin/dashboard',
     name: 'BbsAdmin',
     alwaysShow: true,
     meta: { title: '论坛管理', icon: 'message', affix: false },
     children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/views/bbs/dashboard/index'),
+        name: 'BbsDashboard',
+        meta: { title: '运营看板', icon: 'dashboard', affix: false }
+      },
       {
         path: 'sensitive',
         component: () => import('@/views/bbs/sensitive/index'),
@@ -137,6 +143,12 @@ export const constantRoutes = [
         component: () => import('@/views/bbs/index'),
         name: 'BbsIndex',
         meta: { title: '企业论坛', icon: 'message', affix: false }
+      },
+      {
+        path: 'topic',
+        component: () => import('@/views/bbs/topic'),
+        name: 'BbsTopic',
+        meta: { title: '论坛专题', icon: 'message', affix: false }
       },
       {
         path: 'post/:postId',
