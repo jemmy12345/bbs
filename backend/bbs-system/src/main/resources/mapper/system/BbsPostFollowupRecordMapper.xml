@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsPostFollowupRecordMapper">
+
+    <resultMap id="BbsPostFollowupRecordResult" type="BbsPostFollowupRecord">
+        <result property="recordId" column="record_id"/>
+        <result property="postId" column="post_id"/>
+        <result property="followupStatus" column="followup_status"/>
+        <result property="processNote" column="process_note"/>
+        <result property="ownerUserId" column="owner_user_id"/>
+        <result property="ownerUserName" column="owner_user_name"/>
+        <result property="handledBy" column="handled_by"/>
+        <result property="handledByName" column="handled_by_name"/>
+        <result property="handleTime" column="handle_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <insert id="insertBbsPostFollowupRecord" parameterType="BbsPostFollowupRecord" useGeneratedKeys="true" keyProperty="recordId">
+        insert into bbs_post_followup_record (
+            post_id, followup_status, process_note, owner_user_id, owner_user_name,
+            handled_by, handled_by_name, handle_time, create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{postId}, #{followupStatus}, #{processNote}, #{ownerUserId}, #{ownerUserName},
+            #{handledBy}, #{handledByName}, #{handleTime}, #{createBy}, sysdate(), #{updateBy}, sysdate(), #{delFlag}
+        )
+    </insert>
+
+    <select id="selectLatestByPostId" parameterType="Long" resultMap="BbsPostFollowupRecordResult">
+        select record_id, post_id, followup_status, process_note, owner_user_id, owner_user_name,
+               handled_by, handled_by_name, handle_time, create_by, create_time, update_by, update_time, del_flag
+        from bbs_post_followup_record
+        where post_id = #{postId} and del_flag = '0'
+        order by handle_time desc, record_id desc
+        limit 1
+    </select>
+
+    <select id="selectListByPostId" parameterType="Long" resultMap="BbsPostFollowupRecordResult">
+        select record_id, post_id, followup_status, process_note, owner_user_id, owner_user_name,
+               handled_by, handled_by_name, handle_time, create_by, create_time, update_by, update_time, del_flag
+        from bbs_post_followup_record
+        where post_id = #{postId} and del_flag = '0'
+        order by handle_time desc, record_id desc
+    </select>
+
+</mapper>

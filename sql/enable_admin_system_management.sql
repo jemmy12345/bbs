@@ -1,4 +1,4 @@
--- Enable RuoYi admin backend menus and authorize admin role to maintain them.
+-- Enable admin backend menus and authorize admin role to maintain them.
 -- Safe to execute multiple times.
 
 -- 1) Ensure admin role is active

@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsIdeaMapper">
+
+    <resultMap id="IdeaResult" type="com.ruoyi.system.domain.BbsIdeaProposal">
+        <id property="ideaId" column="idea_id"/>
+        <result property="title" column="title"/>
+        <result property="category" column="category"/>
+        <result property="content" column="content"/>
+        <result property="backgroundText" column="background_text"/>
+        <result property="planText" column="plan_text"/>
+        <result property="expectedValue" column="expected_value"/>
+        <result property="visibilityScope" column="visibility_scope"/>
+        <result property="attachmentUrls" column="attachment_urls"/>
+        <result property="relatedCase" column="related_case"/>
+        <result property="teamName" column="team_name"/>
+        <result property="isDraft" column="is_draft"/>
+        <result property="reviewStage" column="review_stage"/>
+        <result property="rejectReason" column="reject_reason"/>
+        <result property="projectTime" column="project_time"/>
+        <result property="landingTime" column="landing_time"/>
+        <result property="isPublicized" column="is_publicized"/>
+        <result property="incentivePoints" column="incentive_points"/>
+        <result property="honorBadge" column="honor_badge"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="shareCount" column="share_count"/>
+        <result property="reviewDeadline" column="review_deadline"/>
+        <result property="bizValue" column="biz_value"/>
+        <result property="status" column="status"/>
+        <result property="avgScore" column="avg_score"/>
+        <result property="resultSummary" column="result_summary"/>
+        <result property="submitUserId" column="submit_user_id"/>
+        <result property="submitNickName" column="submit_nick_name"/>
+        <result property="likedByCurrentUser" column="liked_by_current_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap id="IdeaReviewResult" type="com.ruoyi.system.domain.BbsIdeaReview">
+        <id property="reviewId" column="review_id"/>
+        <result property="ideaId" column="idea_id"/>
+        <result property="stage" column="stage"/>
+        <result property="action" column="action"/>
+        <result property="reviewerUserId" column="reviewer_user_id"/>
+        <result property="reviewerNickName" column="reviewer_nick_name"/>
+        <result property="score" column="score"/>
+        <result property="comment" column="comment"/>
+        <result property="rejectReason" column="reject_reason"/>
+        <result property="isVisibleToAll" column="is_visible_to_all"/>
+        <result property="reviewTime" column="review_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="IdeaProgressResult" type="com.ruoyi.system.domain.BbsIdeaProgress">
+        <id property="progressId" column="progress_id"/>
+        <result property="ideaId" column="idea_id"/>
+        <result property="statusEnum" column="status_enum"/>
+        <result property="updaterUserId" column="updater_user_id"/>
+        <result property="updaterNickName" column="updater_nick_name"/>
+        <result property="progressStage" column="progress_stage"/>
+        <result property="progressDesc" column="progress_desc"/>
+        <result property="attachmentUrls" column="attachment_urls"/>
+        <result property="progressPercent" column="progress_percent"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insertIdea" parameterType="com.ruoyi.system.domain.BbsIdeaProposal" useGeneratedKeys="true" keyProperty="ideaId">
+        insert into bbs_idea_proposal(
+            title, category, content, background_text, plan_text, expected_value,
+            visibility_scope, attachment_urls, related_case, team_name,
+            is_draft, review_stage, review_deadline, biz_value,
+            status, submit_user_id, submit_nick_name,
+            create_time, update_time
+        ) values(
+            #{title}, #{category}, #{content}, #{backgroundText}, #{planText}, #{expectedValue},
+            #{visibilityScope}, #{attachmentUrls}, #{relatedCase}, #{teamName},
+            #{isDraft}, #{reviewStage}, #{reviewDeadline}, #{bizValue},
+            #{status}, #{submitUserId}, #{submitNickName},
+            now(), now()
+        )
+    </insert>
+
+    <update id="updateIdea" parameterType="com.ruoyi.system.domain.BbsIdeaProposal">
+        update bbs_idea_proposal
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="backgroundText != null">background_text = #{backgroundText},</if>
+            <if test="planText != null">plan_text = #{planText},</if>
+            <if test="expectedValue != null">expected_value = #{expectedValue},</if>
+            <if test="visibilityScope != null">visibility_scope = #{visibilityScope},</if>
+            <if test="attachmentUrls != null">attachment_urls = #{attachmentUrls},</if>
+            <if test="relatedCase != null">related_case = #{relatedCase},</if>
+            <if test="teamName != null">team_name = #{teamName},</if>
+            <if test="isDraft != null">is_draft = #{isDraft},</if>
+            <if test="reviewStage != null">review_stage = #{reviewStage},</if>
+            <if test="reviewDeadline != null">review_deadline = #{reviewDeadline},</if>
+            <if test="bizValue != null">biz_value = #{bizValue},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = now()
+        </set>
+        where idea_id = #{ideaId}
+    </update>
+
+    <select id="selectIdeaList" resultMap="IdeaResult">
+        select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
+               i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
+               i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
+               i.biz_value, i.status, i.avg_score, i.result_summary,
+               i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
+        from bbs_idea_proposal i
+        <where>
+            i.del_flag = '0'
+            and (i.is_draft != '1' or i.submit_user_id = #{currentUserId})
+            <if test="status != null and status != ''">and i.status = #{status}</if>
+            <if test="category != null and category != ''">and i.category = #{category}</if>
+            <if test="isPublicized != null and isPublicized != ''">and i.is_publicized = #{isPublicized}</if>
+            <if test="keyword != null and keyword != ''">
+                and (i.title like concat('%', #{keyword}, '%') or i.content like concat('%', #{keyword}, '%'))
+            </if>
+            and (
+                #{mineOnly} = 1
+                or i.is_publicized = '1'
+                or i.submit_user_id = #{currentUserId}
+                or i.visibility_scope = 'all'
+                or (i.visibility_scope = 'review_group' and (
+                    #{canReviewAll} = 1
+                    or exists (select 1 from bbs_idea_review r where r.idea_id = i.idea_id and r.reviewer_user_id = #{currentUserId})
+                ))
+                or (i.visibility_scope = 'admin' and #{isAdmin} = 1)
+            )
+            <if test="mineOnly == 1">and i.submit_user_id = #{currentUserId}</if>
+        </where>
+        order by i.create_time desc
+    </select>
+
+    <select id="selectIdeaManageList" resultMap="IdeaResult">
+        select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
+               i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
+               i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
+               i.biz_value, i.status, i.avg_score, i.result_summary,
+               i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
+        from bbs_idea_proposal i
+        <where>
+            i.del_flag = '0'
+            <if test="status != null and status != ''">and i.status = #{status}</if>
+            <if test="category != null and category != ''">and i.category = #{category}</if>
+            <if test="submitNickName != null and submitNickName != ''">and i.submit_nick_name like concat('%', #{submitNickName}, '%')</if>
+            <if test="keyword != null and keyword != ''">
+                and (i.title like concat('%', #{keyword}, '%') or i.content like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by i.create_time desc
+    </select>
+
+    <update id="logicDeleteIdeas">
+        update bbs_idea_proposal set del_flag = '2', update_time = now()
+        where del_flag = '0' and idea_id in
+        <foreach collection="ideaIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+
+    <select id="selectPublicizedWall" resultMap="IdeaResult">
+        select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
+               i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
+               i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
+               i.biz_value, i.status, i.avg_score, i.result_summary,
+               i.submit_user_id, i.submit_nick_name,
+               case
+                   when #{currentUserId} is not null and exists (
+                       select 1
+                       from bbs_idea_user_action a
+                       where a.idea_id = i.idea_id
+                         and a.user_id = #{currentUserId}
+                         and a.action_type = 'LIKE'
+                   ) then '1'
+                   else '0'
+               end as liked_by_current_user,
+               i.create_time, i.update_time
+        from bbs_idea_proposal i
+        <where>
+            i.del_flag = '0'
+            and i.is_publicized = '1'
+            <if test="category != null and category != ''">and i.category = #{category}</if>
+            <if test="keyword != null and keyword != ''">
+                and (i.title like concat('%', #{keyword}, '%') or i.result_summary like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        <choose>
+            <when test="sortBy == 'like'">order by i.like_count desc, i.landing_time desc</when>
+            <when test="sortBy == 'effect'">order by i.incentive_points desc, i.like_count desc</when>
+            <otherwise>order by i.landing_time desc, i.create_time desc</otherwise>
+        </choose>
+    </select>
+
+    <select id="countTodaySubmissions" resultType="int">
+        select count(1)
+        from bbs_idea_proposal
+        where submit_user_id = #{submitUserId}
+          and is_draft = '0'
+          and del_flag = '0'
+          and date(create_time) = curdate()
+    </select>
+
+    <select id="countDuplicateToday" resultType="int">
+        select count(1)
+        from bbs_idea_proposal
+        where submit_user_id = #{submitUserId}
+          and title = #{title}
+          and is_draft = '0'
+          and del_flag = '0'
+          and date(create_time) = curdate()
+    </select>
+
+    <select id="selectIdeaById" resultMap="IdeaResult">
+        select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
+               i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
+               i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
+               i.biz_value, i.status, i.avg_score, i.result_summary,
+               i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
+        from bbs_idea_proposal i
+        where i.idea_id = #{ideaId} and i.del_flag = '0'
+    </select>
+
+    <insert id="insertReview" parameterType="com.ruoyi.system.domain.BbsIdeaReview" useGeneratedKeys="true" keyProperty="reviewId">
+        insert into bbs_idea_review(
+            idea_id, stage, action,
+            reviewer_user_id, reviewer_nick_name,
+            score, comment, reject_reason,
+            is_visible_to_all, review_time, create_time
+        ) values(
+            #{ideaId}, #{stage}, #{action},
+            #{reviewerUserId}, #{reviewerNickName},
+            #{score}, #{comment}, #{rejectReason},
+            #{isVisibleToAll}, #{reviewTime}, now()
+        )
+    </insert>
+
+    <select id="selectReviewList" resultMap="IdeaReviewResult">
+        select review_id, idea_id, stage, action,
+               reviewer_user_id, reviewer_nick_name,
+               score, comment, reject_reason,
+               is_visible_to_all, review_time, create_time
+        from bbs_idea_review
+        where idea_id = #{ideaId}
+        order by create_time desc
+    </select>
+
+    <update id="updateIdeaAvgScore">
+        update bbs_idea_proposal
+        set avg_score = #{avgScore}, update_time = now()
+        where idea_id = #{ideaId}
+    </update>
+
+    <select id="selectAvgScore" resultType="java.math.BigDecimal">
+        select ifnull(avg(score), 0)
+        from bbs_idea_review
+        where idea_id = #{ideaId}
+    </select>
+
+    <insert id="insertProgress" parameterType="com.ruoyi.system.domain.BbsIdeaProgress" useGeneratedKeys="true" keyProperty="progressId">
+        insert into bbs_idea_progress(
+            idea_id, status_enum, updater_user_id, updater_nick_name,
+            progress_stage, progress_desc, attachment_urls, progress_percent, create_time
+        ) values(
+            #{ideaId}, #{statusEnum}, #{updaterUserId}, #{updaterNickName},
+            #{progressStage}, #{progressDesc}, #{attachmentUrls}, #{progressPercent}, now()
+        )
+    </insert>
+
+    <select id="selectMaxProgressPercent" resultType="java.lang.Integer">
+        select max(progress_percent) from bbs_idea_progress where idea_id = #{ideaId}
+    </select>
+
+    <select id="selectProgressList" resultMap="IdeaProgressResult">
+        select progress_id, idea_id, status_enum, updater_user_id, updater_nick_name,
+               progress_stage, progress_desc, attachment_urls, progress_percent, create_time
+        from bbs_idea_progress
+        where idea_id = #{ideaId}
+        order by create_time asc, progress_id asc
+    </select>
+
+    <update id="updateIdeaStatus">
+        update bbs_idea_proposal
+        set status = #{status}, update_time = now()
+        where idea_id = #{ideaId}
+    </update>
+
+    <update id="updateReviewStage">
+        update bbs_idea_proposal
+        set review_stage = #{reviewStage},
+            review_deadline = #{reviewDeadline},
+            reject_reason = #{rejectReason},
+            status = #{status},
+            update_time = now()
+        where idea_id = #{ideaId}
+    </update>
+
+    <update id="updateLanded">
+        update bbs_idea_proposal
+        set status = 'LANDED', landing_time = #{landingTime}, update_time = now()
+        where idea_id = #{ideaId}
+    </update>
+
+    <update id="publishIdeaResult">
+        update bbs_idea_proposal
+        set status = 'PUBLICIZED',
+            is_publicized = '1',
+            result_summary = #{resultSummary},
+            incentive_points = #{incentivePoints},
+            honor_badge = #{honorBadge},
+            update_time = now()
+        where idea_id = #{ideaId}
+    </update>
+
+    <update id="cancelPublicize">
+        update bbs_idea_proposal
+        set status = 'LANDED', is_publicized = '0', update_time = now()
+        where idea_id = #{ideaId} and del_flag = '0' and is_publicized = '1'
+    </update>
+
+    <update id="incrementLikeCount">
+        update bbs_idea_proposal
+        set like_count = like_count + 1, update_time = now()
+        where idea_id = #{ideaId}
+    </update>
+
+    <update id="decrementLikeCount">
+        update bbs_idea_proposal
+        set like_count = case when like_count > 0 then like_count - 1 else 0 end,
+            update_time = now()
+        where idea_id = #{ideaId}
+    </update>
+
+    <update id="incrementShareCount">
+        update bbs_idea_proposal
+        set share_count = share_count + 1, update_time = now()
+        where idea_id = #{ideaId}
+    </update>
+
+    <!-- 每个评审人在该提案该环节的最新一次投票 -->
+    <select id="selectLatestVotesPerReviewer" resultMap="IdeaReviewResult">
+        select r1.review_id, r1.idea_id, r1.stage, r1.action,
+               r1.reviewer_user_id, r1.reviewer_nick_name,
+               r1.score, r1.comment, r1.reject_reason,
+               r1.is_visible_to_all, r1.review_time, r1.create_time
+        from bbs_idea_review r1
+        where r1.idea_id = #{ideaId}
+          and r1.stage = #{stage}
+          and r1.create_time = (
+              select max(r2.create_time)
+              from bbs_idea_review r2
+              where r2.idea_id = r1.idea_id
+                and r2.stage = r1.stage
+                and r2.reviewer_user_id = r1.reviewer_user_id
+          )
+    </select>
+
+    <!-- 某用户在该提案该环节的最新一次投票 -->
+    <select id="selectLatestVoteByReviewer" resultMap="IdeaReviewResult">
+        select review_id, idea_id, stage, action,
+               reviewer_user_id, reviewer_nick_name,
+               score, comment, reject_reason,
+               is_visible_to_all, review_time, create_time
+        from bbs_idea_review
+        where idea_id = #{ideaId}
+          and stage = #{stage}
+          and reviewer_user_id = #{reviewerUserId}
+        order by create_time desc
+        limit 1
+    </select>
+
+    <select id="countReviewsByReviewerOnIdea" resultType="java.lang.Integer">
+        select count(1)
+        from bbs_idea_review
+        where idea_id = #{ideaId}
+          and reviewer_user_id = #{reviewerUserId}
+    </select>
+
+    <insert id="insertIdeaUserActionIgnore">
+        insert ignore into bbs_idea_user_action(
+            idea_id, user_id, action_type, create_time
+        ) values(
+            #{ideaId}, #{userId}, #{actionType}, now()
+        )
+    </insert>
+
+    <delete id="deleteIdeaUserAction">
+        delete from bbs_idea_user_action
+        where idea_id = #{ideaId}
+          and user_id = #{userId}
+          and action_type = #{actionType}
+    </delete>
+
+</mapper>

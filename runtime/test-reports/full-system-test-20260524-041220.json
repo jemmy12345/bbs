@@ -1,0 +1,272 @@
+{
+  "generatedAt": "2026-05-24 04:12:30",
+  "projectRoot": "D:\\桌面\\4ero\\smart-bbs",
+  "backendUrl": "http://localhost:9082",
+  "frontendUrl": "http://localhost/bbs/",
+  "total": 37,
+  "pass": 34,
+  "fail": 0,
+  "skip": 2,
+  "info": 1,
+  "results": [
+    {
+      "name": "测试开始",
+      "status": "INFO",
+      "detail": "project=D:\\桌面\\4ero\\smart-bbs",
+      "time": "2026-05-24 04:12:20",
+      "data": null
+    },
+    {
+      "name": "后端编译",
+      "status": "SKIP",
+      "detail": "已按参数跳过",
+      "time": "2026-05-24 04:12:20",
+      "data": null
+    },
+    {
+      "name": "启动服务",
+      "status": "SKIP",
+      "detail": "使用当前已运行服务",
+      "time": "2026-05-24 04:12:20",
+      "data": null
+    },
+    {
+      "name": "Redis 端口",
+      "status": "PASS",
+      "detail": "6379",
+      "time": "2026-05-24 04:12:22",
+      "data": null
+    },
+    {
+      "name": "后端端口",
+      "status": "PASS",
+      "detail": "9082",
+      "time": "2026-05-24 04:12:22",
+      "data": null
+    },
+    {
+      "name": "前端端口",
+      "status": "PASS",
+      "detail": "80",
+      "time": "2026-05-24 04:12:23",
+      "data": null
+    },
+    {
+      "name": "后端首页",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:23",
+      "data": "{\"code\":200,\"raw\":\"欢迎使用CUG后台服务，当前版本：v3.9.1，请通过前端地址访问。\"}"
+    },
+    {
+      "name": "前端首页",
+      "status": "PASS",
+      "detail": "http://localhost/bbs/",
+      "time": "2026-05-24 04:12:25",
+      "data": null
+    },
+    {
+      "name": "验证码接口",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:25",
+      "data": "{\"msg\":\"操作成功\",\"img\":\"***\",\"code\":200,\"captchaEnabled\":true,\"uuid\":\"d628b396a4314da5bfb2862b86166789\"}"
+    },
+    {
+      "name": "登录获取令牌：admin",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:25",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"token\":\"***\"}"
+    },
+    {
+      "name": "登录获取令牌：zhangsan",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:25",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"token\":\"***\"}"
+    },
+    {
+      "name": "登录获取令牌：l1reviewer",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:25",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"token\":\"***\"}"
+    },
+    {
+      "name": "登录获取令牌：l2reviewer",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"token\":\"***\"}"
+    },
+    {
+      "name": "登录获取令牌：l3reviewer",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"token\":\"***\"}"
+    },
+    {
+      "name": "当前用户信息",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"permissions\":[\"*:*:*\"],\"roles\":[\"admin\"],\"isDefaultModifyPwd\":false,\"isPasswordExpired\":false,\"user\":{\"createBy\":\"admin\",\"createTime\":\"2026-02-02 17:07:56\",\"updateBy\":null,\"updateTime\":null,\"remark\":\"管理员\",\"params\":{\"@type\":\"java.util.HashMap\"},\"userId\":\"1\",\"deptId\":103,\"userName\":\"admin\",\"nickName\":\"管理员\",\"email\":\"ry@163.com\",\"bbsPoints\":169,\"phonenumber\":\"15888888888\",\"sex\":\"1\",\"avatar\":null,\"status\":\"0\",\"delFlag\":\"0\",\"loginIp\":\"127.0.0.1\",\"loginDate\":\"2026-02-02T17:07:56+08:00\",\"pwdUpdateDate\":\"2026-05-24T02:00:01+08:00\",\"dept\":{\"createBy\":null,\"createTime\":null,\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"params\":{\"@type\":\"java.util.HashMap\"},\"deptId\":103,\"parentId\":null,\"ancestors\":null,\"deptName\":null,\"orderNum\":null,\"leader\":null,\"phone\":null,\"email\":null,\"status\":null,\"delFlag\":null,\"parentName\":null,\"regionId\":null,\"children\":[]},\"roles\":[{\"createBy\":null,\"createTime\":null,\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"params\":{\"@type\":\"java.util.HashMap\"},\"roleId\":1,\"roleName\":\"超级管理员\",\"roleKey\":\"admin\",\"roleSort\":1,\"dataScope\":\"1\",\"menuCheckStrictly\":false,\"deptCheckStrictly\":false,\"status\":\"0\",\"delFlag\":null,\"flag\":false,\"menuIds\":null,\"deptIds\":null,\"permissions\":null,\"admin\":true}],\"roleIds\":null,\"postIds\":null,\"roleId\":null,\"admin\":true}}"
+    },
+    {
+      "name": "后台路由信息",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":[{\"name\":\"System\",\"path\":\"/system\",\"hidden\":false,\"redirect\":\"noRedirect\",\"component\":\"Layout\",\"alwaysShow\":true,\"meta\":{\"title\":\"系统管理\",\"icon\":\"system\",\"noCache\":false,\"link\":null},\"children\":[{\"name\":\"User\",\"path\":\"user\",\"hidden\":false,\"component\":\"system/user/index\",\"meta\":{\"title\":\"用户管理\",\"icon\":\"user\",\"noCache\":false,\"link\":null}},{\"name\":\"Role\",\"path\":\"role\",\"hidden\":false,\"component\":\"system/role/index\",\"meta\":{\"title\":\"角色管理\",\"icon\":\"peoples\",\"noCache\":false,\"link\":null}},{\"name\":\"Menu\",\"path\":\"menu\",\"hidden\":false,\"component\":\"system/menu/index\",\"meta\":{\"title\":\"菜单管理\",\"icon\":\"tree-table\",\"noCache\":false,\"link\":null}},{\"name\":\"Dept\",\"path\":\"dept\",\"hidden\":false,\"component\":\"system/dept/index\",\"meta\":{\"title\":\"部门管理\",\"icon\":\"tree\",\"noCache\":false,\"link\":null}},{\"name\":\"Post\",\"path\":\"post\",\"hidden\":false,\"component\":\"system/post/index\",\"meta\":{\"title\":\"岗位管理\",\"icon\":\"post\",\"noCache\":false,\"link\":null}},{\"name\":\"Dict\",\"path\":\"dict\",\"hidden\":false,\"component\":\"system/dict/index\",\"meta\":{\"title\":\"字典管理\",\"icon\":\"dict\",\"noCache\":false,\"link\":null}},{\"name\":\"Config\",\"path\":\"config\",\"hidden\":false,\"component\":\"system/config/index\",\"meta\":{\"title\":\"参数设置\",\"icon\":\"edit\",\"noCache\":false,\"link\":null}},{\"name\":\"Notice\",\"path\":\"notice\",\"hidden\":false,\"component\":\"system/notice/index\",\"meta\":{\"title\":\"通知公告\",\"icon\":\"message\",\"noCache\":false,\"link\":null}},{\"name\":\"Log\",\"path\":\"log\",\"hidden\":false,\"component\":\"ParentView\",\"meta\":{\"title\":\"日志管理\",\"icon\":\"log\",\"noCache\":false,\"link\":null}}]},{\"name\":\"Monitor\",\"path\":\"/monitor\",\"hidden\":false,\"redirect\":\"noRedirect\",\"component\":\"Layout\",\"alwaysShow\":true,\"meta\":{\"title\":\"系统监控\",\"icon\":\"monitor\",\"noCache\":false,\"link\":null},\"children\":[{\"name\":\"Online\",\"path\":\"online\",\"hidden\":false,\"component\":\"monitor/online/index\",\"meta\":{\"title\":\"在线用户\",\"icon\":\"online\",\"noCache\":false,\"link\":null}},{\"name\":\"Job\",\"path\":\"job\",\"hidden\":false,\"component\":\"monitor/job/index\",\"meta\":{\"title\":\"定时任务\",\"icon\":\"job\",\"noCache\":false,\"link\":null}},{\"name\":\"Druid\",\"path\":\"druid\",\"hidden\":false,\"component\":\"monitor/druid/index\",\"meta\":{\"title\":\"数据监控\",\"icon\":\"druid\",\"noCache\":false,\"link\":null}},{\"name\":\"Server\",\"path\":\"server\",\"hidden\":false,\"component\":\"monitor/server/index\",\"meta\":{\"title\":\"服务监控\",\"icon\":\"server\",\"noCache\":false,\"link\":null}},{\"name\":\"Cache\",\"path\":\"cache\",\"hidden\":false,\"component\":\"monitor/cache/index\",\"meta\":{\"title\":\"缓存监控\",\"icon\":\"redis\",\"noCache\":false,\"link\":null}},{\"name\":\"CacheList\",\"path\":\"cacheList\",\"hidden\":false,\"component\":\"monitor/cache/list\",\"meta\":{\"title\":\"缓存列表\",\"icon\":\"redis-list\",\"noCache\":false,\"link\":null}}]},{\"name\":\"Tool\",\"path\":\"/tool\",\"hidden\":false,\"redirect\":\"noRedirect\",\"component\":\"Layout\",\"alwaysShow\":true,\"meta\":{\"title\":\"系统工具\",\"icon\":\"tool\",\"noCache\":false,\"link\":null},\"children\":[{\"name\":\"Build\",\"path\":\"build\",\"hidden\":false,\"component\":\"tool/build/index\",\"meta\":{\"title\":\"表单构建\",\"icon\":\"build\",\"noCache\":false,\"link\":null}},{\"name\":\"Gen\",\"path\":\"gen\",\"hidden\":false,\"component\":\"tool/gen/index\",\"meta\":{\"title\":\"代码生成\",\"icon\":\"code\",\"noCache\":false,\"link\":null}},{\"name\":\"Swagger\",\"path\":\"swagger\",\"hidden\":false,\"component\":\"tool/swagger/index\",\"meta\":{\"title\":\"系统接口\",\"icon\":\"swagger\",\"noCache\":false,\"link\":null}}]},{\"name\":\"BbsIdeaReviewerConfigRoot\",\"path\":\"//admin/idea-review-config\",\"hidden\":false,\"redirect\":\"noRedirect\",\"component\":\"Layout\",\"alwaysShow\":true,\"meta\":{\"title\":\"提案评审配置\",\"icon\":\"peoples\",\"noCache\":false,\"link\":null},\"children\":[{\"name\":\"BbsIdeaReviewerConfig\",\"path\":\"index\",\"hidden\":false,\"component\":\"bbs/ideaStageConfig/index\",\"meta\":{\"title\":\"提案评审配置\",\"icon\":\"edit\",\"noCache\":false,\"link\":null}}]}]}"
+    },
+    {
+      "name": "帖子分类列表",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":[{\"createBy\":\"admin\",\"createTime\":\"2026-02-03 14:21:23\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":\"\",\"categoryId\":1,\"categoryName\":\"通用社区\",\"categoryDesc\":\"覆盖全场景通用事务，聚焦跨板块协作、基础问题解决与全员信息同步，是企业全域沟通枢纽。\\n\",\"icon\":\"el-icon-cpu\",\"sortOrder\":1,\"status\":\"0\",\"postCount\":163},{\"createBy\":\"admin\",\"createTime\":\"2026-02-03 14:21:23\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":\"\",\"categoryId\":2,\"categoryName\":\"产品社区\",\"categoryDesc\":\"围绕产品全生命周期，汇聚需求研讨、研发协同、迭代优化与产品问题攻坚的产品相关人员。\\n\",\"icon\":\"el-icon-s-promotion\",\"sortOrder\":2,\"status\":\"0\",\"postCount\":1},{\"createBy\":\"admin\",\"createTime\":\"2026-02-03 14:21:23\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":\"\",\"categoryId\":3,\"categoryName\":\"网络社区\",\"categoryDesc\":\"聚焦网络架构、运维保障、故障排查与安全防护，是技术团队处理网络相关事务的交流平台。\\n\",\"icon\":\"el-icon-document\",\"sortOrder\":3,\"status\":\"0\",\"postCount\":2},{\"createBy\":\"admin\",\"createTime\":\"2026-02-03 14:21:23\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":\"\",\"categoryId\":4,\"categoryName\":\"人力社区\",\"categoryDesc\":\"专注人力资源全模块，涵盖招聘、薪酬、员工关系、培训发展，服务企业人力管理与员工咨询。\\n\",\"icon\":\"el-icon-sunny\",\"sortOrder\":4,\"status\":\"0\",\"postCount\":2},{\"createBy\":\"admin\",\"createTime\":\"2026-02-03 14:21:23\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":\"\",\"categoryId\":5,\"categoryName\":\"财务社区\",\"categoryDesc\":\"围绕企业财务工作，开展账务处理、预算管控、报销审核、税务筹划的财务人员专属交流阵地。\\n\\n\\n\\n\\n\\n\\n\\n每个社区的具体功能有哪些？\\n如何加入这些社区？\\n这些社区之间有什么联系和区别？\\n\",\"icon\":\"el-icon-question\",\"sortOrder\":5,\"status\":\"0\",\"postCount\":2}]}"
+    },
+    {
+      "name": "帖子列表",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"total\":114,\"rows\":[{\"createBy\":\"\",\"createTime\":\"2026-05-24 02:55:22\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"postId\":286,\"categoryId\":1,\"userId\":\"2\",\"title\":\"测试22\",\"content\":\"<p>测试内容<img src=\\\"/forum-api/profile/upload/2026/05/24/QQ图片20221123183524_20260524025515A001.jpg\\\"></p>\",\"summary\":\"测试内容\",\"viewCount\":10,\"likeCount\":0,\"commentCount\":2,\"collectCount\":0,\"isTop\":\"0\",\"isEssence\":\"0\",\"isAnonymous\":\"0\",\"isAdminPush\":\"0\",\"postType\":\"suggestion\",\"responseDeptId\":850066130,\"responseDeptName\":\"本部\",\"status\":\"0\",\"auditReason\":null,\"delFlag\":\"0\",\"lastReplyTime\":\"2026-05-24T04:11:24+08:00\",\"lastReplyUser\":null,\"categoryName\":\"通用社区\",\"nickName\":\"张三\",\"avatar\":null,\"isLiked\":null,\"isCollected\":null,\"tags\":[{\"tagId\":1,\"tagName\":\"啊啊\",\"tagColor\":\"#409EFF\",\"useCount\":9,\"createTime\":\"2026-04-27T23:16:16+08:00\",\"postId\":286}],\"topicTagName\":null,\"sortType\":null,\"moderationToken\":null},{\"createBy\":\"\",\"createTime\":\"2026-05-22 03:15:20\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"postId\":236,\"categoryId\":1,\"userId\":\"9ca2f99e56340c72ad9358e398f2842c0103bb266a960f3a4115a5f715c83e52\",\"title\":\"分享一个小妙招\",\"content\":\"<p><strong>背景</strong></p><p>本次分享适用于哪些场景？先交代清楚问题背景。</p><p><strong>实践过程</strong></p><p>拆分为 2 到 3 个关键动作，说明怎么做、为什么这么做。</p><p><strong>结果与建议</strong></p><p>总结收益、踩坑点，以及可复用的建议。</p><p><br></p><p># 工作分享｜近期实用办公技巧&amp;跨部门协作感悟</p><p>各位亲爱的同事们：</p><p>大家好呀！最近趁着周末整理了近期工作中积累的一些实用小技巧、跨部门协作的心得，还有挖到的内部宝藏资源，特意来论坛和大家做个分享，希望能帮大家提升日常工作效率，减少一些不必要的内耗~</p><p><br></p><p>【第一部分：日常办公效率提升小技巧】</p><p>1. 邮件分类模板优化：之前我总觉得整理收件箱很费时间，后来给不同对接部门的邮件设置了固定前缀，比如给研发部的邮件统一加「研发对接-项目名-进度更新」，给行政部的加「行政对接-事项-资源申请」，收到邮件后可以直接一键归类到对应项目文件夹，上个月帮团队节省了大概2小时的邮件整理时间，大家可以试试~</p><p>2. 会议纪要快速生成工具：现在企业微信的实时会议纪要功能真的很好用，开启实时转写后，还可以标记重点内容，会后直接导出整理成正式纪要，比手动记录快了至少一半，而且不会遗漏关键信息。</p><p>3. 文档协同权限分级：在用企业文档或者飞书文档做跨部门协作时，不要直接给所有人开编辑权限，给核心协作同事开「可编辑」，给外部访客或者临时参与的同事开「仅查看」，既能保证内容安全，也能避免多人误改导致的版本混乱。</p><p><br></p><p>【第二部分：跨部门协作的实用感悟】</p><p>跨部门协作一直是我们日常工作中很重要的部分，最近我也总结了几个小经验：</p><p>1. 提前对齐核心目标：每次对接其他部门前，先和对方确认这次协作的核心目标是什么，比如上个月和市场部对接新品推广需求时，一开始我们各有侧重，后来对齐了「核心是提升30%到店客流」这个目标后，后续的方案调整就顺畅了很多，没有做无用功。</p><p>2. 建立固定对接人：每个跨部门项目指定唯一的对接人，避免多人对接出现信息差，比如我们部门和财务部对接预算时，固定由预算专员对接，每次沟通都能快速获取准确信息，不用反复转述。</p><p>3. 预留合理缓冲时间：给其他部门的需求尽量提前同步，比如给研发部提功能需求时，提前1-2天把需求文档整理好，给他们留出评估和排期的时间，避免临时赶工导致的细节疏漏。</p><p><br></p><p>【第三部分：近期挖到的内部宝藏资源】</p><p>1. 企业大学新上线的「高效职场沟通」系列课程：里面有一节向上汇报的课程教我们用STAR法则整理汇报内容，上周我用这个方法写了周报，得到了部门总监的表扬，大家有空可以去看看。</p><p>2. 行政部更新的工位预约系统：现在可以提前3天预约靠窗或者靠近茶水间的工位，我昨天试了一下，抢到了靠窗的位置，办公心情都变好了~</p><p>3. 技术部开源的内部工具库：里面有几个自动生成数据报表的小脚本，适合运营、财务部门的同事使用，能节省大量手动制表的时间，链接我放在评论区啦。</p><p><br></p><p>最后，如果大家有更好的实用技巧、协作经验或者宝藏资源，也欢迎在评论区分享出来，我们一起互相学习，共同进步~如果需要本次分享的完整整理笔记，也可以私信我哦。</p>\",\"summary\":\"背景本次分享适用于哪些场景？先交代清楚问题背景。实践过程拆分为 2 到 3 个关键动作，说明怎么做、为什么这么做。结果与建议总结收益、踩坑点，以及可复用的建议。# 工作分享｜近期实用办公技巧&amp;跨部门协作感悟各位亲爱的同事们：大家好呀！最近趁着周末整理了近期工作中积累的一些实用小技巧、跨部门协作的心得，还有挖到的内部宝藏资源，特意来论坛和大家做个分享，希望能帮大家提升日常工作效率，减少一些不\",\"viewCount\":20,\"likeCount\":1,\"commentCount\":2,\"collectCount\":0,\"isTop\":\"0\",\"isEssence\":\"0\",\"isAnonymous\":\"1\",\"isAdminPush\":\"0\",\"postType\":\"share\",\"responseDeptId\":null,\"responseDeptName\":null,\"status\":\"0\",\"auditReason\":null,\"delFlag\":\"0\",\"lastReplyTime\":\"2026-05-24T03:15:30+08:00\",\"lastReplyUser\":null,\"categoryName\":\"通用社区\",\"nickName\":\"匿名用户\",\"avatar\":\"\",\"isLiked\":null,\"isCollected\":null,\"tags\":[{\"tagId\":1,\"tagName\":\"啊啊\",\"tagColor\":\"#409EFF\",\"useCount\":9,\"createTime\":\"2026-04-27T23:16:16+08:00\",\"postId\":236}],\"topicTagName\":null,\"sortType\":null,\"moderationToken\":null},{\"createBy\":\"\",\"createTime\":\"2026-05-21 16:01:42\",\"updateBy\":\"\",\"updateTime\":\"2026-05-21 16:12:54\",\"remark\":null,\"postId\":235,\"categoryId\":1,\"userId\":\"2\",\"title\":\"自动化验证帖子\",\"content\":\"<p>这是一篇用于验证审核原因与分享功能的普通分享帖。</p>\",\"summary\":\"自动化验证帖子\",\"viewCount\":3,\"likeCount\":0,\"commentCount\":0,\"collectCount\":0,\"isTop\":\"0\",\"isEssence\":\"0\",\"isAnonymous\":\"0\",\"isAdminPush\":\"0\",\"postType\":\"share\",\"responseDeptId\":null,\"responseDeptName\":null,\"status\":\"3\",\"auditReason\":\"UI实测驳回：页面已正确提交驳回原因\",\"delFlag\":\"0\",\"lastReplyTime\":null,\"lastReplyUser\":null,\"categoryName\":\"通用社区\",\"nickName\":\"张三\",\"avatar\":null,\"isLiked\":null,\"isCo...(truncated)"
+    },
+    {
+      "name": "评论管理列表",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":[{\"createBy\":null,\"createTime\":\"2026-05-24 04:11:24\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":286,\"title\":\"测试22\",\"commentId\":283,\"commentUserId\":\"2\",\"commentNickName\":\"张三\",\"commentContent\":\"自动测试评论 0524041123\",\"commentStatus\":\"0\",\"commentDelFlag\":\"0\"},{\"createBy\":null,\"createTime\":\"2026-05-24 04:09:50\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":286,\"title\":\"测试22\",\"commentId\":282,\"commentUserId\":\"2\",\"commentNickName\":\"张三\",\"commentContent\":\"自动测试评论 0524040948\",\"commentStatus\":\"0\",\"commentDelFlag\":\"0\"},{\"createBy\":null,\"createTime\":\"2026-05-24 03:15:30\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":236,\"title\":\"分享一个小妙招\",\"commentId\":281,\"commentUserId\":\"0fdf6ba368999a06c71b164f90b7f8ed805928e35ff7a26f8a6863a348bf8489\",\"commentNickName\":\"匿名用户\",\"commentContent\":\"<p>123</p>\",\"commentStatus\":\"0\",\"commentDelFlag\":\"0\"},{\"createBy\":null,\"createTime\":\"2026-05-24 03:15:15\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":236,\"title\":\"分享一个小妙招\",\"commentId\":280,\"commentUserId\":\"2\",\"commentNickName\":\"张三\",\"commentContent\":\"<p>123</p>\",\"commentStatus\":\"0\",\"commentDelFlag\":\"2\"},{\"createBy\":null,\"createTime\":\"2026-05-24 02:53:37\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":220,\"title\":\"图片\",\"commentId\":275,\"commentUserId\":\"76a0cf7a320001a8fa5ca8c71362e0a5a8a91b2c2f3ee676be95163ec20933e5\",\"commentNickName\":\"匿名用户\",\"commentContent\":\"<p>123</p>\",\"commentStatus\":\"0\",\"commentDelFlag\":\"0\"},{\"createBy\":null,\"createTime\":\"2026-05-24 02:53:18\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":220,\"title\":\"图片\",\"commentId\":274,\"commentUserId\":\"2\",\"commentNickName\":\"张三\",\"commentContent\":\"<p>123</p>\",\"commentStatus\":\"0\",\"commentDelFlag\":\"0\"},{\"createBy\":null,\"createTime\":\"2026-05-24 02:52:13\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":224,\"title\":\"图表截图\",\"commentId\":273,\"commentUserId\":\"4ee7e67c3a7eb91e0380dc3b7de3aee6140792f277381f797b2306b73eef3b8d\",\"commentNickName\":\"匿名用户\",\"commentContent\":\"<p><span style=\\\"background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);\\\">我要去围堵同事</span></p>\",\"commentStatus\":\"0\",\"commentDelFlag\":\"2\"},{\"createBy\":null,\"createTime\":\"2026-05-24 02:51:12\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":224,\"title\":\"图表截图\",\"commentId\":272,\"commentUserId\":\"1\",\"commentNickName\":\"管理员\",\"commentContent\":\"<p>我要去围堵同事</p>\",\"commentStatus\":\"0\",\"commentDelFlag\":\"2\"},{\"createBy\":null,\"createTime\":\"2026-05-22 03:28:00\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":236,\"title\":\"分享一个小妙招\",\"commentId\":245,\"commentUserId\":\"1\",\"commentNickName\":\"管理员\",\"commentContent\":\"<p>我要把公司机密发到外网，并组织大家线下围堵某位同事</p>\",\"commentStatus\":\"0\",\"commentDelFlag\":\"2\"},{\"createBy\":null,\"createTime\":\"2026-05-22 03:27:53\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"postId\":236,\"title\":\"分享一个小妙招\",\"commentId\":244,\"commentUserId\":\"918f2aac5736831f26bb7133046e26d886a00d8688d7aa3e63c6242f3f406e78\",\"commentNickName\":\"匿名用户\",\"commentContent\":\"<p>我要把公司机密发到外网，并组织大家线下围堵某位同事</p>\",\"commentStatus\":\"0\",\"commentDelFlag\":\"2\"}]}"
+    },
+    {
+      "name": "敏感词列表",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"total\":122,\"rows\":[{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":133,\"word\":\"holy war\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":132,\"word\":\"nudity\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":131,\"word\":\"sex\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":130,\"word\":\"pornography\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":129,\"word\":\"government\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":128,\"word\":\"going to death\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":127,\"word\":\"Almighty God,\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":126,\"word\":\"Falun Gong\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":125,\"word\":\"cult\",\"wordType\":\"5\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-02-13 11:28:07\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"wordId\":124,\"word\":\"K powder\",\"wordType\":\"5\",\"status\":\"0\"}],\"code\":200,\"msg\":\"查询成功\"}"
+    },
+    {
+      "name": "提案列表",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"total\":7,\"rows\":[{\"createBy\":null,\"createTime\":\"2026-05-24 04:11:23\",\"updateBy\":null,\"updateTime\":\"2026-05-24 04:11:23\",\"remark\":null,\"ideaId\":17,\"title\":\"自动测试提案 0524041123\",\"category\":\"process\",\"content\":\"自动测试提案内容 0524041123\",\"backgroundText\":\"当前流程存在重复录入问题\",\"planText\":\"增加流程提醒和状态跟踪\",\"expectedValue\":\"提升处理效率\",\"visibilityScope\":\"all\",\"attachmentUrls\":\"\",\"relatedCase\":\"\",\"teamName\":\"自动测试组\",\"isDraft\":\"0\",\"reviewStage\":\"NONE\",\"rejectReason\":null,\"projectTime\":null,\"landingTime\":null,\"isPublicized\":\"0\",\"incentivePoints\":0,\"honorBadge\":null,\"likeCount\":0,\"shareCount\":0,\"reviewDeadline\":null,\"delFlag\":null,\"bizValue\":\"提升协作效率\",\"status\":\"IMPLEMENTING\",\"avgScore\":8.33,\"resultSummary\":null,\"submitUserId\":\"2\",\"submitNickName\":\"张三\",\"likedByCurrentUser\":null,\"reviews\":null,\"progressList\":null},{\"createBy\":null,\"createTime\":\"2026-05-24 04:09:48\",\"updateBy\":null,\"updateTime\":\"2026-05-24 04:09:48\",\"remark\":null,\"ideaId\":16,\"title\":\"自动测试提案 0524040948\",\"category\":\"process\",\"content\":\"自动测试提案内容 0524040948\",\"backgroundText\":\"当前流程存在重复录入问题\",\"planText\":\"增加流程提醒和状态跟踪\",\"expectedValue\":\"提升处理效率\",\"visibilityScope\":\"all\",\"attachmentUrls\":\"\",\"relatedCase\":\"\",\"teamName\":\"自动测试组\",\"isDraft\":\"0\",\"reviewStage\":\"L1\",\"rejectReason\":null,\"projectTime\":null,\"landingTime\":null,\"isPublicized\":\"0\",\"incentivePoints\":0,\"honorBadge\":null,\"likeCount\":0,\"shareCount\":0,\"reviewDeadline\":\"2026-05-31T04:09:49+08:00\",\"delFlag\":null,\"bizValue\":\"提升协作效率\",\"status\":\"PENDING_L1\",\"avgScore\":0.0,\"resultSummary\":null,\"submitUserId\":\"2\",\"submitNickName\":\"张三\",\"likedByCurrentUser\":null,\"reviews\":null,\"progressList\":null},{\"createBy\":null,\"createTime\":\"2026-05-22 04:10:00\",\"updateBy\":null,\"updateTime\":\"2026-05-22 04:10:01\",\"remark\":null,\"ideaId\":14,\"title\":\"自动化全流程验证-20260522040952\",\"category\":\"process\",\"content\":\"自动化验收用提案\",\"backgroundText\":\"现有流程中有重复人工确认节点，影响处理效率。\",\"planText\":\"通过统一提案看板记录节点、责任人和评审意见。\",\"expectedValue\":\"减少沟通成本，提高提案落地透明度。\",\"visibilityScope\":\"review_group\",\"attachmentUrls\":null,\"relatedCase\":null,\"teamName\":null,\"isDraft\":\"0\",\"reviewStage\":\"NONE\",\"rejectReason\":null,\"projectTime\":null,\"landingTime\":null,\"isPublicized\":\"0\",\"incentivePoints\":0,\"honorBadge\":null,\"likeCount\":0,\"shareCount\":0,\"reviewDeadline\":null,\"delFlag\":null,\"bizValue\":null,\"status\":\"IMPLEMENTING\",\"avgScore\":8.67,\"resultSummary\":null,\"submitUserId\":\"2\",\"submitNickName\":\"张三\",\"likedByCurrentUser\":null,\"reviews\":null,\"progressList\":null},{\"createBy\":null,\"createTime\":\"2026-05-04 22:11:26\",\"updateBy\":null,\"updateTime\":\"2026-05-22 02:53:15\",\"remark\":null,\"ideaId\":4,\"title\":\"基于 AI 大模型的智能客服意图识别优化方案\",\"category\":\"product\",\"content\":\"当前客服机器人意图识别准确率不足 75%，用户重复转人工率高，且对模糊 / 多轮场景的理解能力弱，导致服务效率低、用户体验差，同时人工客服承接压力持续增加，亟需通过技术手段提升自助服务能力。\\n\\n1、引入企业级 AI 大模型，针对客服场景进行行业语料微调，优化意图识别模型，将准确率提升至 95% 以上。\\n2、搭建上下文多轮对话记忆模块，支持用户多轮交互中的意图连贯理解，减少重复提问。\\n3、开发低置信度自动降级机制，识别不确定场景时自动推送人工客服入口，同时同步对话上下文，降低人工客服二次询问成本。\\n4、分阶段灰度上线：先选取 20% 用户试点，根据数据迭代优化，验证效果后全量推广，并配套客服侧运营看板，实时监控识别效果。\\n\\n降本：降低人工客服承接量 30%，减少人力运营成本。\\n增效：用户问题一次性解决率提升至 90% 以上，平均对话时长缩短 40%。\\n体验：减少用户重复转人工的操作，显著提升服务满意度，降低用户投诉率。\\n沉淀：积累高质量客服对话语料，为后续产品优化和知识库迭代提供数据支撑。\",\"backgroundText\":\"当前客服机器人意图识别准确率不足 75%，用户重复转人工率高，且对模糊 / 多轮场景的理解能力弱，导致服务效率低、用户体验差，同时人工客服承接压力持续增加，亟需通过技术手段提升自助服务能力。\",\"planText\":\"1、引入企业级 AI 大模型，针对客服场景进行行业语料微调，优化意图识别模型，将准确率提升至 95% 以上。\\n2、搭建上下文多轮对话记忆模块，支持用户多轮交互中的意图连贯理解，减少重复提问。\\n3、开发低置信度自动降级机制，识别不确定场景时自动推送人工客服入口，同时同步对话上下文，降低人工客服二次询问成本。\\n4、分阶段灰度上线：先选取 20% 用户试点，根据数据迭代优化，验证效果后全量推广，并配套客服侧运营看板，实时监控识别效果。\",\"expectedValue\":\"降本：降低人工客服承接量 30%，减少人力运营成本。\\n增效：用户问题一次性解决率提升至 90% 以上，平均对话时长缩短 40%。\\n体验：减少用户重复转人工的操作，显著提升服务满意度，降低用户投诉率。\\n沉淀：积累高质量客服对话语料，为后续产品优化和知识库迭代提供数据支撑。\",\"visibilityScope\":\"all\",\"attachmentUrls\":\"\",\"relatedCase\":\"\",\"teamName\":\"\",\"isDraft\":\"0\",\"reviewStage\":\"NONE\",\"rejectReason\":null,\"projectTime\":null,\"landingTime\":\"2026-05-04T22:28:17+08:00\",\"isPublicized\":\"1\",\"incentivePoints\":94,\"honorBadge\":\"创新先锋\",\"likeCount\":1,\"shareCount\":4,\"reviewDeadline\":null,\"delFlag\":null,\"bizValue\":\"成本压降\\n预计降低人工客服承接量 30%-40%，单月减少约 XX 万次人工进线，对应人力成本降低约 25%。\\n减少重复咨询、无效交互带来的系统资源与带宽消耗，年节省 IT 运维成本约 XX 万元。\\n效率提升\\n用户问题一次性解决率从 75% ...(truncated)"
+    },
+    {
+      "name": "提案评审配置",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"total\":3,\"rows\":[{\"createBy\":\"admin\",\"createTime\":\"2026-05-01 22:05:06\",\"updateBy\":\"admin\",\"updateTime\":\"2026-05-24 02:00:01\",\"remark\":\"默认初审角色\",\"configId\":1,\"stageCode\":\"L1\",\"stageName\":\"初审\",\"roleKeys\":\"idea_l1_reviewer\",\"reviewerUserIds\":\"l1reviewer\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-05-01 22:05:06\",\"updateBy\":\"admin\",\"updateTime\":\"2026-05-24 02:00:01\",\"remark\":\"默认复审角色\",\"configId\":2,\"stageCode\":\"L2\",\"stageName\":\"复审\",\"roleKeys\":\"idea_l2_reviewer\",\"reviewerUserIds\":\"l2reviewer\",\"status\":\"0\"},{\"createBy\":\"admin\",\"createTime\":\"2026-05-01 22:05:06\",\"updateBy\":\"admin\",\"updateTime\":\"2026-05-24 02:00:01\",\"remark\":\"默认终审角色\",\"configId\":3,\"stageCode\":\"L3\",\"stageName\":\"终审\",\"roleKeys\":\"idea_l3_reviewer\",\"reviewerUserIds\":\"l3reviewer\",\"status\":\"0\"}],\"code\":200,\"msg\":\"查询成功\"}"
+    },
+    {
+      "name": "提案公示墙",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"total\":2,\"rows\":[{\"createBy\":null,\"createTime\":\"2026-05-04 22:11:26\",\"updateBy\":null,\"updateTime\":\"2026-05-22 02:53:15\",\"remark\":null,\"ideaId\":4,\"title\":\"基于 AI 大模型的智能客服意图识别优化方案\",\"category\":\"product\",\"content\":\"当前客服机器人意图识别准确率不足 75%，用户重复转人工率高，且对模糊 / 多轮场景的理解能力弱，导致服务效率低、用户体验差，同时人工客服承接压力持续增加，亟需通过技术手段提升自助服务能力。\\n\\n1、引入企业级 AI 大模型，针对客服场景进行行业语料微调，优化意图识别模型，将准确率提升至 95% 以上。\\n2、搭建上下文多轮对话记忆模块，支持用户多轮交互中的意图连贯理解，减少重复提问。\\n3、开发低置信度自动降级机制，识别不确定场景时自动推送人工客服入口，同时同步对话上下文，降低人工客服二次询问成本。\\n4、分阶段灰度上线：先选取 20% 用户试点，根据数据迭代优化，验证效果后全量推广，并配套客服侧运营看板，实时监控识别效果。\\n\\n降本：降低人工客服承接量 30%，减少人力运营成本。\\n增效：用户问题一次性解决率提升至 90% 以上，平均对话时长缩短 40%。\\n体验：减少用户重复转人工的操作，显著提升服务满意度，降低用户投诉率。\\n沉淀：积累高质量客服对话语料，为后续产品优化和知识库迭代提供数据支撑。\",\"backgroundText\":\"当前客服机器人意图识别准确率不足 75%，用户重复转人工率高，且对模糊 / 多轮场景的理解能力弱，导致服务效率低、用户体验差，同时人工客服承接压力持续增加，亟需通过技术手段提升自助服务能力。\",\"planText\":\"1、引入企业级 AI 大模型，针对客服场景进行行业语料微调，优化意图识别模型，将准确率提升至 95% 以上。\\n2、搭建上下文多轮对话记忆模块，支持用户多轮交互中的意图连贯理解，减少重复提问。\\n3、开发低置信度自动降级机制，识别不确定场景时自动推送人工客服入口，同时同步对话上下文，降低人工客服二次询问成本。\\n4、分阶段灰度上线：先选取 20% 用户试点，根据数据迭代优化，验证效果后全量推广，并配套客服侧运营看板，实时监控识别效果。\",\"expectedValue\":\"降本：降低人工客服承接量 30%，减少人力运营成本。\\n增效：用户问题一次性解决率提升至 90% 以上，平均对话时长缩短 40%。\\n体验：减少用户重复转人工的操作，显著提升服务满意度，降低用户投诉率。\\n沉淀：积累高质量客服对话语料，为后续产品优化和知识库迭代提供数据支撑。\",\"visibilityScope\":\"all\",\"attachmentUrls\":\"\",\"relatedCase\":\"\",\"teamName\":\"\",\"isDraft\":\"0\",\"reviewStage\":\"NONE\",\"rejectReason\":null,\"projectTime\":null,\"landingTime\":\"2026-05-04T22:28:17+08:00\",\"isPublicized\":\"1\",\"incentivePoints\":94,\"honorBadge\":\"创新先锋\",\"likeCount\":1,\"shareCount\":4,\"reviewDeadline\":null,\"delFlag\":null,\"bizValue\":\"成本压降\\n预计降低人工客服承接量 30%-40%，单月减少约 XX 万次人工进线，对应人力成本降低约 25%。\\n减少重复咨询、无效交互带来的系统资源与带宽消耗，年节省 IT 运维成本约 XX 万元。\\n效率提升\\n用户问题一次性解决率从 75% 提升至 90%+，单用户平均对话时长缩短 40%，客服工单处理效率提升 35%。\\n实现 7×24 小时自助服务覆盖，非工作时段用户响应率从不足 30% 提升至 100%，夜间服务工单占比下降 60%。\\n用户体验与留存\\n用户服务满意度提升 15-20 个百分点，NPS（净推荐值）提升 10 分以上，投诉率下降 40%。\\n降低因客服问题导致的用户流失率，预计带动活跃用户留存率提升 5%，带动月均业务转化提升 3%-5%。\\n数据与业务沉淀\\n沉淀高质量客服对话语料库，支撑业务需求挖掘、高频问题分析，为产品迭代提供数据依据，每年可输出 3-5 个产品优化点。\\n形成可复用的 AI 客服解决方案，可快速复制至其他业务线，降低多场景系统建设成本约 30%。\\n合规与风险控制\\n通过 AI 模型的标准化话术与风险识别能力，减少人工客服操作失误与违规话术，降低合规投诉与监管风险，减少潜在罚款与声誉损失。\",\"status\":\"PUBLICIZED\",\"avgScore\":8.0,\"resultSummary\":\"本次《基于 AI 大模型的智能客服意图识别优化方案》已完成全量上线，达成预期业务目标，成果总结如下：\\n降本增效成果\\n人工客服承接量降低 35%，单月减少约 12 万次人工进线，人力运营成本压降 28%；用户问题一次性解决率提升至 92%，平均对话时长缩短 42%，客服工单处理效率提升 38%。\\n用户体验成果\\n用户服务满意度提升 21 个百分点，NPS 提升 12 分，投诉率下降 45%；7×24 小时自助服务覆盖实现 100%，夜间用户响应率从 27% 提升至 100%，夜间服务工单占比下降 63%，用户流失率降低 6%。\\n业务沉淀成果\\n沉淀高质量客服对话语料 120 万条，输出产品优化需求 8 项，已落地高频问题优化、自助服务流程简化等 5 项改进；形成可复用的 AI 客服解决方案，成功复制至 2 条业务线，累计节省系统建设成本约 40 万元。\\n风险合规成果\\n通过标准化话术与风险识别能力，违规话术发生率降至 0，合规投诉降为 0，有效规避了潜在监管风险与声誉损失。\",\"submitUserId\":\"2\",\"submitNickName\":\"张三\",\"likedByCurrentUser\":\"0\",\"reviews\":null,\"progressList\":null},{\"createBy\":null,\"createTime\":\"2026-04-29 22:10:18\",\"updateBy\":null,\"updateTime\":\"2026-05-22 03:17:41\",\"remark\":null,\"ideaId\":1,\"title\":\"提案测试\",\"category\":\"tech\",\"content\":\"提案测试提案测试提案测试\\n\\n提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试\\n\\n提案测试提案测试提案测试提案测试提案测试\",\"backgroundText\":\"提案测试提案测试提案测试\",\"planText\":\"提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试提案测试\",\"expectedValue\":\"提案测试提案测试提案测试提案测试提案测试\",\"visibilityScope\":\"review_group\",\"attachmentUrls\":\"\",\"relatedCase\":\"\",\"teamName\":\"\",\"isDraft\":\"0\",\"reviewStage\":\"NONE\",\"rejectReason\":null,\"projectTime\":null,\"landingTime\":\"2026-05-04T22:05:34+08:00\",\"isPublicized\":\"1\",\"incentivePoints\":100,\"honorBadge\":\"创新先锋\",\"likeCount\":1,\"shareCount\":2,\"reviewDeadline\":null,\"delFlag\":null,\"bizValue\":\"\",\"status\":\"PUBLICIZED\",\"avgScore\":8.0,\"resultSummary\":\"成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n成果总结\\n\",\"submitUserId\":\"1\",\"submitNickName\":\"管理员\",\"likedByCurrentUser\":\"0\",\"reviews\":null,\"progressList\":null}],\"code\":200,\"msg\":\"查询成功\"}"
+    },
+    {
+      "name": "通知未读数量",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":0}"
+    },
+    {
+      "name": "用户中心统计",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:26",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":{\"collectCount\":0,\"postCount\":0,\"likeCount\":0,\"commentCount\":0}}"
+    },
+    {
+      "name": "风控预检：普通内容",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:27",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":{\"passed\":true,\"action\":\"allow\",\"message\":\"内容检测通过\",\"words\":null,\"riskSummary\":null,\"source\":\"allow\",\"moderationToken\":\"d71a7590aab04d21bea0d03482f65411\",\"signature\":\"d8c5e429088d4e5c79f6707e8960fef3\"}}"
+    },
+    {
+      "name": "风控预检：违规内容",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:27",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":{\"passed\":false,\"action\":\"block\",\"message\":\"评论内容包含暴力、威胁或人身攻击的不当表达，存在风险，请修改后重新提交\",\"words\":[\"我要打人\",\"打人\"],\"riskSummary\":\"内容包含暴力、威胁或人身攻击的不当表达\",\"source\":\"local-rule\",\"moderationToken\":\"a99e84c00f9b415395d2925efe26b8dc\",\"signature\":\"848c5bdfffb1c07ebb1c4c30f345e67c\"}}"
+    },
+    {
+      "name": "提交提案",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:27",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":18}"
+    },
+    {
+      "name": "提案详情：提交人可见",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:27",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:27\",\"updateBy\":null,\"updateTime\":\"2026-05-24 04:12:27\",\"remark\":null,\"ideaId\":18,\"title\":\"自动测试提案 0524041227\",\"category\":\"process\",\"content\":\"自动测试提案内容 0524041227\",\"backgroundText\":\"当前流程存在重复录入问题\",\"planText\":\"增加流程提醒和状态跟踪\",\"expectedValue\":\"提升处理效率\",\"visibilityScope\":\"all\",\"attachmentUrls\":\"\",\"relatedCase\":\"\",\"teamName\":\"自动测试组\",\"isDraft\":\"0\",\"reviewStage\":\"L1\",\"rejectReason\":null,\"projectTime\":null,\"landingTime\":null,\"isPublicized\":\"0\",\"incentivePoints\":0,\"honorBadge\":null,\"likeCount\":0,\"shareCount\":0,\"reviewDeadline\":\"2026-05-31T04:12:28+08:00\",\"delFlag\":null,\"bizValue\":\"提升协作效率\",\"status\":\"PENDING_L1\",\"avgScore\":0.0,\"resultSummary\":null,\"submitUserId\":\"2\",\"submitNickName\":\"张三\",\"likedByCurrentUser\":null,\"reviews\":[],\"progressList\":[{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:27\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"progressId\":49,\"ideaId\":18,\"statusEnum\":\"PENDING_L1\",\"updaterUserId\":\"2\",\"updaterNickName\":\"张三\",\"progressStage\":\"投稿成功\",\"progressDesc\":\"提案已提交，进入初审队列\",\"attachmentUrls\":null,\"progressPercent\":10}]}}"
+    },
+    {
+      "name": "提案评审：L1",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:28",
+      "data": "{\"msg\":\"操作成功\",\"code\":200}"
+    },
+    {
+      "name": "提案评审：L2",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:28",
+      "data": "{\"msg\":\"操作成功\",\"code\":200}"
+    },
+    {
+      "name": "提案评审：L3",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:28",
+      "data": "{\"msg\":\"操作成功\",\"code\":200}"
+    },
+    {
+      "name": "提案终审后详情",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:28",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:27\",\"updateBy\":null,\"updateTime\":\"2026-05-24 04:12:28\",\"remark\":null,\"ideaId\":18,\"title\":\"自动测试提案 0524041227\",\"category\":\"process\",\"content\":\"自动测试提案内容 0524041227\",\"backgroundText\":\"当前流程存在重复录入问题\",\"planText\":\"增加流程提醒和状态跟踪\",\"expectedValue\":\"提升处理效率\",\"visibilityScope\":\"all\",\"attachmentUrls\":\"\",\"relatedCase\":\"\",\"teamName\":\"自动测试组\",\"isDraft\":\"0\",\"reviewStage\":\"NONE\",\"rejectReason\":null,\"projectTime\":null,\"landingTime\":null,\"isPublicized\":\"0\",\"incentivePoints\":0,\"honorBadge\":null,\"likeCount\":0,\"shareCount\":0,\"reviewDeadline\":null,\"delFlag\":null,\"bizValue\":\"提升协作效率\",\"status\":\"IMPLEMENTING\",\"avgScore\":8.33,\"resultSummary\":null,\"submitUserId\":\"2\",\"submitNickName\":\"张三\",\"likedByCurrentUser\":null,\"reviews\":[{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:28\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"reviewId\":26,\"ideaId\":18,\"stage\":\"L1\",\"action\":\"pass\",\"reviewerUserId\":\"l1reviewer\",\"reviewerNickName\":\"初审员\",\"score\":8,\"comment\":\"自动测试通过 L1\",\"rejectReason\":null,\"isVisibleToAll\":\"0\",\"reviewTime\":\"2026-05-24T04:12:28+08:00\"},{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:28\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"reviewId\":27,\"ideaId\":18,\"stage\":\"L2\",\"action\":\"pass\",\"reviewerUserId\":\"l2reviewer\",\"reviewerNickName\":\"复审员\",\"score\":8,\"comment\":\"自动测试通过 L2\",\"rejectReason\":null,\"isVisibleToAll\":\"0\",\"reviewTime\":\"2026-05-24T04:12:28+08:00\"},{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:28\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"reviewId\":28,\"ideaId\":18,\"stage\":\"L3\",\"action\":\"pass\",\"reviewerUserId\":\"l3reviewer\",\"reviewerNickName\":\"终审员\",\"score\":9,\"comment\":\"自动测试通过 L3\",\"rejectReason\":null,\"isVisibleToAll\":\"0\",\"reviewTime\":\"2026-05-24T04:12:28+08:00\"}],\"progressList\":[{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:27\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"progressId\":49,\"ideaId\":18,\"statusEnum\":\"PENDING_L1\",\"updaterUserId\":\"2\",\"updaterNickName\":\"张三\",\"progressStage\":\"投稿成功\",\"progressDesc\":\"提案已提交，进入初审队列\",\"attachmentUrls\":null,\"progressPercent\":10},{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:28\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"progressId\":50,\"ideaId\":18,\"statusEnum\":\"L1_PASSED\",\"updaterUserId\":\"l1reviewer\",\"updaterNickName\":\"初审员\",\"progressStage\":\"初审全部通过\",\"progressDesc\":\"自动测试通过 L1\",\"attachmentUrls\":null,\"progressPercent\":35},{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:28\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"progressId\":51,\"ideaId\":18,\"statusEnum\":\"L2_PASSED\",\"updaterUserId\":\"l2reviewer\",\"updaterNickName\":\"复审员\",\"progressStage\":\"复审全部通过\",\"progressDesc\":\"自动测试通过 L2\",\"attachmentUrls\":null,\"progressPercent\":55},{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:28\",\"updateBy\":null,\"updateTime\":null,\"remark\":null,\"progressId\":52,\"ideaId\":18,\"statusEnum\":\"APPROVED\",\"updaterUserId\":\"l3reviewer\",\"updaterNickName\":\"终审员\",\"progressStage\":\"终审全部通过并立项\",\"progressDesc\":\"自动测试通过 L3\",\"attachmentUrls\":null,\"progressPercent\":70}]}}"
+    },
+    {
+      "name": "准备评论目标帖子",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:28",
+      "data": "{\"total\":114,\"rows\":[{\"createBy\":\"\",\"createTime\":\"2026-05-24 02:55:22\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"postId\":286,\"categoryId\":1,\"userId\":\"2\",\"title\":\"测试22\",\"content\":\"<p>测试内容<img src=\\\"/forum-api/profile/upload/2026/05/24/QQ图片20221123183524_20260524025515A001.jpg\\\"></p>\",\"summary\":\"测试内容\",\"viewCount\":10,\"likeCount\":0,\"commentCount\":2,\"collectCount\":0,\"isTop\":\"0\",\"isEssence\":\"0\",\"isAnonymous\":\"0\",\"isAdminPush\":\"0\",\"postType\":\"suggestion\",\"responseDeptId\":850066130,\"responseDeptName\":\"本部\",\"status\":\"0\",\"auditReason\":null,\"delFlag\":\"0\",\"lastReplyTime\":\"2026-05-24T04:11:24+08:00\",\"lastReplyUser\":null,\"categoryName\":\"通用社区\",\"nickName\":\"张三\",\"avatar\":null,\"isLiked\":null,\"isCollected\":null,\"tags\":[{\"tagId\":1,\"tagName\":\"啊啊\",\"tagColor\":\"#409EFF\",\"useCount\":9,\"createTime\":\"2026-04-27T23:16:16+08:00\",\"postId\":286}],\"topicTagName\":null,\"sortType\":null,\"moderationToken\":null}],\"code\":200,\"msg\":\"查询成功\"}"
+    },
+    {
+      "name": "发表评论",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:29",
+      "data": "{\"msg\":\"操作成功\",\"code\":200}"
+    },
+    {
+      "name": "回查刚发布评论",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:29",
+      "data": "{\"msg\":\"操作成功\",\"code\":200,\"data\":[{\"createBy\":null,\"createTime\":\"2026-05-24 04:09:50\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"commentId\":282,\"postId\":286,\"userId\":\"2\",\"parentId\":0,\"replyUserId\":null,\"content\":\"自动测试评论 0524040948\",\"images\":\"\",\"isAnonymous\":\"0\",\"likeCount\":0,\"dislikeCount\":0,\"status\":\"0\",\"delFlag\":\"0\",\"nickName\":\"张三\",\"avatar\":null,\"replyNickName\":\"张三\",\"deptName\":null,\"isLiked\":false,\"isDisliked\":false,\"children\":null,\"isOfficialReply\":false,\"moderationToken\":null,\"liked\":false,\"officialReply\":false},{\"createBy\":null,\"createTime\":\"2026-05-24 04:11:24\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"commentId\":283,\"postId\":286,\"userId\":\"2\",\"parentId\":0,\"replyUserId\":null,\"content\":\"自动测试评论 0524041123\",\"images\":\"\",\"isAnonymous\":\"0\",\"likeCount\":0,\"dislikeCount\":0,\"status\":\"0\",\"delFlag\":\"0\",\"nickName\":\"张三\",\"avatar\":null,\"replyNickName\":\"张三\",\"deptName\":null,\"isLiked\":false,\"isDisliked\":false,\"children\":null,\"isOfficialReply\":false,\"moderationToken\":null,\"liked\":false,\"officialReply\":false},{\"createBy\":null,\"createTime\":\"2026-05-24 04:12:29\",\"updateBy\":\"\",\"updateTime\":null,\"remark\":null,\"commentId\":284,\"postId\":286,\"userId\":\"2\",\"parentId\":0,\"replyUserId\":null,\"content\":\"自动测试评论 0524041227\",\"images\":\"\",\"isAnonymous\":\"0\",\"likeCount\":0,\"dislikeCount\":0,\"status\":\"0\",\"delFlag\":\"0\",\"nickName\":\"张三\",\"avatar\":null,\"replyNickName\":\"张三\",\"deptName\":null,\"isLiked\":false,\"isDisliked\":false,\"children\":null,\"isOfficialReply\":false,\"moderationToken\":null,\"liked\":false,\"officialReply\":false}]}"
+    },
+    {
+      "name": "删除本人评论",
+      "status": "PASS",
+      "detail": "",
+      "time": "2026-05-24 04:12:30",
+      "data": "{\"msg\":\"操作成功\",\"code\":200}"
+    }
+  ]
+}
