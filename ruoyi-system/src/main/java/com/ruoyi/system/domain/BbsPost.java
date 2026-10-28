@@ -81,7 +81,7 @@ public class BbsPost extends BaseEntity
     private java.util.Date lastReplyTime;
 
     /** 最后回复用户ID */
-    private Long lastReplyUser;
+    private String lastReplyUser;
 
     /** 分类名称 */
     private String categoryName;
@@ -316,12 +316,12 @@ public class BbsPost extends BaseEntity
         this.lastReplyTime = lastReplyTime;
     }
 
-    public Long getLastReplyUser()
+    public String getLastReplyUser()
     {
         return lastReplyUser;
     }
 
-    public void setLastReplyUser(Long lastReplyUser)
+    public void setLastReplyUser(String lastReplyUser)
     {
         this.lastReplyUser = lastReplyUser;
     }

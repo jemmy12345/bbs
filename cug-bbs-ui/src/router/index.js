@@ -130,6 +130,60 @@ export const constantRoutes = [
         component: () => import('@/views/bbs/adminLog/index'),
         name: 'BbsAdminLog',
         meta: { title: '管理员操作记录', icon: 'message', affix: false }
+      },
+      {
+        path: 'idea-review-config',
+        component: () => import('@/views/bbs/ideaStageConfig/index'),
+        name: 'BbsIdeaReviewConfig',
+        meta: { title: '提案评审配置', icon: 'peoples', affix: false }
+      },
+      {
+        path: 'sys-user',
+        component: () => import('@/views/system/user/index'),
+        name: 'AdminSysUser',
+        meta: { title: '账号管理', icon: 'user', affix: false }
+      },
+      {
+        path: 'sys-role',
+        component: () => import('@/views/system/role/index'),
+        name: 'AdminSysRole',
+        meta: { title: '角色管理', icon: 'peoples', affix: false }
+      },
+      {
+        path: 'sys-dept',
+        component: () => import('@/views/system/dept/index'),
+        name: 'AdminSysDept',
+        meta: { title: '组织管理', icon: 'tree', affix: false }
+      },
+      {
+        path: 'sys-menu',
+        component: () => import('@/views/system/menu/index'),
+        name: 'AdminSysMenu',
+        meta: { title: '菜单管理', icon: 'tree-table', affix: false }
+      },
+      {
+        path: 'sys-post',
+        component: () => import('@/views/system/post/index'),
+        name: 'AdminSysPost',
+        meta: { title: '岗位管理', icon: 'post', affix: false }
+      },
+      {
+        path: 'sys-dict',
+        component: () => import('@/views/system/dict/index'),
+        name: 'AdminSysDict',
+        meta: { title: '字典管理', icon: 'dict', affix: false }
+      },
+      {
+        path: 'sys-config',
+        component: () => import('@/views/system/config/index'),
+        name: 'AdminSysConfig',
+        meta: { title: '参数配置', icon: 'edit', affix: false }
+      },
+      {
+        path: 'sys-notice',
+        component: () => import('@/views/system/notice/index'),
+        name: 'AdminSysNotice',
+        meta: { title: '通知公告', icon: 'message', affix: false }
       }
     ]
   },
@@ -149,6 +203,92 @@ export const constantRoutes = [
         component: () => import('@/views/bbs/topic'),
         name: 'BbsTopic',
         meta: { title: '论坛专题', icon: 'message', affix: false }
+      },
+      {
+        path: 'enterprise',
+        component: () => import('@/views/bbs/enterprise'),
+        name: 'BbsEnterprise',
+        meta: { title: '企业增长专区', icon: 'chart', affix: false }
+      },
+      {
+        path: 'qa',
+        component: () => import('@/views/bbs/qa/index'),
+        name: 'BbsQa',
+        meta: { title: '企业问答专区', icon: 'message', affix: false }
+      },
+      {
+        path: 'qa/publish',
+        component: () => import('@/views/bbs/qa/publish'),
+        name: 'BbsQaPublish',
+        hidden: true,
+        meta: { title: '发起悬赏提问', activeMenu: '/qa' }
+      },
+      {
+        path: 'qa/detail/:questionId',
+        component: () => import('@/views/bbs/qa/detail'),
+        name: 'BbsQaDetail',
+        hidden: true,
+        meta: { title: '问题详情', activeMenu: '/qa' }
+      },
+      {
+        path: 'qa/archive',
+        component: () => import('@/views/bbs/qa/archive'),
+        name: 'BbsQaArchive',
+        meta: { title: '问答知识库', activeMenu: '/qa' }
+      },
+      {
+        path: 'idea',
+        component: () => import('@/views/bbs/idea/index'),
+        name: 'BbsIdea',
+        meta: { title: '创意提案', icon: 'message', affix: false }
+      },
+      {
+        path: 'idea/publish',
+        component: () => import('@/views/bbs/idea/publish'),
+        name: 'BbsIdeaPublish',
+        hidden: true,
+        meta: { title: '提交创意提案', activeMenu: '/idea' }
+      },
+      {
+        path: 'idea/detail/:ideaId',
+        component: () => import('@/views/bbs/idea/detail'),
+        name: 'BbsIdeaDetail',
+        hidden: true,
+        meta: { title: '提案详情', activeMenu: '/idea' }
+      },
+      {
+        path: 'idea/wall',
+        component: () => import('@/views/bbs/idea/wall'),
+        name: 'BbsIdeaWall',
+        meta: { title: '成果公示墙', activeMenu: '/idea' }
+      },
+      {
+        path: 'collect',
+        component: () => import('@/views/bbs/collect/index'),
+        name: 'BbsCollect',
+        hidden: true,
+        meta: { title: '在线收集', icon: 'message', affix: false }
+      },
+      {
+        path: 'collect/participate/:activityId',
+        component: () => import('@/views/bbs/collect/participate'),
+        name: 'BbsCollectParticipate',
+        hidden: true,
+        meta: { title: '参与活动', activeMenu: '/collect' }
+      },
+      {
+        path: 'collect/stats/:activityId',
+        component: () => import('@/views/bbs/collect/stats'),
+        name: 'BbsCollectStats',
+        hidden: true,
+        meta: { title: '活动数据', activeMenu: '/collect' }
+      },
+      {
+        path: 'collect/topic/:activityId',
+        component: () => import('@/views/bbs/collect/topic'),
+        name: 'BbsCollectTopic',
+        hidden: true,
+        meta: { title: '专题活动', activeMenu: '/collect' }
       },
       {
         path: 'post/:postId',
@@ -195,7 +335,7 @@ export const dynamicRoutes = [
         path: 'role/:userId(\\d+)',
         component: () => import('@/views/system/user/authRole'),
         name: 'AuthRole',
-        meta: { title: '分配角色', activeMenu: '/system/user' }
+        meta: { title: '分配角色', activeMenu: '/admin/sys-user' }
       }
     ]
   },
@@ -209,7 +349,7 @@ export const dynamicRoutes = [
         path: 'user/:roleId(\\d+)',
         component: () => import('@/views/system/role/authUser'),
         name: 'AuthUser',
-        meta: { title: '分配用户', activeMenu: '/system/role' }
+        meta: { title: '分配用户', activeMenu: '/admin/sys-role' }
       }
     ]
   },
@@ -223,7 +363,7 @@ export const dynamicRoutes = [
         path: 'index/:dictId(\\d+)',
         component: () => import('@/views/system/dict/data'),
         name: 'Data',
-        meta: { title: '字典数据', activeMenu: '/system/dict' }
+        meta: { title: '字典数据', activeMenu: '/admin/sys-dict' }
       }
     ]
   },

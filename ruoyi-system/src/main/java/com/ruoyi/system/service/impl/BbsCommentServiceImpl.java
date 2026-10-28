@@ -339,60 +339,8 @@ public class BbsCommentServiceImpl implements IBbsCommentService
     }
 
     private void sendWeChatMessageToPost(BbsPost bbsPost, BbsComment bbsComment, String remindUserid) {
-        try {
-            String access_token = WeChatApi.getToken(agentid);
-
-            JSONObject msgInfo = new JSONObject();
-            msgInfo.put("msgtype", "textcard");
-            msgInfo.put("touser", remindUserid);
-            msgInfo.put("content", bbsPost.getContent());
-            msgInfo.put("agentid", agentid);
-
-            // 处理人处理待办
-            String url =
-                    "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx786a96dd52ea3edb&redirect_uri="
-                            + homePage
-                            + "&response_type=code&scope=snsapi_base&agentid="
-                            + agentid
-                            + "&state=STATE#wechat_redirect";
-
-            // 先去除HTML标签和样式代码，再截取前100字符
-            String plainContent = bbsComment.getContent()
-                    .replaceAll("<style[^>]*>[\\s\\S]*?</style>", "")
-                    .replaceAll("<script[^>]*>[\\s\\S]*?</script>", "")
-                    .replaceAll("<[^>]+>", "")
-                    .replaceAll("&nbsp;", " ")
-                    .replaceAll("&amp;", "&")
-                    .replaceAll("&lt;", "<")
-                    .replaceAll("&gt;", ">")
-                    .replaceAll("&quot;", "\"")
-                    .replaceAll("\\s+", " ")
-                    .trim();
-            String briefContent =
-                    plainContent.length() > 100
-                            ? plainContent.substring(0, 100) + "…"
-                            : plainContent;
-            // 是否匿名（0实名 1匿名）
-            String nickName =
-                    bbsComment.getIsAnonymous().equals("1")
-                            ? "匿名"
-                            : SecurityUtils.getLoginUser().getUser().getNickName();
-
-            JSONObject textcard = new JSONObject();
-            textcard.put("title", "BBS通知");
-            String description = "<div class=\"normal\">用户"+ nickName+ "在帖子《"+ bbsPost.getTitle()+ "》中发表了新评论："+ briefContent+ "</div>";
-            textcard.put("description", description);
-            textcard.put("url", url);
-            msgInfo.put("textcard", textcard);
-
-            log.info("BBS通知-新评论通知入参 : " + msgInfo);
-            String sendUrl = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+access_token;
-            String msgResult = HttpUtils.sendPost(sendUrl, JSONObject.toJSONString(msgInfo));
-            // 调用企业微信API发送消息
-            log.info("BBS通知-新评论通知结果 : " + msgResult);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("BBS通知-新评论通知发送企业微信消息失败：", e);
-        }
+       /**
+        * 推送企业微信通知
+        */
     }
 }

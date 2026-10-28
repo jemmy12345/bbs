@@ -49,6 +49,9 @@
         <div class="nav-tab" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
           专题
         </div>
+        <div class="nav-tab" :class="{ active: currentNav === 'collect' }" @click="handleNavClick('collect')">
+          收集
+        </div>
         <!-- <div 
           class="nav-tab" 
           :class="{ active: currentNav === 'hot' }"
@@ -100,6 +103,10 @@
       <div class="footer-item" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
         <i class="el-icon-star-on"></i>
         <span>专题</span>
+      </div>
+      <div class="footer-item" :class="{ active: currentNav === 'collect' }" @click="handleNavClick('collect')">
+        <i class="el-icon-data-analysis"></i>
+        <span>收集</span>
       </div>
       <div class="footer-item" :class="{ active: currentNav === 'home' }" @click="handleNavClick('home')">
         <i class="el-icon-menu"></i>
@@ -213,6 +220,8 @@ export default {
     updateFromRoute() {
       if (this.$route.path === '/topic') {
         this.currentNav = 'topic';
+      } else if (this.$route.path.startsWith('/collect')) {
+        this.currentNav = 'collect';
       }
       if (this.$route.query.categoryId) {
         this.activeCategory = parseInt(this.$route.query.categoryId);
@@ -261,6 +270,10 @@ export default {
       this.currentNav = nav;
       if (nav === 'topic') {
         this.$router.push({ path: '/topic' });
+        return;
+      }
+      if (nav === 'collect') {
+        this.$router.push({ path: '/collect' });
         return;
       }
       this.$router.push({

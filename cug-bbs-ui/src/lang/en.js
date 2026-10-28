@@ -88,7 +88,7 @@ export default {
     commentSuccess: 'Comment Success',
     replySuccess: 'Reply Success',
     pleaseLogin: 'Please login first',
-    admin: 'Admin',
+    admin: 'Admin Console',
     showAsAdminPost: 'Show as admin post',
     searchPlaceholderShort: 'Q Search articles...',
     enterContent: 'Please enter content',

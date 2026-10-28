@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BbsOnlineCollectMapper">
+
+    <resultMap id="CollectActivityResult" type="com.ruoyi.system.domain.BbsCollectActivity">
+        <id property="activityId" column="activity_id"/>
+        <result property="title" column="title"/>
+        <result property="activityType" column="activity_type"/>
+        <result property="status" column="status"/>
+        <result property="creatorUserId" column="creator_user_id"/>
+        <result property="creatorNickName" column="creator_nick_name"/>
+        <result property="scopeType" column="scope_type"/>
+        <result property="scopeValue" column="scope_value"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="anonymousFlag" column="anonymous_flag"/>
+        <result property="realtimeFlag" column="realtime_flag"/>
+        <result property="limitOnceFlag" column="limit_once_flag"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="participantCount" column="participant_count"/>
+        <result property="bannerUrl" column="banner_url"/>
+        <result property="ruleText" column="rule_text"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="hasParticipated" column="has_participated"/>
+    </resultMap>
+
+    <resultMap id="VoteResult" type="com.ruoyi.system.domain.BbsVote">
+        <id property="voteId" column="vote_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="voteType" column="vote_type"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="status" column="status"/>
+        <result property="creatorUserId" column="creator_user_id"/>
+        <result property="creatorNickName" column="creator_nick_name"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="VoteOptionResult" type="com.ruoyi.system.domain.BbsVoteOption">
+        <id property="optionId" column="option_id"/>
+        <result property="voteId" column="vote_id"/>
+        <result property="optionText" column="option_text"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="voteCount" column="vote_count"/>
+    </resultMap>
+
+    <resultMap id="DemandFormResult" type="com.ruoyi.system.domain.BbsDemandForm">
+        <id property="formId" column="form_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="formSchema" column="form_schema"/>
+        <result property="status" column="status"/>
+        <result property="creatorUserId" column="creator_user_id"/>
+        <result property="creatorNickName" column="creator_nick_name"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="DemandTicketResult" type="com.ruoyi.system.domain.BbsCollectDemandTicket">
+        <id property="ticketId" column="ticket_id"/>
+        <result property="activityId" column="activity_id"/>
+        <result property="formId" column="form_id"/>
+        <result property="submitUserId" column="submit_user_id"/>
+        <result property="submitNickName" column="submit_nick_name"/>
+        <result property="demandName" column="demand_name"/>
+        <result property="demandType" column="demand_type"/>
+        <result property="demandDetail" column="demand_detail"/>
+        <result property="priority" column="priority"/>
+        <result property="attachmentUrls" column="attachment_urls"/>
+        <result property="contactPerson" column="contact_person"/>
+        <result property="customFieldJson" column="custom_field_json"/>
+        <result property="status" column="status"/>
+        <result property="assigneeUserId" column="assignee_user_id"/>
+        <result property="assigneeNickName" column="assignee_nick_name"/>
+        <result property="processComment" column="process_comment"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap id="TopicActivityResult" type="com.ruoyi.system.domain.BbsTopicActivity">
+        <id property="activityId" column="activity_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="status" column="status"/>
+        <result property="joinCount" column="join_count"/>
+        <result property="creatorUserId" column="creator_user_id"/>
+        <result property="creatorNickName" column="creator_nick_name"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="TopicContentResult" type="com.ruoyi.system.domain.BbsCollectTopicContent">
+        <id property="id" column="id"/>
+        <result property="activityId" column="activity_id"/>
+        <result property="contentType" column="content_type"/>
+        <result property="contentId" column="content_id"/>
+        <result property="contentTitle" column="content_title"/>
+        <result property="authorUserId" column="author_user_id"/>
+        <result property="authorNickName" column="author_nick_name"/>
+        <result property="score" column="score"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="SurveyQuestionResult" type="com.ruoyi.system.domain.BbsCollectSurveyQuestion">
+        <id property="questionId" column="question_id"/>
+        <result property="activityId" column="activity_id"/>
+        <result property="questionNo" column="question_no"/>
+        <result property="questionType" column="question_type"/>
+        <result property="questionTitle" column="question_title"/>
+        <result property="optionJson" column="option_json"/>
+        <result property="jumpLogicJson" column="jump_logic_json"/>
+        <result property="requiredFlag" column="required_flag"/>
+    </resultMap>
+
+    <resultMap id="SurveyResponseResult" type="com.ruoyi.system.domain.BbsCollectSurveyResponse">
+        <id property="responseId" column="response_id"/>
+        <result property="activityId" column="activity_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="userNickName" column="user_nick_name"/>
+        <result property="answersJson" column="answers_json"/>
+        <result property="submitStatus" column="submit_status"/>
+        <result property="submitTime" column="submit_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="insertCollectActivity" parameterType="com.ruoyi.system.domain.BbsCollectActivity" useGeneratedKeys="true" keyProperty="activityId">
+        insert into bbs_collect_activity(
+            title, activity_type, status, creator_user_id, creator_nick_name, scope_type, scope_value,
+            start_time, end_time, anonymous_flag, realtime_flag, limit_once_flag, biz_id, participant_count,
+            banner_url, rule_text, remark, create_time, update_time
+        ) values (
+            #{title}, #{activityType}, #{status}, #{creatorUserId}, #{creatorNickName}, #{scopeType}, #{scopeValue},
+            #{startTime}, #{endTime}, #{anonymousFlag}, #{realtimeFlag}, #{limitOnceFlag}, #{bizId}, #{participantCount},
+            #{bannerUrl}, #{ruleText}, #{remark}, now(), now()
+        )
+    </insert>
+
+    <update id="updateCollectActivity" parameterType="com.ruoyi.system.domain.BbsCollectActivity">
+        update bbs_collect_activity
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="scopeType != null">scope_type = #{scopeType},</if>
+            <if test="scopeValue != null">scope_value = #{scopeValue},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="anonymousFlag != null">anonymous_flag = #{anonymousFlag},</if>
+            <if test="realtimeFlag != null">realtime_flag = #{realtimeFlag},</if>
+            <if test="limitOnceFlag != null">limit_once_flag = #{limitOnceFlag},</if>
+            <if test="bizId != null">biz_id = #{bizId},</if>
+            <if test="bannerUrl != null">banner_url = #{bannerUrl},</if>
+            <if test="ruleText != null">rule_text = #{ruleText},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = now()
+        </set>
+        where activity_id = #{activityId}
+    </update>
+
+    <select id="selectCollectActivityById" resultMap="CollectActivityResult">
+        select activity_id, title, activity_type, status, creator_user_id, creator_nick_name,
+               scope_type, scope_value, start_time, end_time, anonymous_flag, realtime_flag,
+               limit_once_flag, biz_id, participant_count, banner_url, rule_text, remark,
+               create_time, update_time
+        from bbs_collect_activity where activity_id = #{activityId}
+    </select>
+
+    <select id="selectCollectActivityList" resultMap="CollectActivityResult">
+        select a.activity_id, a.title, a.activity_type, a.status, a.creator_user_id, a.creator_nick_name,
+               a.scope_type, a.scope_value, a.start_time, a.end_time, a.anonymous_flag, a.realtime_flag,
+               a.limit_once_flag, a.biz_id, a.participant_count, a.banner_url, a.rule_text, a.remark,
+               a.create_time, a.update_time,
+               case when p.user_id is null then '0' else '1' end as has_participated
+        from bbs_collect_activity a
+        left join bbs_collect_participation p
+          on p.activity_id = a.activity_id and p.user_id = #{currentUserId} and p.submit_status = 'SUBMITTED'
+        left join sys_user cu
+          on cu.user_id = #{currentUserId}
+        left join sys_dept cd
+          on cd.dept_id = cu.dept_id
+        <where>
+            <if test="activityType != null and activityType != ''">
+                and a.activity_type = #{activityType}
+            </if>
+            <if test="status != null and status != ''">
+                and a.status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and a.title like concat('%', #{keyword}, '%')
+            </if>
+            <if test="adminView == 0">
+                and a.status != 'DELETED'
+                and (
+                    a.activity_type != 'vote'
+                    or a.creator_user_id = #{currentUserId}
+                    or a.scope_type = 'all'
+                    or (a.scope_type = 'users' and find_in_set(#{currentUserId}, a.scope_value))
+                    or (a.scope_type = 'org' and find_in_set(concat('U_', #{currentUserId}), a.scope_value))
+                    or (
+                        a.scope_type = 'dept'
+                        and cu.dept_id is not null
+                        and (
+                            concat(',', a.scope_value, ',') like concat('%,', cast(cu.dept_id as char), ',%')
+                            or (
+                                cd.ancestors is not null
+                                and concat(',', a.scope_value, ',') collate utf8mb4_general_ci
+                                    regexp (concat(',(', replace(cd.ancestors, ',', '|'), '),') collate utf8mb4_general_ci)
+                            )
+                        )
+                    )
+                    or (
+                        a.scope_type = 'org'
+                        and cu.dept_id is not null
+                        and (
+                            concat(',', a.scope_value, ',') like concat('%,D_', cast(cu.dept_id as char), ',%')
+                            or (
+                                cd.ancestors is not null
+                                and concat(',', a.scope_value, ',') collate utf8mb4_general_ci
+                                    regexp (concat(',(D_', replace(cd.ancestors, ',', '|D_'), '),') collate utf8mb4_general_ci)
+                            )
+                        )
+                    )
+                )
+            </if>
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <update id="deleteCollectActivity">
+        update bbs_collect_activity set status = 'DELETED', update_time = now() where activity_id = #{activityId}
+    </update>
+
+    <update id="increaseParticipantCount">
+        update bbs_collect_activity set participant_count = participant_count + 1, update_time = now() where activity_id = #{activityId}
+    </update>
+
+    <select id="hasParticipation" resultType="int">
+        select count(1) from bbs_collect_participation
+        where activity_id = #{activityId} and user_id = #{userId}
+        <if test="status != null and status != ''">
+            and submit_status = #{status}
+        </if>
+    </select>
+
+    <insert id="upsertParticipation">
+        insert into bbs_collect_participation(activity_id, activity_type, user_id, user_nick_name, submit_status, submit_time, create_time)
+        values(#{activityId}, #{activityType}, #{userId}, #{userNickName}, #{submitStatus}, #{submitTime}, now())
+        on duplicate key update
+            user_nick_name = values(user_nick_name),
+            submit_status = values(submit_status),
+            submit_time = values(submit_time)
+    </insert>
+
+    <insert id="insertVote" parameterType="com.ruoyi.system.domain.BbsVote" useGeneratedKeys="true" keyProperty="voteId">
+        insert into bbs_vote(title, description, vote_type, start_time, end_time, status, creator_user_id, creator_nick_name, create_time)
+        values(#{title}, #{description}, #{voteType}, #{startTime}, #{endTime}, #{status}, #{creatorUserId}, #{creatorNickName}, now())
+    </insert>
+
+    <insert id="insertVoteOption" parameterType="com.ruoyi.system.domain.BbsVoteOption" useGeneratedKeys="true" keyProperty="optionId">
+        insert into bbs_vote_option(vote_id, option_text, sort_order, vote_count)
+        values(#{voteId}, #{optionText}, #{sortOrder}, 0)
+    </insert>
+
+    <select id="selectVoteById" resultMap="VoteResult">
+        select vote_id, title, description, vote_type, start_time, end_time, status, creator_user_id, creator_nick_name, create_time
+        from bbs_vote where vote_id = #{voteId}
+    </select>
+
+    <select id="selectVoteOptions" resultMap="VoteOptionResult">
+        select option_id, vote_id, option_text, sort_order, vote_count
+        from bbs_vote_option where vote_id = #{voteId} order by sort_order asc, option_id asc
+    </select>
+
+    <insert id="insertVoteRecord">
+        insert ignore into bbs_vote_record(vote_id, option_id, user_id, create_time)
+        values(#{voteId}, #{optionId}, #{userId}, now())
+    </insert>
+
+    <update id="increaseVoteOptionCount">
+        update bbs_vote_option set vote_count = vote_count + 1 where option_id = #{optionId}
+    </update>
+
+    <select id="hasVotedInVote" resultType="int">
+        select count(1) from bbs_vote_record where vote_id = #{voteId} and user_id = #{userId}
+    </select>
+
+    <select id="selectVoteParticipantCount" resultType="long">
+        select count(distinct user_id) from bbs_vote_record where vote_id = #{voteId}
+    </select>
+
+    <insert id="insertDemandForm" parameterType="com.ruoyi.system.domain.BbsDemandForm" useGeneratedKeys="true" keyProperty="formId">
+        insert into bbs_demand_form(title, description, form_schema, status, creator_user_id, creator_nick_name, create_time)
+        values(#{title}, #{description}, #{formSchema}, #{status}, #{creatorUserId}, #{creatorNickName}, now())
+    </insert>
+
+    <select id="selectDemandFormById" resultMap="DemandFormResult">
+        select form_id, title, description, form_schema, status, creator_user_id, creator_nick_name, create_time
+        from bbs_demand_form where form_id = #{formId}
+    </select>
+
+    <insert id="insertDemandTicket" parameterType="com.ruoyi.system.domain.BbsCollectDemandTicket" useGeneratedKeys="true" keyProperty="ticketId">
+        insert into bbs_collect_demand_ticket(
+            activity_id, form_id, submit_user_id, submit_nick_name, demand_name, demand_type, demand_detail,
+            priority, attachment_urls, contact_person, custom_field_json, status,
+            assignee_user_id, assignee_nick_name, process_comment, create_time, update_time
+        ) values (
+            #{activityId}, #{formId}, #{submitUserId}, #{submitNickName}, #{demandName}, #{demandType}, #{demandDetail},
+            #{priority}, #{attachmentUrls}, #{contactPerson}, #{customFieldJson}, #{status},
+            #{assigneeUserId}, #{assigneeNickName}, #{processComment}, now(), now()
+        )
+    </insert>
+
+    <select id="selectDemandTicketList" resultMap="DemandTicketResult">
+        select ticket_id, activity_id, form_id, submit_user_id, submit_nick_name, demand_name, demand_type, demand_detail,
+               priority, attachment_urls, contact_person, custom_field_json, status,
+               assignee_user_id, assignee_nick_name, process_comment, create_time, update_time
+        from bbs_collect_demand_ticket
+        <where>
+            activity_id = #{activityId}
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (demand_name like concat('%', #{keyword}, '%') or demand_detail like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectDemandTicketById" resultMap="DemandTicketResult">
+        select ticket_id, activity_id, form_id, submit_user_id, submit_nick_name, demand_name, demand_type, demand_detail,
+               priority, attachment_urls, contact_person, custom_field_json, status,
+               assignee_user_id, assignee_nick_name, process_comment, create_time, update_time
+        from bbs_collect_demand_ticket
+        where ticket_id = #{ticketId}
+    </select>
+
+    <update id="updateDemandTicketAssign">
+        update bbs_collect_demand_ticket
+        set assignee_user_id = #{assigneeUserId}, assignee_nick_name = #{assigneeNickName}, update_time = now()
+        where ticket_id = #{ticketId}
+    </update>
+
+    <update id="updateDemandTicketStatus">
+        update bbs_collect_demand_ticket
+        set status = #{status}, process_comment = #{comment}, update_time = now()
+        where ticket_id = #{ticketId}
+    </update>
+
+    <insert id="insertTopicActivity" parameterType="com.ruoyi.system.domain.BbsTopicActivity" useGeneratedKeys="true" keyProperty="activityId">
+        insert into bbs_topic_activity(title, content, start_time, end_time, status, join_count, creator_user_id, creator_nick_name, create_time)
+        values(#{title}, #{content}, #{startTime}, #{endTime}, #{status}, 0, #{creatorUserId}, #{creatorNickName}, now())
+    </insert>
+
+    <select id="selectTopicActivityById" resultMap="TopicActivityResult">
+        select activity_id, title, content, start_time, end_time, status, join_count, creator_user_id, creator_nick_name, create_time
+        from bbs_topic_activity where activity_id = #{activityId}
+    </select>
+
+    <insert id="joinTopicActivity">
+        insert ignore into bbs_topic_activity_join(activity_id, user_id, user_nick_name, remark, create_time)
+        values(#{activityId}, #{userId}, #{userNickName}, #{remark}, now())
+    </insert>
+
+    <update id="increaseTopicJoinCount">
+        update bbs_topic_activity set join_count = join_count + 1 where activity_id = #{activityId}
+    </update>
+
+    <update id="archiveTopicActivity">
+        update bbs_topic_activity set status = 'closed', archived_flag = '1', summary_text = #{summaryText} where activity_id = #{activityId}
+    </update>
+
+    <insert id="insertTopicContent" parameterType="com.ruoyi.system.domain.BbsCollectTopicContent" useGeneratedKeys="true" keyProperty="id">
+        insert into bbs_collect_topic_content(activity_id, content_type, content_id, content_title, author_user_id, author_nick_name,
+                                             score, like_count, comment_count, sort_order, create_time)
+        values(#{activityId}, #{contentType}, #{contentId}, #{contentTitle}, #{authorUserId}, #{authorNickName},
+               #{score}, #{likeCount}, #{commentCount}, #{sortOrder}, now())
+    </insert>
+
+    <select id="selectTopicContentList" resultMap="TopicContentResult">
+        select id, activity_id, content_type, content_id, content_title, author_user_id, author_nick_name,
+               score, like_count, comment_count, sort_order, create_time
+        from bbs_collect_topic_content where activity_id = #{activityId}
+        order by sort_order asc, score desc, id desc
+    </select>
+
+    <select id="selectTopicRank" resultType="java.util.HashMap">
+        select author_user_id as userId,
+               max(author_nick_name) as nickName,
+               count(1) as submitCount,
+               sum(score) as totalScore,
+               sum(like_count) as likeCount
+        from bbs_collect_topic_content
+        where activity_id = #{activityId}
+        group by author_user_id
+        order by totalScore desc, likeCount desc, submitCount desc
+        limit 50
+    </select>
+
+    <insert id="insertSurveyQuestion" parameterType="com.ruoyi.system.domain.BbsCollectSurveyQuestion" useGeneratedKeys="true" keyProperty="questionId">
+        insert into bbs_collect_survey_question(activity_id, question_no, question_type, question_title, option_json, jump_logic_json, required_flag, create_time)
+        values(#{activityId}, #{questionNo}, #{questionType}, #{questionTitle}, #{optionJson}, #{jumpLogicJson}, #{requiredFlag}, now())
+    </insert>
+
+    <select id="selectSurveyQuestions" resultMap="SurveyQuestionResult">
+        select question_id, activity_id, question_no, question_type, question_title, option_json, jump_logic_json, required_flag
+        from bbs_collect_survey_question where activity_id = #{activityId}
+        order by question_no asc, question_id asc
+    </select>
+
+    <insert id="upsertSurveyResponse" parameterType="com.ruoyi.system.domain.BbsCollectSurveyResponse">
+        insert into bbs_collect_survey_response(activity_id, user_id, user_nick_name, answers_json, submit_status, submit_time, create_time, update_time)
+        values(#{activityId}, #{userId}, #{userNickName}, #{answersJson}, #{submitStatus}, #{submitTime}, now(), now())
+        on duplicate key update
+            user_nick_name = values(user_nick_name),
+            answers_json = values(answers_json),
+            submit_status = values(submit_status),
+            submit_time = values(submit_time),
+            update_time = now()
+    </insert>
+
+    <select id="selectSurveyResponseByUser" resultMap="SurveyResponseResult">
+        select response_id, activity_id, user_id, user_nick_name, answers_json, submit_status, submit_time, create_time, update_time
+        from bbs_collect_survey_response where activity_id = #{activityId} and user_id = #{userId}
+    </select>
+
+    <select id="countSurveySubmitted" resultType="long">
+        select count(1) from bbs_collect_survey_response where activity_id = #{activityId} and submit_status = 'SUBMITTED'
+    </select>
+
+    <select id="selectSurveySubmittedList" resultMap="SurveyResponseResult">
+        select response_id, activity_id, user_id, user_nick_name, answers_json, submit_status, submit_time, create_time, update_time
+        from bbs_collect_survey_response where activity_id = #{activityId} and submit_status = 'SUBMITTED'
+        order by submit_time desc, response_id desc
+    </select>
+
+</mapper>

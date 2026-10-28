@@ -12,6 +12,17 @@
             <span class="nav-item" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
               专题
             </span>
+            <span class="nav-item" :class="{ active: currentNav === 'qa' }" @click="handleNavClick('qa')">
+              问答专区
+            </span>
+            <span class="nav-item" :class="{ active: currentNav === 'idea' }" @click="handleNavClick('idea')">
+              创意提案
+            </span>
+            <!-- 在线收集功能已屏蔽
+            <span class="nav-item" :class="{ active: currentNav === 'collect' }" @click="handleNavClick('collect')">
+              在线收集
+            </span>
+            -->
             <!-- <el-dropdown @command="handleCategoryNav" trigger="hover">
               <span class="nav-item">
                 分类 <i class="el-icon-arrow-down"></i>
@@ -204,18 +215,26 @@ export default {
       this.isMobile = window.innerWidth < 768;
     },
     updateFromRoute() {
-      if (this.$route.path === '/topic') {
+      const path = this.$route.path;
+      if (path === '/topic') {
         this.currentNav = 'topic';
+      } else if (path.startsWith('/qa')) {
+        this.currentNav = 'qa';
+      } else if (path.startsWith('/idea')) {
+        this.currentNav = 'idea';
+      } else if (path.startsWith('/collect')) {
+        this.currentNav = 'collect';
+      } else {
+        if (this.$route.query.nav) {
+          this.currentNav = this.$route.query.nav;
+        } else {
+          this.currentNav = 'home';
+        }
       }
       if (this.$route.query.categoryId) {
         this.activeCategory = parseInt(this.$route.query.categoryId);
       } else {
         this.activeCategory = null;
-      }
-      if (this.$route.path !== '/topic' && this.$route.query.nav) {
-        this.currentNav = this.$route.query.nav;
-      } else if (this.$route.path !== '/topic') {
-        this.currentNav = 'home';
       }
       if (this.$route.query.keyword) {
         this.searchKeyword = this.$route.query.keyword;
@@ -250,6 +269,18 @@ export default {
       this.currentNav = nav;
       if (nav === 'topic') {
         this.$router.push({ path: '/topic' });
+        return;
+      }
+      if (nav === 'qa') {
+        this.$router.push({ path: '/qa' });
+        return;
+      }
+      if (nav === 'idea') {
+        this.$router.push({ path: '/idea' });
+        return;
+      }
+      if (nav === 'collect') {
+        this.$router.push({ path: '/collect' });
         return;
       }
       this.$router.push({

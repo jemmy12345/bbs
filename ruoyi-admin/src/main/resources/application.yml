@@ -90,7 +90,7 @@ xss:
   urlPatterns: /system/*,/monitor/*,/tool/*
 
 
-isAdmin:  linjh46@chinaunicom.cn,jiangry19@chinaunicom.cn,hejj59@chinaunicom.cn,hez12@chinaunicom.cn
+isAdmin:  admin
 
 
 gen:

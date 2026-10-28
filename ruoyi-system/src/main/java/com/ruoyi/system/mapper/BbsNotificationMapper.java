@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import com.ruoyi.system.domain.BbsNotification;
 
 /**
@@ -81,4 +82,20 @@ public interface BbsNotificationMapper
      * @return 未读通知数
      */
     public int countUnread(String userId);
+
+    /**
+     * 查询指定时间内相同类型的重复通知数（用于去重判断）
+     *
+     * @param userId     接收用户ID
+     * @param fromUserId 来源用户ID
+     * @param targetId   目标帖子ID
+     * @param type       通知类型
+     * @param hours      时间范围（小时）
+     * @return 数量
+     */
+    public int countRecentNotification(@Param("userId") String userId,
+                                       @Param("fromUserId") String fromUserId,
+                                       @Param("targetId") Long targetId,
+                                       @Param("type") String type,
+                                       @Param("hours") int hours);
 }

@@ -138,79 +138,16 @@ public class SysLoginService
 
     public String globalOaCheckAuthentication(String token) {
         LoginUser userInfo = null;
-        try{
-            String url = globaloaUrl + "/uac-sso/check_authentication?appid=" + globaloaAppId + "&token=" + token;
-            String sendGet = HttpUtils.sendGet(url);
-            JSONObject jsonObject = JSONObject.parseObject(sendGet);
-            System.out.println("httpGet jsonObject:"+jsonObject);
-            if(null != jsonObject){
-                String code = jsonObject.getString("code");
-                if(!code.equals("urn:oasis:names:tc:SAML:2.0:status:Success")){
-                    throw new ServiceException(jsonObject.getString("message"));
-                }
-                String userId = jsonObject.getJSONObject("userEntity").getString("emailAddress");
-                userInfo = getUserInfo(userId);
-//                userInfo = userService.getUserInfo(userId);
-//                if (!UserStatus.OK.getCode().equals(userInfo.getUser().getDelFlag()) ) {
-//                    throw new ServiceException("用户名或密码错误");
-//                }
-                SysUser sysUser = new SysUser();
-                sysUser.setUserId(userId);
-                Set<String> menuPermission = permissionService.getMenuPermission(sysUser);
-                userInfo.setPermissions(menuPermission);
-                userInfo.setOaToken(token);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new ServiceException(e.getMessage());
-        }
+        /**
+         * 去除实现
+         */
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(userInfo.getUsername(), Constants.LOGIN_SUCCESS, "国际OA单点成功"));
         // 生成token
         return tokenService.createToken(userInfo);
     }
 
     private LoginUser getUserInfo(String username){
-        String accessTokenUrl = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=wx786a96dd52ea3edb&corpsecret=SbJ0TwcYFTtq2PWe1zbkI_0-4e7pO8k85VZpN4uWtoQ";
-        String tokenInfo = HttpUtils.sendGet(accessTokenUrl);
-        JSONObject tokenObject = JSONObject.parseObject(tokenInfo);
-        String access_token = tokenObject.getString("access_token");
-        String getUserInfoUrl = "https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token="+access_token+"&userid="+username;
-        String userInfoStr = HttpUtils.sendGet(getUserInfoUrl);
-        JSONObject userObject = JSONObject.parseObject(userInfoStr);
-        if(userObject != null && userObject.containsKey("errcode") && userObject.getLong("errcode") == 0){
-            SysUser user = new SysUser();
-            user.setUserId(userObject.getString("userid"));
-            user.setUserName(userObject.getString("userid"));
-            user.setNickName(userObject.getString("name"));
-            user.setAvatar(userObject.getString("avatar"));
-            SysDept sysDept = new SysDept();
-            Long mainDepartment = userObject.getLong("main_department");
-            sysDept.setDeptId(mainDepartment);
-
-            String deptUrl = "https://qyapi.weixin.qq.com/cgi-bin/department/get?access_token="+access_token+"&id="+mainDepartment;
-            String deptStr = HttpUtils.sendGet(deptUrl);
-            JSONObject deptObject = JSONObject.parseObject(deptStr);
-            if(deptObject != null){
-                String dept_name = deptObject.getJSONObject("department").getString("name");
-                sysDept.setDeptName(dept_name);
-            }
-            user.setDept(sysDept);
-            user.setEmail(userObject.getString("email"));
-            user.setPhonenumber(userObject.getString("mobile"));
-            LoginUser loginUser = new LoginUser();
-            loginUser.setUserId(user.getUserId());
-            loginUser.setUser(user);
-            loginUser.setDeptId(sysDept.getDeptId());
-            // 3. 核心修复：确保权限集合非null
-            Collection<? extends GrantedAuthority> authorities = loginUser.getAuthorities();
-            if (authorities == null) {
-                // 使用框架提供的空权限集合
-                authorities = AuthorityUtils.NO_AUTHORITIES;
-            }
-            return loginUser;
-        }else{
-            throw new ServiceException(MessageUtils.message("user.not.exists"));
-        }
+        return null;
     }
 
     /**

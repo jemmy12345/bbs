@@ -42,6 +42,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where pt.post_id = #{postId}
     </select>
 
+    <!-- 批量查询多帖子的标签，结果含 post_id 字段用于服务层分组 -->
+    <resultMap type="BbsTag" id="BbsTagWithPostResult" extends="BbsTagResult">
+        <result property="postId" column="post_id" />
+    </resultMap>
+    <select id="selectTagsByPostIds" resultMap="BbsTagWithPostResult">
+        select t.tag_id, t.tag_name, t.tag_color, t.use_count, t.create_time, pt.post_id
+        from bbs_tag t
+        inner join bbs_post_tag pt on t.tag_id = pt.tag_id
+        where pt.post_id in
+        <foreach collection="postIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="selectHotTags" parameterType="Integer" resultMap="BbsTagResult">
         select tag_id, tag_name, tag_color, use_count, create_time
         from bbs_tag

@@ -88,7 +88,7 @@ export default {
     commentSuccess: '评论成功',
     replySuccess: '回复成功',
     pleaseLogin: '请先登录',
-    admin: '管理员',
+    admin: '管理后台',
     showAsAdminPost: '显示为管理员发帖',
     searchPlaceholderShort: 'Q 搜索文章...',
     enterContent: '请输入内容',

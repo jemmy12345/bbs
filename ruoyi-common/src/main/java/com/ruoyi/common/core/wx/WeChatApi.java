@@ -38,16 +38,8 @@ public class WeChatApi {
      * @throws Exception
      */
     public static String getToken(String appid) {
-        String secret = PropertiesUtil.getProperty("wechat_config.properties", appid);
-        String url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + getCorpId() + "&corpsecret=" + secret;
-        RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.getForObject(url, String.class);
-        JSONObject httpGet = JSONObject.parseObject(response);
-        if (httpGet == null || !"0".equals(httpGet.get("errcode").toString())) {
-            throw new ServiceException(httpGet != null ? httpGet.getString("errmsg") : "获取token失败");
-        }
-        String access_token = httpGet.getString("access_token");
-        return access_token;
+       ss_token = httpGet.getString("access_token");
+        return null;
     }
 
     /**

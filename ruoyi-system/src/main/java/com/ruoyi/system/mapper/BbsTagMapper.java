@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import com.ruoyi.system.domain.BbsTag;
 
 /**
@@ -89,6 +90,14 @@ public interface BbsTagMapper
      * @return 标签集合
      */
     public List<BbsTag> selectTagsByPostId(Long postId);
+
+    /**
+     * 批量根据帖子ID列表查询标签（含postId字段，用于服务层分组）
+     *
+     * @param postIds 帖子ID列表
+     * @return 标签集合（每条记录含所属postId）
+     */
+    public List<BbsTag> selectTagsByPostIds(@Param("postIds") List<Long> postIds);
 
     /**
      * 查询热门标签

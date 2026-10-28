@@ -156,10 +156,27 @@ public interface SysUserMapper
     public int incrementBbsPoints(@Param("userId") String userId, @Param("points") Integer points);
 
     /**
+     * 扣减用户论坛积分（最低到0）
+     *
+     * @param userId 用户ID
+     * @param points 扣减积分
+     * @return 结果
+     */
+    public int decrementBbsPoints(@Param("userId") String userId, @Param("points") Integer points);
+
+    /**
      * 查询论坛积分榜
      *
      * @param limit 返回条数
      * @return 排行列表
      */
     public List<Map<String, Object>> selectTopPointUsers(@Param("limit") Integer limit);
+
+    /**
+     * 根据角色key查询该角色下所有正常用户的ID列表
+     *
+     * @param roleKey 角色标识
+     * @return 用户ID字符串列表
+     */
+    public List<String> selectUserIdsByRoleKey(@Param("roleKey") String roleKey);
 }

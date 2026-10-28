@@ -261,6 +261,10 @@ public class SysUserServiceImpl implements ISysUserService
     @Transactional
     public int insertUser(SysUser user)
     {
+        if (StringUtils.isBlank(user.getUserId()))
+        {
+            user.setUserId(user.getUserName());
+        }
         // 新增用户信息
         int rows = userMapper.insertUser(user);
         // 新增用户岗位关联
@@ -279,6 +283,10 @@ public class SysUserServiceImpl implements ISysUserService
     @Override
     public boolean registerUser(SysUser user)
     {
+        if (StringUtils.isBlank(user.getUserId()))
+        {
+            user.setUserId(user.getUserName());
+        }
         return userMapper.insertUser(user) > 0;
     }
 

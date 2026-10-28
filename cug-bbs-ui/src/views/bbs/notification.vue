@@ -165,8 +165,11 @@ export default {
       // 跳转到对应的文章详情页
       const postId = notification.targetId;
       if (postId) {
-        // 如果通知类型是评论或回复，跳转到评论区
-        if (notification.type === '1' || notification.type === '2') {
+        // 提案通知（targetType=6），跳转到提案详情页
+        if (notification.targetType === '6') {
+          this.$router.push({ path: `/idea/detail/${postId}` });
+        } else if (notification.type === '1' || notification.type === '2') {
+          // 评论或回复，跳转到评论区
           this.$router.push({ 
             path: "/post/" + postId,
             query: { scrollToComment: 'true' }

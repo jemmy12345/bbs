@@ -3,6 +3,7 @@ package com.ruoyi.system.domain;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.apache.ibatis.type.Alias;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author simonyang
  * @date 2026-04-10
  */
+@Alias("BbsAdminLog")
 public class BbsAdminLog extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

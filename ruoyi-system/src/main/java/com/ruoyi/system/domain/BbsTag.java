@@ -81,6 +81,19 @@ public class BbsTag
         this.createTime = createTime;
     }
 
+    /** 批量查询时关联的帖子ID（非持久化字段） */
+    private Long postId;
+
+    public Long getPostId()
+    {
+        return postId;
+    }
+
+    public void setPostId(Long postId)
+    {
+        this.postId = postId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

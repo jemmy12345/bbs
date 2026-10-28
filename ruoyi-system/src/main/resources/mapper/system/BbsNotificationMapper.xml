@@ -129,5 +129,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             REPLACE(#{userId}, '|', ',')
             ) and is_read = '0'
     </select>
-    
+
+    <!-- 统计指定时间内相同类型的重复通知 -->
+    <select id="countRecentNotification" resultType="int">
+        select count(*) from bbs_notification
+        where user_id = #{userId}
+          and from_user_id = #{fromUserId}
+          and target_id = #{targetId}
+          and type = #{type}
+          and create_time >= DATE_SUB(NOW(), INTERVAL #{hours} HOUR)
+    </select>
+
 </mapper>

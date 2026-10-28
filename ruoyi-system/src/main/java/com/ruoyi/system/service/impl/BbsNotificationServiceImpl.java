@@ -160,6 +160,13 @@ public class BbsNotificationServiceImpl implements IBbsNotificationService
             return 0;
         }
 
+        // 去重：24小时内同一用户对同一帖子已有点赞通知则不再重复发送
+        int recentCount = bbsNotificationMapper.countRecentNotification(postOwnerId, fromUserId, postId, "3", 24);
+        if (recentCount > 0)
+        {
+            return 0;
+        }
+
         BbsNotification notification = new BbsNotification();
         notification.setUserId(postOwnerId);
         notification.setType("3"); // 3-点赞

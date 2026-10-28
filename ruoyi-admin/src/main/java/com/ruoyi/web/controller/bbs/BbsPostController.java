@@ -1190,27 +1190,7 @@ public class BbsPostController extends BaseController
         //     post.getSummary(),
         //     post.getNickName());
         //
-        String accessTokenUrl = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=wx786a96dd52ea3edb&corpsecret=SbJ0TwcYFTtq2PWe1zbkI_0-4e7pO8k85VZpN4uWtoQ";
-        String tokenInfo = HttpUtils.sendGet(accessTokenUrl);
-        JSONObject tokenObject = JSONObject.parseObject(tokenInfo);
-        String access_token = tokenObject.getString("access_token");
-        String contactUserId = deptContact.getContactUserId();
-        JSONObject msgInfo = new JSONObject();
-        msgInfo.put("msgtype", "textcard");
-        msgInfo.put("touser", contactUserId);
-        msgInfo.put("content", post.getContent());
-        msgInfo.put("agentid", 1000063);
-        JSONObject textcard = new JSONObject();
-        textcard.put("title", "BBS通知");
-        String description = "<div class=\"normal\">您好，贵部在Smart BBS收到了一条新的建议/意见，还请前往查看并给予反馈!\r\n</div> <div class=\"highlight\">"+post.getTitle()+"</div>";
-        textcard.put("description", description);
-        String detailUrlInfo = detailUrl + post.getPostId();
-        String redirectUrl1 = redirectUrl.replace("redirectUri", detailUrlInfo);
-        textcard.put("url", redirectUrl1);
-        msgInfo.put("textcard", textcard);
-        String sendUrl = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+access_token;
-        String s = HttpUtils.sendPost(sendUrl, JSONObject.toJSONString(msgInfo));
-        // 调用企业微信API发送消息
+        
         log.info("发送企业微信消息 - 部门：{}，接口人：{}，帖子ID：{}, 链接地址：{}",
             deptContact.getDeptName(), deptContact.getContactName(), post.getPostId(), redirectUrl);
     }

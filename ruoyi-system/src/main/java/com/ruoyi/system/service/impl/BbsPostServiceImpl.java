@@ -1,5 +1,7 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -157,8 +159,15 @@ public class BbsPostServiceImpl implements IBbsPostService
             Map<Long, Long> likeCountMap = likeList.stream()
                     .collect(Collectors.groupingBy(BbsLike::getTargetId, Collectors.counting()));
 
+            // 批量加载标签，避免 N+1 查询
+            List<BbsTag> allTags = bbsTagMapper.selectTagsByPostIds(postIdList);
+            Map<Long, List<BbsTag>> tagsMap = new HashMap<>();
+            for (BbsTag tag : allTags) {
+                tagsMap.computeIfAbsent(tag.getPostId(), k -> new ArrayList<>()).add(tag);
+            }
+
             for (BbsPost post : bbsPosts) {
-                post.setTags(bbsTagMapper.selectTagsByPostId(post.getPostId()));
+                post.setTags(tagsMap.getOrDefault(post.getPostId(), java.util.Collections.emptyList()));
                 // 更新收藏、评论、点赞数
                 post.setCollectCount(collectCountMap.getOrDefault(post.getPostId(), 0L).intValue());
                 post.setCommentCount(commentCountMap.getOrDefault(post.getPostId(), 0L).intValue());

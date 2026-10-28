@@ -15,11 +15,19 @@ public class PageUtils extends PageHelper
     /**
      * 设置请求分页数据
      */
+    /** 单次查询最大页大小，防止超大 pageSize 导致资源耗尽 */
+    private static final int MAX_PAGE_SIZE = 200;
+
     public static void startPage()
     {
         PageDomain pageDomain = TableSupport.buildPageRequest();
         Integer pageNum = pageDomain.getPageNum();
         Integer pageSize = pageDomain.getPageSize();
+        // 防止 DoS：限制单次最大查询行数
+        if (pageSize != null && pageSize > MAX_PAGE_SIZE)
+        {
+            pageSize = MAX_PAGE_SIZE;
+        }
         String orderBy = SqlUtil.escapeOrderBySql(pageDomain.getOrderBy());
         Boolean reasonable = pageDomain.getReasonable();
         PageHelper.startPage(pageNum, pageSize, orderBy).setReasonable(reasonable);

@@ -21,238 +21,204 @@
       </el-select>
     </div> -->
 
-    <!-- 排序选项 -->
-    <div class="sort-options" v-if="!isMobile">
-      <el-radio-group v-model="sortType" @change="handleQuery" size="medium">
-        <el-radio-button label="latest">{{
-          $t("bbs.latestPosts")
-        }}</el-radio-button>
-        <el-radio-button label="hot">{{ $t("bbs.hotPosts") }}</el-radio-button>
-        <!-- <el-radio-button label="essence">精华</el-radio-button> -->
-      </el-radio-group>
-    </div>
+    <!-- 主体两栏布局 -->
+    <div class="main-layout">
 
-    <!-- 每日签到卡片 -->
-    <div class="checkin-bar">
-      <div class="checkin-info">
-        <span class="checkin-flame">🗓️</span>
-        <span class="checkin-text" v-if="checkinInfo.checked">
-          今日已签到 · 连续 <b>{{ checkinInfo.streak }}</b> 天
-          <el-tag size="mini" type="success" style="margin-left:6px;">+{{ checkinInfo.pointsEarned }} 积分</el-tag>
-        </span>
-        <span class="checkin-text" v-else>
-          今日还未签到
-          <template v-if="checkinInfo.streak > 0">
-            · 已连续 <b>{{ checkinInfo.streak }}</b> 天
-          </template>
-        </span>
-      </div>
-      <el-button
-        class="checkin-btn"
-        :type="checkinInfo.checked ? 'info' : 'primary'"
-        :plain="checkinInfo.checked"
-        size="small"
-        :disabled="checkinInfo.checked"
-        :loading="checkinLoading"
-        @click="handleCheckin"
-      >
-        {{ checkinInfo.checked ? '已签到' : '立即签到' }}
-      </el-button>
-    </div>
+      <!-- 左栏 70%：排序 + 签到 + 帖子列表 + 分页 -->
+      <div class="main-left">
 
-    <div v-if="hotPostList.length || radarTopics.length || pointRankList.length" class="forum-intelligence">
-      <!-- 全站热议榜 -->
-      <div class="intelligence-card hot-card">
-        <div class="intelligence-title">🔥 全站热议榜</div>
-        <div v-if="hotPostList.length" class="hot-list">
-          <div
-            v-for="(post, index) in hotPostList.slice(0, 5)"
-            :key="post.postId"
-            class="hot-item"
-            @click="handlePostClick(post.postId)"
-          >
-            <span class="hot-rank">{{ index + 1 }}</span>
-            <div class="hot-body">
-              <div class="hot-title">{{ truncateTitle(post.title, 30) }}</div>
-              <div class="hot-meta">{{ post.viewCount || 0 }} 浏览 · {{ post.commentCount || 0 }} 评论</div>
-            </div>
-          </div>
+        <!-- 排序选项 -->
+        <div class="sort-options" v-if="!isMobile">
+          <el-radio-group v-model="sortType" @change="handleQuery" size="medium">
+            <el-radio-button label="latest">{{ $t("bbs.latestPosts") }}</el-radio-button>
+            <el-radio-button label="hot">{{ $t("bbs.hotPosts") }}</el-radio-button>
+          </el-radio-group>
+          <el-tag
+            v-if="queryParams.title"
+            closable
+            size="medium"
+            type="info"
+            style="margin-left:12px;"
+            @close="clearSearch"
+          >🔍 {{ queryParams.title }}</el-tag>
         </div>
-        <div v-else class="intelligence-empty">暂无热议帖子</div>
-      </div>
 
-      <!-- 话题雷达 -->
-      <div class="intelligence-card radar-card">
-        <div class="intelligence-title">📡 话题雷达</div>
-        <div v-if="radarTopics.length" class="topic-chip-list">
-          <span
-            v-for="(topic, index) in radarTopics"
-            :key="index"
-            class="topic-chip"
-            @click="handleSearch(topic.word)"
-          >
-            <span>{{ topic.word }}</span>
-            <span class="topic-count">{{ topic.count }}</span>
-          </span>
-        </div>
-        <div v-else class="intelligence-empty">暂无话题数据</div>
-      </div>
-
-      <!-- 积分榜 Top5 -->
-      <div class="intelligence-card point-rank-card">
-        <div class="intelligence-title">🏆 积分榜 TOP 5</div>
-        <div class="point-rank-subtitle" style="margin-bottom:12px;">发布帖子/评论可累计积分</div>
-        <div v-if="pointRankList.length" class="point-rank-list">
-          <div
-            v-for="(item, index) in pointRankList"
-            :key="item.userId || index"
-            class="point-rank-item"
-          >
-            <div class="point-rank-left">
-              <span class="point-rank-no">{{ index + 1 }}</span>
-              <el-avatar :size="32" :src="item.avatar">
-                {{ (item.nickName || '用').slice(0, 1) }}
-              </el-avatar>
-              <span class="point-rank-name">{{ item.nickName || '未知用户' }}</span>
-              <span class="level-badge" :style="{ background: getUserLevel(item.points).color }">
-                {{ getUserLevel(item.points).icon }} {{ getUserLevel(item.points).name }}
-              </span>
-            </div>
-            <span class="point-rank-score">{{ item.points || 0 }} 分</span>
-          </div>
-        </div>
-        <div v-else class="intelligence-empty">暂无积分数据</div>
-      </div>
-    </div>
-
-    <!-- 帖子列表 -->
-    <div class="post-list" v-loading="loading">
-      <div
-        v-for="post in postList"
-        :key="post.postId"
-        class="post-item"
-        @click="handlePostClick(post.postId)"
-      >
-        <div class="post-header">
-          <!-- <el-tag 
-            :type="getCategoryTagType(post.categoryName)" 
-            size="small"
-            class="category-tag"
-          >
-            {{ post.categoryName }}
-          </el-tag> -->
-
-          <!-- <el-tag v-if="post.isEssence === '1'" type="warning" size="mini">精华</el-tag> -->
-        </div>
-        <div class="post-content post-wrapper">
-          <div class="post-title-wrapper">
-            <h3 class="post-title">
-              <el-tag v-if="post.isTop === '1'" type="danger" size="mini"
-                >{{ $t("bbs.top") }}</el-tag
-              >
-              <el-tag
-                v-if="post.postType"
-                :type="getPostTypeTagType(post.postType)"
-                size="mini"
-                style="margin-right: 5px"
-              >
-                {{ getPostTypeName(post.postType) }}
-              </el-tag>
-
-              {{ truncateTitle(post.title) }}
-            </h3>
-            <div v-if="post.tags && post.tags.length" class="post-tag-list">
-              <el-tag
-                v-for="tag in post.tags"
-                :key="tag.tagId || tag.tagName"
-                size="mini"
-                effect="plain"
-                :style="{ borderColor: tag.tagColor || '#409EFF', color: tag.tagColor || '#409EFF' }"
-              >
-                #{{ tag.tagName }}
-              </el-tag>
-            </div>
-            <span
-              v-if="
-                (post.postType === 'suggestion' ||
-                  post.postType === 'opinion') &&
-                post.responseDeptName &&
-                post.responseDeptName.trim()
-              "
-              type="info"
-              size="small"
-              style="margin-right: 5px; font-size: 12px; color: #909399"
-            >
-              <span>{{ $t("bbs.responseDeptPrefix") }}</span>
-              {{ post.responseDeptName }}
+        <!-- 每日签到卡片 -->
+        <div class="checkin-bar">
+          <div class="checkin-info">
+            <span class="checkin-flame">🗓️</span>
+            <span class="checkin-text" v-if="checkinInfo.checked">
+              今日已签到 · 连续 <b>{{ checkinInfo.streak }}</b> 天
+              <el-tag size="mini" type="success" style="margin-left:6px;">+{{ checkinInfo.pointsEarned }} 积分</el-tag>
+            </span>
+            <span class="checkin-text" v-else>
+              今日还未签到
+              <template v-if="checkinInfo.streak > 0">
+                · 已连续 <b>{{ checkinInfo.streak }}</b> 天
+              </template>
             </span>
           </div>
-          <div class="post-info-column">
-            <div class="post-meta">
-              <span class="author">
-                <span v-if="post.isAnonymous === '1'">{{
-                  $t("bbs.anonymousUser")
-                }}</span>
-                <span v-else>
-                  <span v-if="!shouldShowAdminTag(post)">{{
-                    post.nickName || $t("bbs.unknownUser")
-                  }}</span>
+          <el-button
+            class="checkin-btn"
+            :type="checkinInfo.checked ? 'info' : 'primary'"
+            :plain="checkinInfo.checked"
+            size="small"
+            :disabled="checkinInfo.checked"
+            :loading="checkinLoading"
+            @click="handleCheckin"
+          >
+            {{ checkinInfo.checked ? '已签到' : '立即签到' }}
+          </el-button>
+        </div>
+
+        <!-- 帖子列表 -->
+        <div class="post-list" v-loading="loading">
+          <div
+            v-for="post in postList"
+            :key="post.postId"
+            class="post-item"
+            @click="handlePostClick(post.postId)"
+          >
+            <div class="post-content post-wrapper">
+              <div class="post-title-wrapper">
+                <h3 class="post-title">
+                  <el-tag v-if="post.isTop === '1'" type="danger" size="mini">{{ $t("bbs.top") }}</el-tag>
                   <el-tag
-                    v-if="shouldShowAdminTag(post)"
+                    v-if="post.postType"
+                    :type="getPostTypeTagType(post.postType)"
                     size="mini"
-                    type="danger"
-                    style="margin-left: 5px"
-                    >{{ $t("bbs.admin") }}</el-tag
+                    style="margin-right: 5px"
                   >
+                    {{ getPostTypeName(post.postType) }}
+                  </el-tag>
+                  {{ truncateTitle(post.title) }}
+                </h3>
+                <div v-if="post.tags && post.tags.length" class="post-tag-list">
+                  <el-tag
+                    v-for="tag in post.tags"
+                    :key="tag.tagId || tag.tagName"
+                    size="mini"
+                    effect="plain"
+                    :style="{ borderColor: tag.tagColor || '#409EFF', color: tag.tagColor || '#409EFF' }"
+                  >
+                    #{{ tag.tagName }}
+                  </el-tag>
+                </div>
+                <span
+                  v-if="(post.postType === 'suggestion' || post.postType === 'opinion') && post.responseDeptName && post.responseDeptName.trim()"
+                  style="margin-right: 5px; font-size: 12px; color: #909399"
+                >
+                  <span>{{ $t("bbs.responseDeptPrefix") }}</span>{{ post.responseDeptName }}
                 </span>
-              </span>
-              <el-tag
-                v-if="post.isAnonymous === '1'"
-                size="mini"
-                type="info"
-                style="margin-left: 5px"
-                >{{ $t("bbs.anonymous") }}</el-tag
-              >
-              <span class="divider">·</span>
-              <span class="time">{{
-                parseTime(post.createTime, "{y}-{m}-{d}")
-              }}</span>
-            </div>
-            <div class="post-stats">
-              <span class="stat-item">
-                <i class="el-icon-view"></i> {{ post.viewCount }}
-              </span>
-              <span class="stat-item">
-                <img
-                  :src="require('@/assets/images/dianzan.svg')"
-                  :alt="$t('bbs.like')"
-                  class="like-icon"
-                  :class="{ 'liked-icon': post.isLiked }"
-                />
-                {{ post.likeCount }}
-              </span>
-              <span class="stat-item">
-                <i class="el-icon-chat-line-square"></i>
-                {{ post.commentCount || 0 }}
-              </span>
+              </div>
+              <div class="post-info-column">
+                <div class="post-meta">
+                  <span class="author">
+                    <span v-if="post.isAnonymous === '1'">{{ $t("bbs.anonymousUser") }}</span>
+                    <span v-else>
+                      <span v-if="!shouldShowAdminTag(post)">{{ post.nickName || $t("bbs.unknownUser") }}</span>
+                      <el-tag v-if="shouldShowAdminTag(post)" size="mini" type="danger" style="margin-left: 5px">{{ $t("bbs.admin") }}</el-tag>
+                    </span>
+                  </span>
+                  <el-tag v-if="post.isAnonymous === '1'" size="mini" type="info" style="margin-left: 5px">{{ $t("bbs.anonymous") }}</el-tag>
+                  <span class="divider">·</span>
+                  <span class="time">{{ parseTime(post.createTime, "{y}-{m}-{d}") }}</span>
+                </div>
+                <div class="post-stats">
+                  <span class="stat-item"><i class="el-icon-view"></i> {{ post.viewCount }}</span>
+                  <span class="stat-item">
+                    <img :src="require('@/assets/images/dianzan.svg')" :alt="$t('bbs.like')" class="like-icon" :class="{ 'liked-icon': post.isLiked }" />
+                    {{ post.likeCount }}
+                  </span>
+                  <span class="stat-item"><i class="el-icon-chat-line-square"></i> {{ post.commentCount || 0 }}</span>
+                </div>
+              </div>
             </div>
           </div>
+          <div v-if="postList.length === 0 && !loading" class="empty-state">
+            <i class="el-icon-document"></i>
+            <p>{{ $t("bbs.noPosts") }}</p>
+          </div>
         </div>
-      </div>
-      <div v-if="postList.length === 0 && !loading" class="empty-state">
-        <i class="el-icon-document"></i>
-        <p>{{ $t("bbs.noPosts") }}</p>
-      </div>
-    </div>
 
-    <!-- 分页 -->
-    <pagination
-      v-show="total > 0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="handlePagination"
-    />
+        <!-- 分页 -->
+        <pagination
+          v-show="total > 0"
+          :total="total"
+          :page.sync="queryParams.pageNum"
+          :limit.sync="queryParams.pageSize"
+          @pagination="handlePagination"
+        />
+
+      </div><!-- /main-left -->
+
+      <!-- 右栏 30%：三个榜单垂直叠放 -->
+      <div class="main-right">
+
+        <!-- 全站热议榜 -->
+        <div class="intelligence-card hot-card">
+          <div class="intelligence-title">🔥 全站热议榜</div>
+          <div v-if="hotPostList.length" class="hot-list">
+            <div
+              v-for="(post, index) in hotPostList.slice(0, 5)"
+              :key="post.postId"
+              class="hot-item"
+              @click="handlePostClick(post.postId)"
+            >
+              <span class="hot-rank">{{ index + 1 }}</span>
+              <div class="hot-body">
+                <div class="hot-title">{{ truncateTitle(post.title, 30) }}</div>
+                <div class="hot-meta">{{ post.viewCount || 0 }} 浏览 · {{ post.commentCount || 0 }} 评论</div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="intelligence-empty">暂无热议帖子</div>
+        </div>
+
+        <!-- 话题雷达 -->
+        <div class="intelligence-card radar-card">
+          <div class="intelligence-title">📡 话题雷达</div>
+          <div v-if="radarTopics.length" class="topic-chip-list">
+            <span
+              v-for="(topic, index) in radarTopics"
+              :key="index"
+              class="topic-chip"
+              @click="handleSearch(topic.word)"
+            >
+              <span>{{ topic.word }}</span>
+              <span class="topic-count">{{ topic.count }}</span>
+            </span>
+          </div>
+          <div v-else class="intelligence-empty">暂无话题数据</div>
+        </div>
+
+        <!-- 积分榜 Top5 -->
+        <div class="intelligence-card point-rank-card">
+          <div class="intelligence-title">🏆 积分榜 TOP 5</div>
+          <div class="point-rank-subtitle" style="margin-bottom:12px;">发布帖子/评论可累计积分</div>
+          <div v-if="pointRankList.length" class="point-rank-list">
+            <div
+              v-for="(item, index) in pointRankList"
+              :key="item.userId || index"
+              class="point-rank-item"
+            >
+              <div class="point-rank-left">
+                <span class="point-rank-no">{{ index + 1 }}</span>
+                <el-avatar :size="32" :src="item.avatar">{{ (item.nickName || '用').slice(0, 1) }}</el-avatar>
+                <span class="point-rank-name">{{ item.nickName || '未知用户' }}</span>
+                <span class="level-badge" :style="{ background: getUserLevel(item.points).color }">
+                  {{ getUserLevel(item.points).icon }} {{ getUserLevel(item.points).name }}
+                </span>
+              </div>
+              <span class="point-rank-score">{{ item.points || 0 }} 分</span>
+            </div>
+          </div>
+          <div v-else class="intelligence-empty">暂无积分数据</div>
+        </div>
+
+      </div><!-- /main-right -->
+
+    </div><!-- /main-layout -->
 
     <!-- 发布帖子对话框 -->
     <el-dialog
@@ -1035,6 +1001,16 @@ export default {
           this.getList();
         });
     },
+    handleSearch(keyword) {
+      this.queryParams.title = keyword;
+      this.queryParams.pageNum = 1;
+      this.getList();
+    },
+    clearSearch() {
+      this.queryParams.title = null;
+      this.queryParams.pageNum = 1;
+      this.getList();
+    },
     handlePostClick(postId) {
       // 保存当前页数到路由参数，以便返回时恢复
       this.$router.push({
@@ -1718,6 +1694,27 @@ export default {
   color: #e67e22;
 }
 
+.main-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.main-left {
+  flex: 0 0 70%;
+  min-width: 0;
+}
+
+.main-right {
+  flex: 0 0 calc(30% - 20px);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 16px;
+}
+
 .forum-intelligence {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -1958,6 +1955,20 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
+  }
+
+  .main-layout {
+    flex-direction: column;
+  }
+
+  .main-left,
+  .main-right {
+    flex: none;
+    width: 100%;
+  }
+
+  .main-right {
+    position: static;
   }
 
   .forum-intelligence {
