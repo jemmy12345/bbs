@@ -23,7 +23,8 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       # 首次启动（数据卷为空）时自动导入完整数据库
-      - ../../sql/bbsdb.sql:/docker-entrypoint-initdb.d/01-bbsdb.sql:ro
+      - ../../sql/bbsdb.sql:/sql/bbsdb.sql:ro
+      - ./mysql-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
