@@ -1,0 +1,92 @@
+# Smart BBS 一键运行环境：MySQL 8 + Redis 7 + 后端(Spring Boot) + 前端(Nginx)
+# 推荐通过 scripts/docker-mac.sh 启动；也可在本目录执行 docker compose up -d --build
+# 可用环境变量（括号内为默认值）：
+#   WEB_PORT(80) BACKEND_PORT(9082) MYSQL_PORT(3307) MYSQL_ROOT_PASSWORD(smartbbs123) CN_MIRROR(0)
+
+name: smart-bbs
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-smartbbs123}
+      MYSQL_DATABASE: bbsdb
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --default-time-zone=+08:00
+      - --lower-case-table-names=1
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # 首次启动（数据卷为空）时自动导入完整数据库
+      - ../../sql/bbsdb.sql:/docker-entrypoint-initdb.d/01-bbsdb.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/backend.Dockerfile
+      args:
+        CN_MIRROR: ${CN_MIRROR:-0}
+    image: smart-bbs-backend:latest
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Shanghai
+    # 用启动参数覆盖 application-dev.yml 中指向 localhost 的配置
+    command:
+      - --spring.datasource.druid.master.url=jdbc:mysql://mysql:3306/bbsdb?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
+      - --spring.datasource.druid.master.username=root
+      - --spring.datasource.druid.master.password=${MYSQL_ROOT_PASSWORD:-smartbbs123}
+      - --spring.redis.host=redis
+      - --spring.redis.port=6379
+      - --spring.devtools.restart.enabled=false
+      - --smart-bbs.profile=/app/upload
+    ports:
+      - "${BACKEND_PORT:-9082}:9082"
+    volumes:
+      - ../../runtime/upload:/app/upload
+      - backend-logs:/tmp/smart-bbs-logs
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/frontend.Dockerfile
+      args:
+        CN_MIRROR: ${CN_MIRROR:-0}
+    image: smart-bbs-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${WEB_PORT:-80}:80"
+
+volumes:
+  mysql-data:
+  redis-data:
+  backend-logs:

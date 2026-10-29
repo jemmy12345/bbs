@@ -1,0 +1,11 @@
+.git
+.github
+.vscode
+.run
+.DS_Store
+**/node_modules
+frontend/dist
+**/target
+deploy/bbs-admin.jar
+runtime
+docs
