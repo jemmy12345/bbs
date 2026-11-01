@@ -7,5 +7,4 @@
 frontend/dist
 **/target
 deploy/bbs-admin.jar
-runtime
 docs
