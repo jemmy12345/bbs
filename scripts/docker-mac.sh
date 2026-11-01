@@ -13,7 +13,7 @@
 #   restart  重新构建镜像并重启（代码更新后使用）
 #   status   查看容器状态
 #   logs     查看日志，可追加服务名：logs backend
-#   reset    删除容器和全部数据卷，下次 up 时重新导入数据库
+#   reset    删除容器和全部数据卷，下次 up 时重新导入数据库，上传文件恢复为镜像内置的文件
 #
 # 可选环境变量：
 #   WEB_PORT=80  BACKEND_PORT=9082  MYSQL_PORT=3307  MYSQL_ROOT_PASSWORD=smartbbs123
@@ -166,7 +166,7 @@ case "${1:-up}" in
   status)  compose ps ;;
   logs)    shift; compose logs -f --tail=200 "$@" ;;
   reset)
-    printf '将删除数据库和 Redis 的全部数据，确认？[y/N] '
+    printf '将删除数据库、Redis 和部署后新上传文件的全部数据，确认？[y/N] '
     read -r ans
     case "$ans" in y|Y) ;; *) info "已取消"; exit 0 ;; esac
     compose down -v

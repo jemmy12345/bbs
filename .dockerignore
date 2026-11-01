@@ -2,7 +2,9 @@
 .github
 .vscode
 .run
-.DS_Store
+**/.DS_Store
+runtime/logs
+runtime/test-reports
 **/node_modules
 frontend/dist
 **/target

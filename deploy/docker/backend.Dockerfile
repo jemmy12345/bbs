@@ -21,6 +21,8 @@ FROM eclipse-temurin:8-jre
 ENV TZ=Asia/Shanghai
 WORKDIR /app
 COPY --from=build /app.jar /app/app.jar
-RUN mkdir -p /app/upload /tmp/smart-bbs-logs
+# 已有的上传文件（帖子图片、附件等）随镜像发布；首次启动时复制到 backend-upload 数据卷
+COPY runtime/upload /app/upload
+RUN mkdir -p /tmp/smart-bbs-logs
 EXPOSE 9082
 ENTRYPOINT ["java", "-Xms256m", "-Xmx1024m", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app/app.jar"]

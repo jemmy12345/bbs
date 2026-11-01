@@ -71,7 +71,8 @@ services:
     ports:
       - "${BACKEND_PORT:-9082}:9082"
     volumes:
-      - ../../runtime/upload:/app/upload
+      # 镜像内已包含 runtime/upload 的文件，数据卷首次创建时自动复制；之后新上传的文件保存在数据卷中
+      - backend-upload:/app/upload
       - backend-logs:/tmp/smart-bbs-logs
 
   frontend:
@@ -90,4 +91,5 @@ services:
 volumes:
   mysql-data:
   redis-data:
+  backend-upload:
   backend-logs:
