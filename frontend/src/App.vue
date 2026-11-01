@@ -2,14 +2,12 @@
   <div id="app">
     <router-view />
     <theme-picker />
-    <watermark />
     <notice-popup />
   </div>
 </template>
 
 <script>
 import ThemePicker from "@/components/ThemePicker"
-import Watermark from "@/components/Watermark"
 import NoticePopup from "@/components/NoticePopup"
 import { getToken } from '@/utils/auth'
 
@@ -17,7 +15,6 @@ export default {
   name: "App",
   components: { 
     ThemePicker,
-    Watermark,
     NoticePopup
   },
   mounted() {

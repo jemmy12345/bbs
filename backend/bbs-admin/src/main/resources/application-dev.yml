@@ -113,5 +113,5 @@ ai:
         enabled: true
         apiUrl: https://ark.cn-beijing.volces.com/api/v3/chat/completions
         apiKey: "0e141f14-a1fe-4b1d-ab69-b7034ebc7834"
-        model: "doubao-seed-2-0-mini-260215"
+        model: "deepseek-v4-pro-ga-260813"
         timeoutMillis: 120000
