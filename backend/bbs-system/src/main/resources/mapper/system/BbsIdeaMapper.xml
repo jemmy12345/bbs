@@ -100,6 +100,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reviewDeadline != null">review_deadline = #{reviewDeadline},</if>
             <if test="bizValue != null">biz_value = #{bizValue},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
             update_time = now()
         </set>
         where idea_id = #{ideaId}
@@ -127,11 +128,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 or i.is_publicized = '1'
                 or i.submit_user_id = #{currentUserId}
                 or i.visibility_scope = 'all'
-                or (i.visibility_scope = 'review_group' and (
+                or (i.visibility_scope != 'all' and (
                     #{canReviewAll} = 1
                     or exists (select 1 from bbs_idea_review r where r.idea_id = i.idea_id and r.reviewer_user_id = #{currentUserId})
                 ))
-                or (i.visibility_scope = 'admin' and #{isAdmin} = 1)
             )
             <if test="mineOnly == 1">and i.submit_user_id = #{currentUserId}</if>
         </where>

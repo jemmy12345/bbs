@@ -122,6 +122,7 @@
             <span class="review-stage">{{ { L1:'初审', L2:'复审', L3:'终审' }[r.stage] || r.stage }}</span>
             <span class="review-score">评分 {{ r.score }}</span>
             <span class="review-user">{{ r.reviewerNickName || r.reviewerUserId }}</span>
+            <span class="review-time">{{ parseTime(r.reviewTime || r.createTime) }}</span>
           </div>
           <div v-if="r.comment" class="review-comment">意见：{{ r.comment }}</div>
           <div v-if="r.rejectReason" class="review-reject">驳回原因：{{ r.rejectReason }}</div>
@@ -247,8 +248,8 @@
           <el-input v-model="publishForm.resultSummary" type="textarea" :rows="4" placeholder="请描述提案落地成果" />
         </el-form-item>
         <el-form-item label="激励积分">
-          <el-input-number v-model="publishForm.incentivePoints" :min="0" :max="1000" />
-          <span style="margin-left:8px;color:#909399;font-size:12px">将发放给提案人</span>
+          <strong>{{ incentivePoints }}</strong> 积分
+          <span style="margin-left:8px;color:#909399;font-size:12px">由系统固定发放，不可修改</span>
         </el-form-item>
         <el-form-item label="荣誉勋章">
           <el-input v-model="publishForm.honorBadge" placeholder="如：创新先锋" style="width:200px" />
@@ -288,7 +289,8 @@ export default {
       permission: { reviewStages: [], canReviewAny: false, canManageFlow: false },
       reviewForm: { stage: 'L1', action: 'pass', score: 8, comment: '', rejectReason: '' },
       progressForm: { status: 'IMPLEMENTING', stage: '推进中', desc: '', percent: 60 },
-      publishForm: { resultSummary: '', incentivePoints: 100, honorBadge: '创新先锋' },
+      publishForm: { resultSummary: '', honorBadge: '创新先锋' },
+      incentivePoints: 100,
       reviewRules: {
         action: [{ required: true, message: '请选择动作', trigger: 'change' }],
         score: [{ required: true, message: '请填写评分', trigger: 'change' }],
@@ -510,6 +512,7 @@ export default {
 .attachment-link:hover { text-decoration: underline; }
 .review-score { font-size: 12px; color: #909399; }
 .review-user { font-size: 12px; color: #909399; margin-left: auto; }
+.review-time { font-size: 12px; color: #909399; }
 .review-comment { font-size: 13px; color: #606266; }
 .review-reject { font-size: 13px; color: #f56c6c; margin-top: 4px; }
 

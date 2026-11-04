@@ -184,9 +184,8 @@ public class BbsIdeaController extends BaseController
     public AjaxResult publish(@PathVariable Long ideaId, @RequestBody Map<String, Object> body)
     {
         String resultSummary = body.get("resultSummary") == null ? null : String.valueOf(body.get("resultSummary"));
-        Integer incentivePoints = body.get("incentivePoints") == null ? 0 : Integer.parseInt(String.valueOf(body.get("incentivePoints")));
         String honorBadge = body.get("honorBadge") == null ? null : String.valueOf(body.get("honorBadge"));
-        bbsIdeaService.publishResult(ideaId, resultSummary, incentivePoints, honorBadge, SecurityUtils.getUserId());
+        bbsIdeaService.publishResult(ideaId, resultSummary, honorBadge, SecurityUtils.getUserId());
         return success();
     }
 

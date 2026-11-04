@@ -24,7 +24,6 @@
           <el-radio-group v-model="form.visibilityScope">
             <el-radio label="all">全员</el-radio>
             <el-radio label="review_group">评审可见</el-radio>
-            <el-radio label="admin">管理员</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="附件资料">
@@ -95,7 +94,7 @@ export default {
             backgroundText: d.backgroundText || '',
             planText: d.planText || '',
             expectedValue: d.expectedValue || '',
-            visibilityScope: d.visibilityScope || 'review_group',
+            visibilityScope: d.visibilityScope === 'all' ? 'all' : 'review_group',
             attachmentUrls: d.attachmentUrls || '',
             relatedCase: d.relatedCase || '',
             teamName: d.teamName || '',
@@ -164,7 +163,8 @@ export default {
         this.submitting = true
         const req = this.isResubmit
           ? resubmitIdea(this.editIdeaId, this.form)
-          : submitIdea(this.form)
+          // 编辑草稿后提交时带上草稿编号，后端把该草稿转为正式提案，不再另建一条
+          : submitIdea(this.editIdeaId ? { ...this.form, ideaId: this.editIdeaId } : this.form)
         req.then(() => {
           this.$message.success(this.isResubmit ? '提案已重新提交' : '提案提交成功')
           this.markSaved()

@@ -62,10 +62,7 @@ public class BbsIdeaStageReviewerConfigServiceImpl implements IBbsIdeaStageRevie
     @Override
     public boolean canReviewStage(String stageCode, Collection<String> currentRoleKeys, boolean isAdmin)
     {
-        if (isAdmin)
-        {
-            return true;
-        }
+        // 管理员不是评审员，评审权限只看评审配置
         if (StringUtils.isBlank(stageCode))
         {
             return false;
@@ -77,10 +74,7 @@ public class BbsIdeaStageReviewerConfigServiceImpl implements IBbsIdeaStageRevie
     @Override
     public boolean canReviewStageByUserId(String stageCode, String userId, Collection<String> currentRoleKeys, boolean isAdmin)
     {
-        if (isAdmin)
-        {
-            return true;
-        }
+        // 管理员不是评审员，只有被配置为该环节处理人才能评审
         if (StringUtils.isBlank(stageCode) || StringUtils.isBlank(userId))
         {
             return false;
@@ -159,7 +153,7 @@ public class BbsIdeaStageReviewerConfigServiceImpl implements IBbsIdeaStageRevie
         List<BbsIdeaStageReviewerConfig> configs = configMapper.selectEnabledConfigs();
         for (BbsIdeaStageReviewerConfig config : configs)
         {
-            if (matchExplicitUser(config, userId) || isAdmin)
+            if (matchExplicitUser(config, userId))
             {
                 reviewStages.add(config.getStageCode());
             }

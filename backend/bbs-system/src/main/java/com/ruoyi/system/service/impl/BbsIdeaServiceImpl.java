@@ -43,9 +43,10 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
     private static final String STATUS_LANDED = "LANDED";
     private static final String STATUS_PUBLICIZED = "PUBLICIZED";
     private static final String STATUS_REJECTED = "REJECTED";
+    /** 提案成果公示后发放给提案人的固定激励积分 */
+    private static final int IDEA_INCENTIVE_POINTS = 100;
     private static final String VISIBILITY_ALL = "all";
     private static final String VISIBILITY_REVIEW_GROUP = "review_group";
-    private static final String VISIBILITY_ADMIN = "admin";
 
     @Autowired
     private BbsIdeaMapper bbsIdeaMapper;
@@ -77,12 +78,32 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
 
         if (!submit)
         {
+            idea.setIdeaId(null);
             idea.setIsDraft("1");
             idea.setStatus(STATUS_DRAFT);
             idea.setReviewStage(STAGE_NONE);
             idea.setReviewDeadline(null);
             bbsIdeaMapper.insertIdea(idea);
             return idea.getIdeaId();
+        }
+
+        // 带提案编号提交时，表示将本人的草稿转为正式提交，而不是另建一条提案
+        boolean fromDraft = idea.getIdeaId() != null;
+        if (fromDraft)
+        {
+            BbsIdeaProposal existing = bbsIdeaMapper.selectIdeaById(idea.getIdeaId());
+            if (existing == null)
+            {
+                throw new ServiceException("提案不存在");
+            }
+            if (!userId.equals(existing.getSubmitUserId()))
+            {
+                throw new ServiceException("无权提交他人提案");
+            }
+            if (!STATUS_DRAFT.equals(existing.getStatus()))
+            {
+                throw new ServiceException("仅草稿状态的提案可以提交");
+            }
         }
 
         validateSubmitForm(idea);
@@ -104,7 +125,16 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
         idea.setReviewStage(STAGE_L1);
         idea.setReviewDeadline(addDays(7));
 
-        bbsIdeaMapper.insertIdea(idea);
+        if (fromDraft)
+        {
+            // 提交时间以正式提交为准，每日投稿次数和同标题校验都按这个时间统计
+            idea.setCreateTime(new Date());
+            bbsIdeaMapper.updateIdea(idea);
+        }
+        else
+        {
+            bbsIdeaMapper.insertIdea(idea);
+        }
 
         BbsIdeaProgress progress = new BbsIdeaProgress();
         progress.setIdeaId(idea.getIdeaId());
@@ -142,6 +172,7 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
         normalizeIdeaDefaults(idea);
         idea.setIsDraft("1");
         idea.setStatus(STATUS_DRAFT);
+        idea.setCreateTime(null);
         bbsIdeaMapper.updateIdea(idea);
     }
 
@@ -220,16 +251,10 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
             return true;
         }
 
-        String visibilityScope = StringUtils.isBlank(idea.getVisibilityScope())
-                ? VISIBILITY_REVIEW_GROUP
-                : idea.getVisibilityScope();
-        if (VISIBILITY_ALL.equals(visibilityScope))
+        // 非“全员”的提案（含旧数据中的“仅管理员”）都按评审可见处理
+        if (VISIBILITY_ALL.equals(idea.getVisibilityScope()))
         {
             return true;
-        }
-        if (VISIBILITY_ADMIN.equals(visibilityScope))
-        {
-            return false;
         }
         if (canReviewAll)
         {
@@ -392,6 +417,7 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
         idea.setStatus(STATUS_PENDING_L1);
         idea.setReviewStage(STAGE_L1);
         idea.setReviewDeadline(addDays(7));
+        idea.setCreateTime(null);
         bbsIdeaMapper.updateIdea(idea);
 
         addProgressInternal(idea.getIdeaId(), STATUS_PENDING_L1, "重新提交", "提案人修改后重新提交，进入初审队列", null, 10, userId, nickName);
@@ -464,7 +490,7 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
 
     @Override
     @Transactional
-    public void publishResult(Long ideaId, String resultSummary, Integer incentivePoints, String honorBadge, String submitterUserId)
+    public void publishResult(Long ideaId, String resultSummary, String honorBadge, String submitterUserId)
     {
         BbsIdeaProposal idea = bbsIdeaMapper.selectIdeaById(ideaId);
         if (idea == null)
@@ -474,6 +500,10 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
         if (!submitterUserId.equals(idea.getSubmitUserId()))
         {
             throw new ServiceException("只有提案人可提交成果公示");
+        }
+        if (StringUtils.isBlank(resultSummary))
+        {
+            throw new ServiceException("请填写成果总结");
         }
         if (!STATUS_LANDED.equals(idea.getStatus()))
         {
@@ -486,7 +516,8 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
             throw new ServiceException("提案进度需达到100%方可提交成果公示");
         }
 
-        int points = incentivePoints == null ? 0 : Math.max(incentivePoints, 0);
+        // 激励积分由系统固定发放，提案人不能自行设置
+        int points = IDEA_INCENTIVE_POINTS;
         bbsIdeaMapper.publishIdeaResult(ideaId, resultSummary, points, honorBadge);
 
         if (points > 0)
@@ -577,9 +608,10 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
         {
             idea.setCategory("other");
         }
-        if (StringUtils.isBlank(idea.getVisibilityScope()))
+        // 可见范围只有全员和评审可见两种；“仅管理员可见”会让评审员看不到提案而无法评审，已取消
+        if (!VISIBILITY_ALL.equals(idea.getVisibilityScope()))
         {
-            idea.setVisibilityScope("review_group");
+            idea.setVisibilityScope(VISIBILITY_REVIEW_GROUP);
         }
         if (idea.getIncentivePoints() == null)
         {

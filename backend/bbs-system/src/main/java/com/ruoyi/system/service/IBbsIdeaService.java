@@ -27,7 +27,7 @@ public interface IBbsIdeaService
 
     void updateIdeaStatus(Long ideaId, String status);
 
-    void publishResult(Long ideaId, String resultSummary, Integer incentivePoints, String honorBadge, String submitterUserId);
+    void publishResult(Long ideaId, String resultSummary, String honorBadge, String submitterUserId);
 
     boolean likePublicizedIdea(Long ideaId, String userId);
 
