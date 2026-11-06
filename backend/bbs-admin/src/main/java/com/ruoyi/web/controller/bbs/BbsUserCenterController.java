@@ -13,6 +13,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.system.domain.BbsPointRecord;
 import com.ruoyi.system.domain.BbsPost;
 import com.ruoyi.system.service.IBbsUserCenterService;
 
@@ -77,6 +78,19 @@ public class BbsUserCenterController extends BaseController
         String userId = SecurityUtils.getUserId();
         startPage();
         List<BbsPost> list = bbsUserCenterService.selectUserLikeList(userId);
+        return getDataTable(list);
+    }
+
+    /**
+     * 查询我的积分流水
+     */
+    @ApiOperation("查询我的积分流水")
+    @GetMapping("/points")
+    public TableDataInfo getMyPointRecords()
+    {
+        String userId = SecurityUtils.getUserId();
+        startPage();
+        List<BbsPointRecord> list = bbsUserCenterService.selectUserPointRecords(userId);
         return getDataTable(list);
     }
 }

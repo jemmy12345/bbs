@@ -7,9 +7,14 @@
           <h2>企业问答专区</h2>
           <p>遇到难题？发起悬赏提问，让同事帮你解决！</p>
         </div>
-        <el-button type="primary" icon="el-icon-plus" @click="handlePublish" class="qa-ask-btn">
-          我要提问
-        </el-button>
+        <div class="qa-banner-actions">
+          <el-button type="primary" icon="el-icon-plus" @click="handlePublish" class="qa-ask-btn">
+            我要提问
+          </el-button>
+          <el-button icon="el-icon-collection" @click="goArchive" class="qa-kb-btn">
+            问答知识库
+          </el-button>
+        </div>
       </div>
     </div>
 
@@ -63,13 +68,6 @@
           <el-button slot="append" icon="el-icon-search" @click="handleFilter" />
         </el-input>
       </div>
-    </div>
-
-    <!-- 快捷入口 -->
-    <div class="qa-quick-nav">
-      <el-button size="mini" type="info" plain @click="goArchive">
-        <i class="el-icon-reading"></i> 问答知识库
-      </el-button>
     </div>
 
     <!-- 问题列表 -->
@@ -265,11 +263,16 @@ export default {
   margin-bottom: 20px;
   color: #fff;
 }
-.qa-banner-content { display: flex; align-items: center; justify-content: space-between; }
+.qa-banner-content { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 .qa-banner-text h2 { margin: 0 0 6px; font-size: 22px; }
 .qa-banner-text p { margin: 0; font-size: 14px; opacity: .9; }
-.qa-ask-btn { background: #fff; color: #409EFF; border: none; font-weight: 600; }
-.qa-ask-btn:hover { background: #f0f7ff; }
+.qa-banner-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.qa-ask-btn,
+.qa-kb-btn { height: 46px; padding: 0 28px; font-size: 16px; font-weight: 600; border: none; border-radius: 23px; }
+.qa-ask-btn { background: #fff; color: #409EFF; }
+.qa-ask-btn:hover, .qa-ask-btn:focus { background: #f0f7ff; color: #409EFF; }
+.qa-kb-btn { background: linear-gradient(135deg, #ffb347 0%, #ff7a45 100%); color: #fff; box-shadow: 0 4px 12px rgba(255, 122, 69, .45); }
+.qa-kb-btn:hover, .qa-kb-btn:focus { background: linear-gradient(135deg, #ffc266 0%, #ff8c5e 100%); color: #fff; }
 
 .qa-toolbar {
   display: flex; align-items: center; justify-content: space-between;
@@ -286,8 +289,6 @@ export default {
 .qa-filter-tab:hover { background: #f0f7ff; color: #409EFF; }
 .qa-filter-tab.active { background: #409EFF; color: #fff; }
 .qa-filter-right { display: flex; gap: 8px; align-items: center; }
-
-.qa-quick-nav { margin-bottom: 12px; }
 
 .qa-list { display: flex; flex-direction: column; gap: 10px; }
 

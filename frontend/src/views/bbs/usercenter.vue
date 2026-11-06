@@ -8,7 +8,8 @@
         </div>
         <div class="info-section">
           <h2 class="user-name">
-            {{ $t('common.my') }}
+            {{ name || nickName || $t('common.my') }}
+            <span class="user-points">总积分：{{ stats.bbsPoints || 0 }}</span>
           </h2>
           <div class="user-stats">
             <div class="stat-item">
@@ -272,6 +273,29 @@
             <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
               :limit.sync="queryParams.pageSize" @pagination="handlePagination" />
           </el-tab-pane>
+
+          <el-tab-pane :label="$t('bbs.userCenter.pointRecords')" name="points">
+            <div class="point-record-list" v-loading="loading">
+              <div v-for="record in pointRecordList" :key="record.recordId" class="point-record-item">
+                <div class="point-record-info">
+                  <span class="point-record-remark">{{ record.remark || record.actionType }}</span>
+                  <span class="point-record-time">{{ record.createTime }}</span>
+                </div>
+                <span
+                  class="point-record-value"
+                  :class="record.pointChange > 0 ? 'point-increase' : 'point-decrease'"
+                >
+                  {{ record.pointChange > 0 ? '+' : '' }}{{ record.pointChange }}
+                </span>
+              </div>
+              <div v-if="pointRecordList.length === 0 && !loading" class="empty-state">
+                <i class="el-icon-document"></i>
+                <p>{{ $t('bbs.userCenter.noPointRecords') }}</p>
+              </div>
+            </div>
+            <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
+              :limit.sync="queryParams.pageSize" @pagination="handlePagination" />
+          </el-tab-pane>
         </el-tabs>
 
         <!-- 匿名秘钥输入（查询我的匿名） -->
@@ -289,6 +313,7 @@ import {
   getMyPosts,
   getMyCollects,
   getMyLikes,
+  getMyPointRecords,
   listAnonymousPostsByKey,
   listAnonymousRepliesByKey,
 } from "@/api/bbs/usercenter";
@@ -318,9 +343,11 @@ export default {
         commentCount: 0,
         likeCount: 0,
         collectCount: 0,
+        bbsPoints: 0,
       },
       activeTab: "posts",
       postList: [],
+      pointRecordList: [],
       loading: false,
       total: 0,
       queryParams: {
@@ -339,7 +366,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["user", "id"]),
+    ...mapGetters(["name", "nickName", "id"]),
     userInfo() {
       return this.$store.state.user || {};
     },
@@ -388,6 +415,10 @@ export default {
     },
     // 加载帖子列表
     loadPostList() {
+      if (this.activeTab === "points") {
+        this.loadPointRecords();
+        return;
+      }
       this.loading = true;
       let apiMethod;
       if (this.activeTab === "posts") {
@@ -424,6 +455,25 @@ export default {
       } else {
         this.loading = false;
       }
+    },
+    // 加载积分流水
+    loadPointRecords() {
+      this.loading = true;
+      getMyPointRecords(this.queryParams)
+        .then((response) => {
+          if (response.code === 200) {
+            this.pointRecordList = response.rows || [];
+            this.total = response.total || 0;
+          } else {
+            this.$message.error(this.$t('bbs.userCenter.loadListFailed'));
+          }
+        })
+        .catch(() => {
+          this.$message.error(this.$t('bbs.userCenter.loadListFailed'));
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
     loadAnonymousPostList() {
       // 如果浏览器 localStorage 中已有秘钥：仍弹出秘钥设置框，让用户选择“从浏览器获取”或手动/生成。
@@ -639,6 +689,13 @@ export default {
       color: #333;
     }
 
+    .user-points {
+      margin-left: 12px;
+      font-size: 15px;
+      font-weight: normal;
+      color: #666;
+    }
+
     .user-stats {
       display: flex;
       gap: 40px;
@@ -749,6 +806,49 @@ export default {
 
   .post-list {
     min-height: 400px;
+  }
+
+  .point-record-list {
+    min-height: 400px;
+  }
+
+  .point-record-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid #f0f0f0;
+
+    .point-record-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .point-record-remark {
+      color: #333;
+      font-size: 15px;
+    }
+
+    .point-record-time {
+      color: #999;
+      font-size: 13px;
+    }
+
+    .point-record-value {
+      margin-left: 16px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .point-increase {
+      color: #67c23a;
+    }
+
+    .point-decrease {
+      color: #f56c6c;
+    }
   }
 
   .post-item {

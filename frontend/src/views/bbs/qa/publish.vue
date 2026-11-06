@@ -68,22 +68,15 @@
         <el-form-item label="悬赏积分" prop="rewardPoints">
           <el-input-number
             v-model="form.rewardPoints"
-            :min="0"
+            :min="1"
             :max="500"
             :step="10"
+            :precision="0"
           />
           <span class="qa-points-tip">
             <i class="el-icon-coin"></i>
             当前积分：<strong>{{ myPoints }}</strong>（提交后立即冻结，采纳最佳答案后发放给被采纳者）
           </span>
-        </el-form-item>
-
-        <!-- 可见范围 -->
-        <el-form-item label="可见范围">
-          <el-radio-group v-model="form.visibilityScope">
-            <el-radio label="all">全员可见</el-radio>
-            <el-radio label="dept">仅本部门</el-radio>
-          </el-radio-group>
         </el-form-item>
 
         <!-- 有效期 -->
@@ -118,7 +111,7 @@ export default {
   name: 'BbsQaPublish',
   data() {
     const validatePoints = (rule, value, callback) => {
-      if (value < 0) return callback(new Error('积分不能为负数'))
+      if (value == null || value <= 0) return callback(new Error('悬赏积分必须大于0'))
       if (value > this.myPoints) return callback(new Error('积分不足，当前可用积分 ' + this.myPoints))
       callback()
     }
@@ -133,7 +126,6 @@ export default {
         category: 'tech',
         content: '',
         rewardPoints: 20,
-        visibilityScope: 'all',
         expiryTime: null,
       },
       categories: [
@@ -154,8 +146,8 @@ export default {
           { min: 10, message: '问题详情至少10个字', trigger: 'blur' },
         ],
         rewardPoints: [
-          { required: true, message: '请填写悬赏积分', trigger: 'blur' },
-          { validator: validatePoints, trigger: 'blur' },
+          { required: true, message: '请填写悬赏积分', trigger: 'change' },
+          { validator: validatePoints, trigger: 'change' },
         ],
       },
       datePickerOptions: {
@@ -172,7 +164,9 @@ export default {
     loadMyPoints() {
       getInfo().then(res => {
         this.myPoints = (res.user && res.user.bbsPoints) ? res.user.bbsPoints : 0
-      }).catch(() => {})
+      }).catch(() => {
+        this.$message.error('获取当前积分失败')
+      })
     },
     showTagInput() {
       this.tagInputVisible = true

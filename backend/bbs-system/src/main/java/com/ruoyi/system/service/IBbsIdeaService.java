@@ -13,7 +13,7 @@ public interface IBbsIdeaService
     List<BbsIdeaProposal> listIdeas(String status, String category, String keyword, String isPublicized,
                                     String currentUserId, boolean isAdmin, boolean canReviewAll, Boolean mine);
 
-    List<BbsIdeaProposal> listPublicizedWall(String sortBy, String category, String keyword, String currentUserId);
+    List<BbsIdeaProposal> listPublicizedWall(String sortBy, String category, String keyword);
 
     BbsIdeaProposal getIdeaDetail(Long ideaId, String currentUserId, boolean isAdmin, boolean canReviewAll);
 
@@ -28,10 +28,6 @@ public interface IBbsIdeaService
     void updateIdeaStatus(Long ideaId, String status);
 
     void publishResult(Long ideaId, String resultSummary, String honorBadge, String submitterUserId);
-
-    boolean likePublicizedIdea(Long ideaId, String userId);
-
-    boolean sharePublicizedIdea(Long ideaId, String userId);
 
     List<BbsIdeaProposal> listIdeasForManage(String status, String category, String keyword, String submitNickName);
 

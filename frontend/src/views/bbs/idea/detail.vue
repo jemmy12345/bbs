@@ -19,7 +19,7 @@
           <span class="section-title">提案信息</span>
           <div class="tag-group">
             <el-tag :type="statusType(idea.status)">{{ statusLabel(idea.status) }}</el-tag>
-            <el-tag v-if="idea.isPublicized === '1'" type="success" style="margin-left:6px">已公示</el-tag>
+            <el-tag v-if="idea.isPublicized === '1' && idea.status !== 'PUBLICIZED'" type="success" style="margin-left:6px">已公示</el-tag>
           </div>
         </div>
         <h2 class="idea-title">{{ idea.title }}</h2>

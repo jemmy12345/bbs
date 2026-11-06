@@ -36,9 +36,6 @@ public class BbsIdeaProposal extends BaseEntity
     private String isPublicized;
     private Integer incentivePoints;
     private String honorBadge;
-    @Excel(name = "点赞数", sort = 12)
-    private Integer likeCount;
-    private Integer shareCount;
     private java.util.Date reviewDeadline;
     private String delFlag;
     private String bizValue;
@@ -51,8 +48,6 @@ public class BbsIdeaProposal extends BaseEntity
     private String submitUserId;
     @Excel(name = "提交人", sort = 5)
     private String submitNickName;
-    private String likedByCurrentUser;
-
     private List<BbsIdeaReview> reviews;
     private List<BbsIdeaProgress> progressList;
 
@@ -113,12 +108,6 @@ public class BbsIdeaProposal extends BaseEntity
     public String getHonorBadge() { return honorBadge; }
     public void setHonorBadge(String honorBadge) { this.honorBadge = honorBadge; }
 
-    public Integer getLikeCount() { return likeCount; }
-    public void setLikeCount(Integer likeCount) { this.likeCount = likeCount; }
-
-    public Integer getShareCount() { return shareCount; }
-    public void setShareCount(Integer shareCount) { this.shareCount = shareCount; }
-
     public java.util.Date getReviewDeadline() { return reviewDeadline; }
     public void setReviewDeadline(java.util.Date reviewDeadline) { this.reviewDeadline = reviewDeadline; }
 
@@ -142,9 +131,6 @@ public class BbsIdeaProposal extends BaseEntity
 
     public String getSubmitNickName() { return submitNickName; }
     public void setSubmitNickName(String submitNickName) { this.submitNickName = submitNickName; }
-
-    public String getLikedByCurrentUser() { return likedByCurrentUser; }
-    public void setLikedByCurrentUser(String likedByCurrentUser) { this.likedByCurrentUser = likedByCurrentUser; }
 
     public List<BbsIdeaReview> getReviews() { return reviews; }
     public void setReviews(List<BbsIdeaReview> reviews) { this.reviews = reviews; }

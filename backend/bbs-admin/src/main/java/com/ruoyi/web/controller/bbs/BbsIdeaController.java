@@ -198,20 +198,6 @@ public class BbsIdeaController extends BaseController
                               @RequestParam(defaultValue = "12") Integer pageSize)
     {
         PageHelper.startPage(pageNum, pageSize);
-        return getDataTable(bbsIdeaService.listPublicizedWall(sortBy, category, keyword, SecurityUtils.getUserId()));
-    }
-
-    @ApiOperation("公示提案点赞")
-    @PostMapping("/{ideaId}/like")
-    public AjaxResult like(@PathVariable Long ideaId)
-    {
-        return success(bbsIdeaService.likePublicizedIdea(ideaId, SecurityUtils.getUserId()));
-    }
-
-    @ApiOperation("公示提案分享")
-    @PostMapping("/{ideaId}/share")
-    public AjaxResult share(@PathVariable Long ideaId)
-    {
-        return success(bbsIdeaService.sharePublicizedIdea(ideaId, SecurityUtils.getUserId()));
+        return getDataTable(bbsIdeaService.listPublicizedWall(sortBy, category, keyword));
     }
 }

@@ -35,6 +35,15 @@ export function getMyLikes(query) {
   })
 }
 
+// 查询我的积分流水
+export function getMyPointRecords(query) {
+  return request({
+    url: '/bbs/usercenter/points',
+    method: 'get',
+    params: query
+  })
+}
+
 // 根据秘钥 hash 查询我的匿名帖子（路径参数 hashCode）
 export function listAnonymousPostsByKey(hashCode, query) {
   return request({

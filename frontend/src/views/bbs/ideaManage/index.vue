@@ -47,7 +47,6 @@
       </el-table-column>
       <el-table-column label="提交人" align="center" prop="submitNickName" width="120" :show-overflow-tooltip="true" />
       <el-table-column label="平均分" align="center" prop="avgScore" width="80" />
-      <el-table-column label="点赞" align="center" prop="likeCount" width="70" />
       <el-table-column label="提交时间" align="center" prop="createTime" width="160">
         <template slot-scope="scope">{{ parseTime(scope.row.createTime) }}</template>
       </el-table-column>

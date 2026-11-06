@@ -36,14 +36,6 @@ export function listIdeaWall(params) {
   return request({ url: '/bbs/idea/wall', method: 'get', params })
 }
 
-export function likeIdea(ideaId) {
-  return request({ url: `/bbs/idea/${ideaId}/like`, method: 'post' })
-}
-
-export function shareIdea(ideaId) {
-  return request({ url: `/bbs/idea/${ideaId}/share`, method: 'post' })
-}
-
 export function getCurrentIdeaReviewPermission() {
   return request({ url: '/bbs/ideaStageConfig/current/permission', method: 'get' })
 }

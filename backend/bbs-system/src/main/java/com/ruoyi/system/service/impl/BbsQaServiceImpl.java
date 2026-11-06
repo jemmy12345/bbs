@@ -30,9 +30,9 @@ public class BbsQaServiceImpl implements IBbsQaService
     @Transactional
     public Long createQuestion(BbsQaQuestion question, String userId, String nickName, String avatar, String deptName)
     {
-        if (question.getRewardPoints() == null || question.getRewardPoints() < 0)
+        if (question.getRewardPoints() == null || question.getRewardPoints() <= 0)
         {
-            question.setRewardPoints(0);
+            throw new ServiceException("悬赏积分必须大于0");
         }
         int reward = question.getRewardPoints();
 
@@ -48,10 +48,8 @@ public class BbsQaServiceImpl implements IBbsQaService
         {
             question.setAuditStatus("approved"); // 默认无需审核，可配置调整
         }
-        if (question.getVisibilityScope() == null)
-        {
-            question.setVisibilityScope("all");
-        }
+        question.setVisibilityScope("all");
+        question.setVisibilityExtra(null);
         if (question.getCategory() == null)
         {
             question.setCategory("other");

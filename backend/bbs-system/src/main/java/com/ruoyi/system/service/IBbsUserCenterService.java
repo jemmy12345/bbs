@@ -2,6 +2,7 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import java.util.Map;
+import com.ruoyi.system.domain.BbsPointRecord;
 import com.ruoyi.system.domain.BbsPost;
 
 /**
@@ -42,4 +43,12 @@ public interface IBbsUserCenterService
      * @return 帖子集合
      */
     public List<BbsPost> selectUserLikeList(String userId);
+
+    /**
+     * 查询用户积分流水
+     *
+     * @param userId 用户ID
+     * @return 积分流水集合
+     */
+    public List<BbsPointRecord> selectUserPointRecords(String userId);
 }

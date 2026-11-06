@@ -186,9 +186,9 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
     }
 
     @Override
-    public List<BbsIdeaProposal> listPublicizedWall(String sortBy, String category, String keyword, String currentUserId)
+    public List<BbsIdeaProposal> listPublicizedWall(String sortBy, String category, String keyword)
     {
-        return bbsIdeaMapper.selectPublicizedWall(sortBy, category, keyword, currentUserId);
+        return bbsIdeaMapper.selectPublicizedWall(sortBy, category, keyword);
     }
 
     @Override
@@ -536,54 +536,6 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
 
         addProgressInternal(ideaId, STATUS_PUBLICIZED, "成果公示", resultSummary, null, 100, "system", "系统");
         notifyUser(idea.getSubmitUserId(), "【提案成果已公示】" + idea.getTitle(), resultSummary, ideaId);
-    }
-
-    @Override
-    public boolean likePublicizedIdea(Long ideaId, String userId)
-    {
-        BbsIdeaProposal idea = bbsIdeaMapper.selectIdeaById(ideaId);
-        if (idea == null)
-        {
-            throw new ServiceException("提案不存在");
-        }
-        if (!"1".equals(idea.getIsPublicized()))
-        {
-            throw new ServiceException("仅已公示提案支持点赞");
-        }
-        int removed = bbsIdeaMapper.deleteIdeaUserAction(ideaId, userId, "LIKE");
-        if (removed > 0)
-        {
-            bbsIdeaMapper.decrementLikeCount(ideaId);
-            return false;
-        }
-        int changed = bbsIdeaMapper.insertIdeaUserActionIgnore(ideaId, userId, "LIKE");
-        if (changed > 0)
-        {
-            bbsIdeaMapper.incrementLikeCount(ideaId);
-            return true;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean sharePublicizedIdea(Long ideaId, String userId)
-    {
-        BbsIdeaProposal idea = bbsIdeaMapper.selectIdeaById(ideaId);
-        if (idea == null)
-        {
-            throw new ServiceException("提案不存在");
-        }
-        if (!"1".equals(idea.getIsPublicized()))
-        {
-            throw new ServiceException("仅已公示提案支持分享");
-        }
-        int changed = bbsIdeaMapper.insertIdeaUserActionIgnore(ideaId, userId, "SHARE");
-        if (changed > 0)
-        {
-            bbsIdeaMapper.incrementShareCount(ideaId);
-            return true;
-        }
-        return false;
     }
 
     private void validateSubmitForm(BbsIdeaProposal idea)

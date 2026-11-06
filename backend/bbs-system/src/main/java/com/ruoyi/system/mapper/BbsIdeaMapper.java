@@ -25,8 +25,7 @@ public interface BbsIdeaMapper
 
     List<BbsIdeaProposal> selectPublicizedWall(@Param("sortBy") String sortBy,
                                                @Param("category") String category,
-                                               @Param("keyword") String keyword,
-                                               @Param("currentUserId") String currentUserId);
+                                               @Param("keyword") String keyword);
 
     Integer countTodaySubmissions(@Param("submitUserId") String submitUserId);
 
@@ -64,12 +63,6 @@ public interface BbsIdeaMapper
                           @Param("incentivePoints") Integer incentivePoints,
                           @Param("honorBadge") String honorBadge);
 
-    int incrementLikeCount(@Param("ideaId") Long ideaId);
-
-    int decrementLikeCount(@Param("ideaId") Long ideaId);
-
-    int incrementShareCount(@Param("ideaId") Long ideaId);
-
     /** 查询某提案某环节各评审人最新一次投票（action: pass/reject） */
     List<BbsIdeaReview> selectLatestVotesPerReviewer(@Param("ideaId") Long ideaId, @Param("stage") String stage);
 
@@ -80,14 +73,6 @@ public interface BbsIdeaMapper
 
     Integer countReviewsByReviewerOnIdea(@Param("ideaId") Long ideaId,
                                          @Param("reviewerUserId") String reviewerUserId);
-
-    int insertIdeaUserActionIgnore(@Param("ideaId") Long ideaId,
-                                   @Param("userId") String userId,
-                                   @Param("actionType") String actionType);
-
-    int deleteIdeaUserAction(@Param("ideaId") Long ideaId,
-                             @Param("userId") String userId,
-                             @Param("actionType") String actionType);
 
     /** 管理端：查询全部未删除提案（不受可见范围限制，含草稿） */
     List<BbsIdeaProposal> selectIdeaManageList(@Param("status") String status,

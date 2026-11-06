@@ -140,6 +140,8 @@ export default {
       myDrafts: '我的草稿',
       myCollects: '我的收藏',
       myLikes: '我的点赞',
+      pointRecords: '积分流水',
+      noPointRecords: '暂无积分流水',
       myAnonymousPosts: '我的匿名',
       anonymousFilterPosts: '我的匿名帖子',
       anonymousFilterComments: '我的匿名评论',

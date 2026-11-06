@@ -5,11 +5,15 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.BbsPointRecord;
 import com.ruoyi.system.domain.BbsPost;
 import com.ruoyi.system.mapper.BbsCommentMapper;
 import com.ruoyi.system.mapper.BbsLikeMapper;
 import com.ruoyi.system.mapper.BbsPostMapper;
 import com.ruoyi.system.mapper.BbsCollectMapper;
+import com.ruoyi.system.mapper.BbsPointRecordMapper;
+import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.system.service.IBbsUserCenterService;
 
 /**
@@ -31,6 +35,12 @@ public class BbsUserCenterServiceImpl implements IBbsUserCenterService
 
     @Autowired
     private BbsCollectMapper bbsCollectMapper;
+
+    @Autowired
+    private BbsPointRecordMapper bbsPointRecordMapper;
+
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
     /**
      * 获取个人中心统计信息
@@ -61,6 +71,9 @@ public class BbsUserCenterServiceImpl implements IBbsUserCenterService
             collectCount += post.getCollectCount() != null ? post.getCollectCount() : 0;
         }
         stats.put("collectCount", collectCount);
+
+        SysUser user = sysUserMapper.selectUserById(userId);
+        stats.put("bbsPoints", user == null || user.getBbsPoints() == null ? 0 : user.getBbsPoints());
         
         return stats;
     }
@@ -90,5 +103,14 @@ public class BbsUserCenterServiceImpl implements IBbsUserCenterService
     public List<BbsPost> selectUserLikeList(String userId)
     {
         return bbsLikeMapper.selectLikePostList(userId);
+    }
+
+    /**
+     * 查询用户积分流水
+     */
+    @Override
+    public List<BbsPointRecord> selectUserPointRecords(String userId)
+    {
+        return bbsPointRecordMapper.selectUserPointRecords(userId);
     }
 }

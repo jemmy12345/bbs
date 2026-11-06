@@ -24,8 +24,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="isPublicized" column="is_publicized"/>
         <result property="incentivePoints" column="incentive_points"/>
         <result property="honorBadge" column="honor_badge"/>
-        <result property="likeCount" column="like_count"/>
-        <result property="shareCount" column="share_count"/>
         <result property="reviewDeadline" column="review_deadline"/>
         <result property="bizValue" column="biz_value"/>
         <result property="status" column="status"/>
@@ -33,7 +31,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="resultSummary" column="result_summary"/>
         <result property="submitUserId" column="submit_user_id"/>
         <result property="submitNickName" column="submit_nick_name"/>
-        <result property="likedByCurrentUser" column="liked_by_current_user"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
@@ -110,7 +107,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
                i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
                i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
-               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.review_deadline,
                i.biz_value, i.status, i.avg_score, i.result_summary,
                i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
         from bbs_idea_proposal i
@@ -142,7 +139,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
                i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
                i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
-               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.review_deadline,
                i.biz_value, i.status, i.avg_score, i.result_summary,
                i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
         from bbs_idea_proposal i
@@ -168,19 +165,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
                i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
                i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
-               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.review_deadline,
                i.biz_value, i.status, i.avg_score, i.result_summary,
                i.submit_user_id, i.submit_nick_name,
-               case
-                   when #{currentUserId} is not null and exists (
-                       select 1
-                       from bbs_idea_user_action a
-                       where a.idea_id = i.idea_id
-                         and a.user_id = #{currentUserId}
-                         and a.action_type = 'LIKE'
-                   ) then '1'
-                   else '0'
-               end as liked_by_current_user,
                i.create_time, i.update_time
         from bbs_idea_proposal i
         <where>
@@ -192,8 +179,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
         </where>
         <choose>
-            <when test="sortBy == 'like'">order by i.like_count desc, i.landing_time desc</when>
-            <when test="sortBy == 'effect'">order by i.incentive_points desc, i.like_count desc</when>
+            <when test="sortBy == 'effect'">order by i.incentive_points desc, i.landing_time desc</when>
             <otherwise>order by i.landing_time desc, i.create_time desc</otherwise>
         </choose>
     </select>
@@ -221,7 +207,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
                i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
                i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
-               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.review_deadline,
                i.biz_value, i.status, i.avg_score, i.result_summary,
                i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
         from bbs_idea_proposal i
@@ -325,25 +311,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where idea_id = #{ideaId} and del_flag = '0' and is_publicized = '1'
     </update>
 
-    <update id="incrementLikeCount">
-        update bbs_idea_proposal
-        set like_count = like_count + 1, update_time = now()
-        where idea_id = #{ideaId}
-    </update>
-
-    <update id="decrementLikeCount">
-        update bbs_idea_proposal
-        set like_count = case when like_count > 0 then like_count - 1 else 0 end,
-            update_time = now()
-        where idea_id = #{ideaId}
-    </update>
-
-    <update id="incrementShareCount">
-        update bbs_idea_proposal
-        set share_count = share_count + 1, update_time = now()
-        where idea_id = #{ideaId}
-    </update>
-
     <!-- 每个评审人在该提案该环节的最新一次投票 -->
     <select id="selectLatestVotesPerReviewer" resultMap="IdeaReviewResult">
         select r1.review_id, r1.idea_id, r1.stage, r1.action,
@@ -382,20 +349,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where idea_id = #{ideaId}
           and reviewer_user_id = #{reviewerUserId}
     </select>
-
-    <insert id="insertIdeaUserActionIgnore">
-        insert ignore into bbs_idea_user_action(
-            idea_id, user_id, action_type, create_time
-        ) values(
-            #{ideaId}, #{userId}, #{actionType}, now()
-        )
-    </insert>
-
-    <delete id="deleteIdeaUserAction">
-        delete from bbs_idea_user_action
-        where idea_id = #{ideaId}
-          and user_id = #{userId}
-          and action_type = #{actionType}
-    </delete>
 
 </mapper>
