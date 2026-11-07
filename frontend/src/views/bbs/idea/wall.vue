@@ -26,6 +26,12 @@
         <div class="meta">
           <span>{{ item.submitNickName }}</span>
           <span>激励 {{ item.incentivePoints || 0 }}</span>
+          <span class="like-btn" :class="{ liked: item.liked }" @click="toggleLike(item)">
+            <i :class="item.liked ? 'el-icon-star-on' : 'el-icon-star-off'" /> {{ item.likeCount || 0 }}
+          </span>
+          <span class="like-btn" @click="handleShare(item)">
+            <i class="el-icon-share" /> {{ item.shareCount || 0 }}
+          </span>
         </div>
       </div>
       <el-empty v-if="!loading && list.length === 0" description="暂无公示成果" />
@@ -42,7 +48,7 @@
 </template>
 
 <script>
-import { listIdeaWall } from '@/api/bbs/idea'
+import { listIdeaWall, toggleIdeaLike, shareIdea } from '@/api/bbs/idea'
 
 export default {
   name: 'BbsIdeaWall',
@@ -67,6 +73,39 @@ export default {
       this.query.pageNum = 1
       this.getList()
     },
+    copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text)
+      }
+      return new Promise((resolve, reject) => {
+        const ta = document.createElement('textarea')
+        ta.value = text
+        ta.style.position = 'fixed'
+        ta.style.opacity = '0'
+        document.body.appendChild(ta)
+        ta.select()
+        const ok = document.execCommand('copy')
+        document.body.removeChild(ta)
+        ok ? resolve() : reject(new Error('copy failed'))
+      })
+    },
+    handleShare(item) {
+      const url = window.location.origin + this.$router.resolve(`/idea/detail/${item.ideaId}`).href
+      this.copyText(url).then(() => {
+        this.$message.success('提案链接已复制，可粘贴分享给同事')
+      }).catch(() => {
+        this.$message.warning('复制失败，请手动复制地址栏链接')
+      })
+      shareIdea(item.ideaId).then(res => {
+        this.$set(item, 'shareCount', res.data.shareCount)
+      })
+    },
+    toggleLike(item) {
+      toggleIdeaLike(item.ideaId).then(res => {
+        this.$set(item, 'liked', res.data.liked)
+        this.$set(item, 'likeCount', res.data.likeCount)
+      })
+    },
     goDetail(id) {
       this.$router.push(`/idea/detail/${id}`)
     },
@@ -85,5 +124,7 @@ export default {
 .head { display:flex; gap:6px; margin-bottom:8px; }
 .title { font-weight:600; color:#303133; margin-bottom:8px; cursor:pointer; }
 .summary { color:#606266; font-size:13px; min-height:38px; margin-bottom:8px; }
+.like-btn { cursor:pointer; user-select:none; }
+.like-btn.liked { color:#f5a623; }
 .meta { color:#909399; font-size:12px; display:flex; justify-content:space-between; }
 </style>

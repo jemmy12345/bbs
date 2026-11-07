@@ -186,9 +186,56 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
     }
 
     @Override
-    public List<BbsIdeaProposal> listPublicizedWall(String sortBy, String category, String keyword)
+    public List<BbsIdeaProposal> listPublicizedWall(String sortBy, String category, String keyword, String currentUserId)
     {
-        return bbsIdeaMapper.selectPublicizedWall(sortBy, category, keyword);
+        return bbsIdeaMapper.selectPublicizedWall(sortBy, category, keyword, currentUserId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public java.util.Map<String, Object> sharePublicizedIdea(Long ideaId, String userId)
+    {
+        BbsIdeaProposal idea = bbsIdeaMapper.selectIdeaById(ideaId);
+        if (idea == null)
+        {
+            throw new ServiceException("提案不存在");
+        }
+        if (!"1".equals(idea.getIsPublicized()))
+        {
+            throw new ServiceException("仅已公示提案支持分享");
+        }
+        bbsIdeaMapper.insertIdeaShare(ideaId, userId);
+        bbsIdeaMapper.refreshIdeaShareCount(ideaId);
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("shareCount", bbsIdeaMapper.selectIdeaShareCount(ideaId));
+        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public java.util.Map<String, Object> toggleLike(Long ideaId, String userId)
+    {
+        BbsIdeaProposal idea = bbsIdeaMapper.selectIdeaById(ideaId);
+        if (idea == null || !"1".equals(idea.getIsPublicized()))
+        {
+            throw new ServiceException("仅已公示的提案可以点赞");
+        }
+        boolean liked;
+        if (bbsIdeaMapper.countIdeaLike(ideaId, userId) > 0)
+        {
+            bbsIdeaMapper.deleteIdeaLike(ideaId, userId);
+            liked = false;
+        }
+        else
+        {
+            bbsIdeaMapper.insertIdeaLike(ideaId, userId);
+            liked = true;
+        }
+        bbsIdeaMapper.refreshIdeaLikeCount(ideaId);
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("liked", liked);
+        result.put("likeCount", bbsIdeaMapper.selectIdeaLikeCount(ideaId));
+        return result;
     }
 
     @Override
@@ -206,6 +253,7 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
 
         List<BbsIdeaProgress> progressList = bbsIdeaMapper.selectProgressList(ideaId);
         idea.setProgressList(progressList);
+        idea.setLiked(currentUserId != null && bbsIdeaMapper.countIdeaLike(ideaId, currentUserId) > 0);
 
         boolean canViewAllReviews = canReviewAll
                 || (currentUserId != null && currentUserId.equals(idea.getSubmitUserId()));

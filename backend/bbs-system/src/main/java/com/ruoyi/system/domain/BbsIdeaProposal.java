@@ -36,6 +36,9 @@ public class BbsIdeaProposal extends BaseEntity
     private String isPublicized;
     private Integer incentivePoints;
     private String honorBadge;
+    private Integer likeCount;
+    private Boolean liked;
+    private Integer shareCount;
     private java.util.Date reviewDeadline;
     private String delFlag;
     private String bizValue;
@@ -107,6 +110,15 @@ public class BbsIdeaProposal extends BaseEntity
 
     public String getHonorBadge() { return honorBadge; }
     public void setHonorBadge(String honorBadge) { this.honorBadge = honorBadge; }
+
+    public Integer getLikeCount() { return likeCount; }
+    public void setLikeCount(Integer likeCount) { this.likeCount = likeCount; }
+
+    public Integer getShareCount() { return shareCount; }
+    public void setShareCount(Integer shareCount) { this.shareCount = shareCount; }
+
+    public Boolean getLiked() { return liked; }
+    public void setLiked(Boolean liked) { this.liked = liked; }
 
     public java.util.Date getReviewDeadline() { return reviewDeadline; }
     public void setReviewDeadline(java.util.Date reviewDeadline) { this.reviewDeadline = reviewDeadline; }

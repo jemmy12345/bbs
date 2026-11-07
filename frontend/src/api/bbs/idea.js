@@ -43,3 +43,11 @@ export function getCurrentIdeaReviewPermission() {
 export function resubmitIdea(ideaId, data) {
   return request({ url: `/bbs/idea/${ideaId}/resubmit`, method: 'post', data })
 }
+
+export function toggleIdeaLike(ideaId) {
+  return request({ url: `/bbs/idea/${ideaId}/like`, method: 'post' })
+}
+
+export function shareIdea(ideaId) {
+  return request({ url: `/bbs/idea/${ideaId}/share`, method: 'post' })
+}

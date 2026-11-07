@@ -24,6 +24,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="isPublicized" column="is_publicized"/>
         <result property="incentivePoints" column="incentive_points"/>
         <result property="honorBadge" column="honor_badge"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="liked" column="liked"/>
+        <result property="shareCount" column="share_count"/>
         <result property="reviewDeadline" column="review_deadline"/>
         <result property="bizValue" column="biz_value"/>
         <result property="status" column="status"/>
@@ -107,7 +110,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
                i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
                i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
-               i.is_publicized, i.incentive_points, i.honor_badge, i.review_deadline,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
                i.biz_value, i.status, i.avg_score, i.result_summary,
                i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
         from bbs_idea_proposal i
@@ -139,7 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
                i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
                i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
-               i.is_publicized, i.incentive_points, i.honor_badge, i.review_deadline,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
                i.biz_value, i.status, i.avg_score, i.result_summary,
                i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
         from bbs_idea_proposal i
@@ -165,10 +168,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
                i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
                i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
-               i.is_publicized, i.incentive_points, i.honor_badge, i.review_deadline,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
                i.biz_value, i.status, i.avg_score, i.result_summary,
                i.submit_user_id, i.submit_nick_name,
-               i.create_time, i.update_time
+               i.create_time, i.update_time,
+               exists (select 1 from bbs_idea_user_action a
+                       where a.idea_id = i.idea_id and a.user_id = #{currentUserId} and a.action_type = 'LIKE') as liked
         from bbs_idea_proposal i
         <where>
             i.del_flag = '0'
@@ -182,6 +187,49 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <when test="sortBy == 'effect'">order by i.incentive_points desc, i.landing_time desc</when>
             <otherwise>order by i.landing_time desc, i.create_time desc</otherwise>
         </choose>
+    </select>
+
+    <select id="countIdeaLike" resultType="int">
+        select count(1) from bbs_idea_user_action
+        where idea_id = #{ideaId} and user_id = #{userId} and action_type = 'LIKE'
+    </select>
+
+    <insert id="insertIdeaLike">
+        insert ignore into bbs_idea_user_action(idea_id, user_id, action_type, create_time)
+        values(#{ideaId}, #{userId}, 'LIKE', now())
+    </insert>
+
+    <delete id="deleteIdeaLike">
+        delete from bbs_idea_user_action
+        where idea_id = #{ideaId} and user_id = #{userId} and action_type = 'LIKE'
+    </delete>
+
+    <!-- 点赞数以互动记录表为准，重新统计后回写提案信息表 -->
+    <update id="refreshIdeaLikeCount">
+        update bbs_idea_proposal
+        set like_count = (select count(1) from bbs_idea_user_action
+                          where idea_id = #{ideaId} and action_type = 'LIKE')
+        where idea_id = #{ideaId}
+    </update>
+
+    <insert id="insertIdeaShare">
+        insert ignore into bbs_idea_user_action(idea_id, user_id, action_type, create_time)
+        values(#{ideaId}, #{userId}, 'SHARE', now())
+    </insert>
+
+    <update id="refreshIdeaShareCount">
+        update bbs_idea_proposal
+        set share_count = (select count(1) from bbs_idea_user_action
+                           where idea_id = #{ideaId} and action_type = 'SHARE')
+        where idea_id = #{ideaId}
+    </update>
+
+    <select id="selectIdeaShareCount" resultType="int">
+        select ifnull(share_count, 0) from bbs_idea_proposal where idea_id = #{ideaId}
+    </select>
+
+    <select id="selectIdeaLikeCount" resultType="int">
+        select ifnull(like_count, 0) from bbs_idea_proposal where idea_id = #{ideaId}
     </select>
 
     <select id="countTodaySubmissions" resultType="int">
@@ -207,7 +255,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select i.idea_id, i.title, i.category, i.content, i.background_text, i.plan_text, i.expected_value,
                i.visibility_scope, i.attachment_urls, i.related_case, i.team_name,
                i.is_draft, i.review_stage, i.reject_reason, i.project_time, i.landing_time,
-               i.is_publicized, i.incentive_points, i.honor_badge, i.review_deadline,
+               i.is_publicized, i.incentive_points, i.honor_badge, i.like_count, i.share_count, i.review_deadline,
                i.biz_value, i.status, i.avg_score, i.result_summary,
                i.submit_user_id, i.submit_nick_name, i.create_time, i.update_time
         from bbs_idea_proposal i

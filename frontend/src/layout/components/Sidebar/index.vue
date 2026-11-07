@@ -36,8 +36,9 @@ export default {
         ...mapState(["settings"]),
         ...mapGetters(["sidebar"]),
         // 直接从 constantRoutes 获取侧边栏路由，不依赖 GenerateRoutes
+        // 前台论坛路由（path 为 '/'）不属于后台菜单，不在此处展示
         sidebarRouters() {
-            return constantRoutes.filter(route => !route.hidden)
+            return constantRoutes.filter(route => !route.hidden && route.path !== '/')
         },
         activeMenu() {
             const route = this.$route

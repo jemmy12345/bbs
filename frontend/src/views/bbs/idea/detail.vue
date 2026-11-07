@@ -71,6 +71,14 @@
           <div class="info-meta" style="margin-top:6px">
             激励积分：{{ idea.incentivePoints || 0 }}；荣誉勋章：{{ idea.honorBadge || '-' }}
           </div>
+          <div style="margin-top:10px">
+            <el-button size="small" :type="idea.liked ? 'warning' : 'default'" :icon="idea.liked ? 'el-icon-star-on' : 'el-icon-star-off'" @click="handleLike">
+              {{ idea.liked ? '已点赞' : '点赞' }} {{ idea.likeCount || 0 }}
+            </el-button>
+            <el-button size="small" icon="el-icon-share" @click="handleShare(idea)">
+              分享 {{ idea.shareCount || 0 }}
+            </el-button>
+          </div>
         </div>
       </div>
 
@@ -252,7 +260,9 @@
           <span style="margin-left:8px;color:#909399;font-size:12px">由系统固定发放，不可修改</span>
         </el-form-item>
         <el-form-item label="荣誉勋章">
-          <el-input v-model="publishForm.honorBadge" placeholder="如：创新先锋" style="width:200px" />
+          <el-select v-model="publishForm.honorBadge" placeholder="请选择荣誉勋章" style="width:200px">
+            <el-option v-for="d in honorBadgeOptions" :key="d.value" :label="d.label" :value="d.value" />
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -264,7 +274,8 @@
 </template>
 
 <script>
-import { getIdeaDetail, reviewIdea, addIdeaProgress, publishIdeaResult, getCurrentIdeaReviewPermission } from '@/api/bbs/idea'
+import { getIdeaDetail, reviewIdea, addIdeaProgress, publishIdeaResult, getCurrentIdeaReviewPermission, toggleIdeaLike, shareIdea } from '@/api/bbs/idea'
+import { getDicts } from '@/api/system/dict/data'
 import { mapGetters } from 'vuex'
 
 const STATUS_LABEL = {
@@ -291,6 +302,7 @@ export default {
       progressForm: { status: 'IMPLEMENTING', stage: '推进中', desc: '', percent: 60 },
       publishForm: { resultSummary: '', honorBadge: '创新先锋' },
       incentivePoints: 100,
+      honorBadgeOptions: [],
       reviewRules: {
         action: [{ required: true, message: '请选择动作', trigger: 'change' }],
         score: [{ required: true, message: '请填写评分', trigger: 'change' }],
@@ -347,9 +359,48 @@ export default {
     },
   },
   created() {
+    getDicts('bbs_idea_honor_badge').then(res => {
+      this.honorBadgeOptions = (res.data || []).map(d => ({ label: d.dictLabel, value: d.dictValue }))
+      if (this.honorBadgeOptions.length && !this.honorBadgeOptions.some(o => o.value === this.publishForm.honorBadge)) {
+        this.publishForm.honorBadge = this.honorBadgeOptions[0].value
+      }
+    })
     this.load()
   },
   methods: {
+    copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text)
+      }
+      return new Promise((resolve, reject) => {
+        const ta = document.createElement('textarea')
+        ta.value = text
+        ta.style.position = 'fixed'
+        ta.style.opacity = '0'
+        document.body.appendChild(ta)
+        ta.select()
+        const ok = document.execCommand('copy')
+        document.body.removeChild(ta)
+        ok ? resolve() : reject(new Error('copy failed'))
+      })
+    },
+    handleShare(idea) {
+      const url = window.location.origin + this.$router.resolve(`/idea/detail/${idea.ideaId}`).href
+      this.copyText(url).then(() => {
+        this.$message.success('提案链接已复制，可粘贴分享给同事')
+      }).catch(() => {
+        this.$message.warning('复制失败，请手动复制地址栏链接')
+      })
+      shareIdea(idea.ideaId).then(res => {
+        this.$set(idea, 'shareCount', res.data.shareCount)
+      })
+    },
+    handleLike() {
+      toggleIdeaLike(this.idea.ideaId).then(res => {
+        this.$set(this.idea, 'liked', res.data.liked)
+        this.$set(this.idea, 'likeCount', res.data.likeCount)
+      })
+    },
     load() {
       this.loading = true
       Promise.all([getIdeaDetail(this.$route.params.ideaId), getCurrentIdeaReviewPermission()]).then(([detailRes, permissionRes]) => {

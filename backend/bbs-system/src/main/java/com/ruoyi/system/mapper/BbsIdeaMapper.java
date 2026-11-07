@@ -25,7 +25,24 @@ public interface BbsIdeaMapper
 
     List<BbsIdeaProposal> selectPublicizedWall(@Param("sortBy") String sortBy,
                                                @Param("category") String category,
-                                               @Param("keyword") String keyword);
+                                               @Param("keyword") String keyword,
+                                               @Param("currentUserId") String currentUserId);
+
+    int countIdeaLike(@Param("ideaId") Long ideaId, @Param("userId") String userId);
+
+    int insertIdeaLike(@Param("ideaId") Long ideaId, @Param("userId") String userId);
+
+    int deleteIdeaLike(@Param("ideaId") Long ideaId, @Param("userId") String userId);
+
+    int refreshIdeaLikeCount(@Param("ideaId") Long ideaId);
+
+    int insertIdeaShare(@Param("ideaId") Long ideaId, @Param("userId") String userId);
+
+    int refreshIdeaShareCount(@Param("ideaId") Long ideaId);
+
+    int selectIdeaShareCount(@Param("ideaId") Long ideaId);
+
+    int selectIdeaLikeCount(@Param("ideaId") Long ideaId);
 
     Integer countTodaySubmissions(@Param("submitUserId") String submitUserId);
 

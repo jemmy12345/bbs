@@ -13,7 +13,13 @@ public interface IBbsIdeaService
     List<BbsIdeaProposal> listIdeas(String status, String category, String keyword, String isPublicized,
                                     String currentUserId, boolean isAdmin, boolean canReviewAll, Boolean mine);
 
-    List<BbsIdeaProposal> listPublicizedWall(String sortBy, String category, String keyword);
+    List<BbsIdeaProposal> listPublicizedWall(String sortBy, String category, String keyword, String currentUserId);
+
+    /** 对已公示提案点赞/取消点赞，返回 {liked, likeCount} */
+    java.util.Map<String, Object> toggleLike(Long ideaId, String userId);
+
+    /** 分享已公示提案（同一用户只计一次），返回 {shareCount} */
+    java.util.Map<String, Object> sharePublicizedIdea(Long ideaId, String userId);
 
     BbsIdeaProposal getIdeaDetail(Long ideaId, String currentUserId, boolean isAdmin, boolean canReviewAll);
 
