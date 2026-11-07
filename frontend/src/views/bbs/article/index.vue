@@ -8,19 +8,19 @@
       v-show="showSearch"
       label-width="68px"
     >
-      <el-form-item label="文章标题" prop="title">
+      <el-form-item :label="$t('bbsExtra.article.articleTitle')" prop="title">
         <el-input
           v-model="queryParams.title"
-          placeholder="请输入文章标题"
+          :placeholder="$t('bbsExtra.article.articleTitlePh')"
           clearable
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="分类" prop="categoryId">
+      <el-form-item :label="$t('bbsExtra.article.category')" prop="categoryId">
         <el-select
           v-model="queryParams.categoryId"
-          placeholder="请选择分类"
+          :placeholder="$t('bbsExtra.article.categoryPh')"
           clearable
           style="width: 200px"
         >
@@ -32,17 +32,17 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="审核状态" prop="status">
+      <el-form-item :label="$t('bbsExtra.article.auditStatus')" prop="status">
         <el-select
           v-model="queryParams.status"
-          placeholder="请选择审核状态"
+          :placeholder="$t('bbsExtra.article.auditStatusPh')"
           clearable
           style="width: 200px"
         >
-          <el-option label="已审核" value="0" />
-          <el-option label="待审核" value="2" />
-          <el-option label="审核不通过" value="3" />
-          <el-option label="已关闭" value="1" />
+          <el-option :label="$t('bbsExtra.article.stApproved')" value="0" />
+          <el-option :label="$t('bbsExtra.article.stPending')" value="2" />
+          <el-option :label="$t('bbsExtra.article.stRejected')" value="3" />
+          <el-option :label="$t('bbsExtra.article.stClosed')" value="1" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -51,10 +51,10 @@
           icon="el-icon-search"
           size="mini"
           @click="handleQuery"
-          >搜索</el-button
+          >{{ $t('common.search') }}</el-button
         >
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery"
-          >重置</el-button
+          >{{ $t('common.reset') }}</el-button
         >
       </el-form-item>
     </el-form>
@@ -68,7 +68,7 @@
           size="mini"
           :disabled="multiple || !hasPendingPosts"
           @click="handleApprove"
-          >审核通过</el-button
+          >{{ $t('bbsExtra.article.approve') }}</el-button
         >
       </el-col>
       <el-col :span="1.5">
@@ -79,7 +79,7 @@
           size="mini"
           :disabled="multiple || !hasPendingPosts"
           @click="handleReject"
-          >审核不通过</el-button
+          >{{ $t('bbsExtra.article.reject') }}</el-button
         >
       </el-col>
       <el-col :span="1.5">
@@ -90,15 +90,15 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete('batch')"
-          >批量下架</el-button
+          >{{ $t('bbsExtra.article.batchOffline') }}</el-button
         >
       </el-col>
       <el-col :span="6" style="text-align: right">
-        <span style="margin-right: 10px; line-height: 28px">审核开关：</span>
+        <span style="margin-right: 10px; line-height: 28px">{{ $t('bbsExtra.article.auditSwitch') }}</span>
         <el-switch
           v-model="auditEnabled"
-          active-text="开启"
-          inactive-text="关闭"
+          :active-text="$t('bbsExtra.article.on')"
+          :inactive-text="$t('bbsExtra.article.off')"
           @change="handleAuditSwitchChange"
         ></el-switch>
       </el-col>
@@ -115,20 +115,20 @@
     >
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column
-        label="文章ID"
+        :label="$t('bbsExtra.article.articleId')"
         align="center"
         prop="postId"
         width="100"
       />
       <el-table-column
-        label="文章标题"
+        :label="$t('bbsExtra.article.articleTitle')"
         align="left"
         prop="title"
         :show-overflow-tooltip="true"
         min-width="200"
       />
       <el-table-column
-        label="分类"
+        :label="$t('bbsExtra.article.category')"
         align="center"
         prop="postType"
         width="120"
@@ -141,85 +141,85 @@
             </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="作者" align="center" prop="nickName" width="120">
+      <el-table-column :label="$t('bbsExtra.article.author')" align="center" prop="nickName" width="120">
         <template slot-scope="scope">
-          <span v-if="scope.row.isAnonymous === '1'">匿名用户</span>
-          <span v-else>{{ scope.row.nickName || "未知用户" }}</span>
+          <span v-if="scope.row.isAnonymous === '1'">{{ $t('bbs.anonymousUser') }}</span>
+          <span v-else>{{ scope.row.nickName || $t("bbs.unknownUser") }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" width="150">
+      <el-table-column :label="$t('bbsExtra.article.status')" align="center" width="150">
         <template slot-scope="scope">
           <el-tag
             v-if="scope.row.status === '2'"
             type="info"
             size="mini"
             style="margin-right: 5px"
-            >待审核</el-tag
+            >{{ $t('bbsExtra.article.stPending') }}</el-tag
           >
           <el-tag
             v-else-if="scope.row.status === '1'"
             type="danger"
             size="mini"
             style="margin-right: 5px"
-            >已关闭</el-tag
+            >{{ $t('bbsExtra.article.stClosed') }}</el-tag
           >
           <el-tag
             v-else-if="scope.row.status === '0'"
             type="success"
             size="mini"
             style="margin-right: 5px"
-            >已审核</el-tag
+            >{{ $t('bbsExtra.article.stApproved') }}</el-tag
           >
           <el-tag
             v-else-if="scope.row.status === '3'"
             type="danger"
             size="mini"
             style="margin-right: 5px"
-            >审核不通过</el-tag
+            >{{ $t('bbsExtra.article.stRejected') }}</el-tag
           >
           <el-tag
             v-if="scope.row.isTop === '1'"
             type="danger"
             size="mini"
             style="margin-right: 5px"
-            >置顶</el-tag
+            >{{ $t('bbsExtra.article.top') }}</el-tag
           >
           <el-tag v-if="scope.row.isEssence === '1'" type="warning" size="mini"
-            >精华</el-tag
+            >{{ $t('bbs.essence') }}</el-tag
           >
         </template>
       </el-table-column>
       <el-table-column
-        label="驳回原因"
+        :label="$t('bbsExtra.article.rejectReason')"
         align="left"
         min-width="220"
         :show-overflow-tooltip="true"
       >
         <template slot-scope="scope">
-          <span v-if="scope.row.status === '3'">{{ scope.row.auditReason || "未填写" }}</span>
+          <span v-if="scope.row.status === '3'">{{ scope.row.auditReason || $t("bbsExtra.article.notFilled") }}</span>
           <span v-else>—</span>
         </template>
       </el-table-column>
       <el-table-column
-        label="浏览量"
+        :label="$t('bbsExtra.article.views')"
         align="center"
         prop="viewCount"
         width="100"
       />
       <el-table-column
-        label="点赞数"
+        :label="$t('bbsExtra.article.likes')"
         align="center"
         prop="likeCount"
         width="100"
       />
       <el-table-column
-        label="评论数"
+        :label="$t('bbsExtra.article.comments')"
         align="center"
         prop="commentCount"
         width="100"
       />
       <el-table-column
-        label="创建时间"
+        :label="$t('bbsExtra.article.createTime')"
         align="center"
         prop="createTime"
         width="180"
@@ -229,7 +229,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="操作"
+        :label="$t('bbsExtra.article.actions')"
         align="center"
         class-name="small-padding fixed-width"
         width="320"
@@ -240,7 +240,7 @@
             type="text"
             icon="el-icon-view"
             @click="handleView(scope.row)"
-            >查看</el-button
+            >{{ $t('bbsExtra.article.view') }}</el-button
           >
           <el-button
             v-if="scope.row.status === '2'"
@@ -248,7 +248,7 @@
             type="text"
             icon="el-icon-check"
             @click="handleApprove(scope.row)"
-            >审核通过</el-button
+            >{{ $t('bbsExtra.article.approve') }}</el-button
           >
           <el-button
             v-if="scope.row.status === '2'"
@@ -256,14 +256,14 @@
             type="text"
             icon="el-icon-close"
             @click="handleReject(scope.row)"
-            >审核不通过</el-button
+            >{{ $t('bbsExtra.article.reject') }}</el-button
           >
           <el-button
             size="mini"
             :type="scope.row.isTop === '1' ? 'warning' : 'text'"
             :icon="scope.row.isTop === '1' ? 'el-icon-top' : 'el-icon-bottom'"
             @click="handleToggleTop(scope.row)"
-            >{{ scope.row.isTop === "1" ? "取消置顶" : "置顶" }}</el-button
+            >{{ scope.row.isTop === "1" ? $t("bbsExtra.article.unpin") : $t("bbsExtra.article.pin") }}</el-button
           >
           <el-button
             v-if="scope.row.status === '0' || scope.row.status === '1'"
@@ -272,7 +272,7 @@
             :icon="scope.row.status === '1' ? 'el-icon-top' : 'el-icon-bottom'"
             @click="handleDelete('single', scope.row)"
             :style="{color: scope.row.status === '1' ? 'green' : 'red'}"
-            >{{ scope.row.status === '1' ? '重新上架' : '下架' }}</el-button
+            >{{ scope.row.status === '1' ? $t('bbsExtra.article.relist') : $t('bbsExtra.article.takeDown') }}</el-button
           >
         </template>
       </el-table-column>
@@ -288,7 +288,7 @@
 
     <!-- 文章详情预览对话框 -->
     <el-dialog
-      title="文章详情"
+      :title="$t('bbsExtra.article.detailTitle')"
       :visible.sync="previewVisible"
       width="80%"
       :close-on-click-modal="false"
@@ -304,42 +304,42 @@
                 type="danger"
                 size="small"
                 style="margin-right: 5px"
-                >置顶</el-tag
+                >{{ $t('bbsExtra.article.top') }}</el-tag
               >
               <el-tag
                 v-if="previewPost.isEssence === '1'"
                 type="warning"
                 size="small"
                 style="margin-right: 5px"
-                >精华</el-tag
+                >{{ $t('bbs.essence') }}</el-tag
               >
               <!-- <span style="margin-right: 10px;">分类：{{ previewPost.categoryName }}</span> -->
               <span style="margin-right: 10px"
-                >作者：{{
+                >{{ $t('bbsExtra.article.authorColon') }}{{
                   previewPost.isAnonymous === "1"
-                    ? "匿名用户"
-                    : previewPost.nickName || "未知用户"
+                    ? $t("bbs.anonymousUser")
+                    : previewPost.nickName || $t("bbs.unknownUser")
                 }}</span
               >
               <span style="margin-right: 10px"
-                >发布时间：{{ parseTime(previewPost.createTime) }}</span
+                >{{ $t('bbsExtra.article.publishTime') }}{{ parseTime(previewPost.createTime) }}</span
               >
             </div>
           </div>
           <div class="preview-stats">
             <span style="margin-right: 15px"
-              >浏览量：{{ previewPost.viewCount }}</span
+              >{{ $t('bbsExtra.article.viewsColon') }}{{ previewPost.viewCount }}</span
             >
             <span style="margin-right: 15px"
-              >点赞数：{{ previewPost.likeCount }}</span
+              >{{ $t('bbsExtra.article.likesColon') }}{{ previewPost.likeCount }}</span
             >
-            <span>评论数：{{ previewPost.commentCount }}</span>
+            <span>{{ $t('bbsExtra.article.commentsColon') }}{{ previewPost.commentCount }}</span>
           </div>
           <div class="preview-body" v-html="previewPost.content"></div>
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="previewVisible = false">关 闭</el-button>
+        <el-button @click="previewVisible = false">{{ $t('bbsExtra.article.close') }}</el-button>
       </div>
     </el-dialog>
 
@@ -415,9 +415,9 @@ export default {
     },
     getPostTypeName(postType) {
       const typeMap = {
-        share: "分享",
-        suggestion: "建议",
-        opinion: "意见",
+        share: this.$t("bbs.postTypeShare"),
+        suggestion: this.$t("bbs.postTypeSuggestion"),
+        opinion: this.$t("bbs.postTypeOpinion"),
       };
       return typeMap[postType] || "";
     },
@@ -469,7 +469,7 @@ export default {
         })
         .catch(() => {
           this.previewLoading = false;
-          this.$modal.msgError("获取文章详情失败");
+          this.$modal.msgError(this.$t("bbsExtra.article.loadDetailFailed"));
         });
     },
     /** 下架/上架按钮操作 */
@@ -477,25 +477,22 @@ export default {
       const postIds = type === 'single' ? [row.postId] : this.ids;
       const isOffline = row ? row.status === '1' : false;
       let message = "";
-      let title = "提示";
+      let title = this.$t("bbsExtra.article.tip");
       if (type === 'single') {
         if (isOffline) {
-          message = '是否确认重新上架文章"' + row.title + '"？上架后文章将重新显示在前台。';
-          title = "重新上架文章";
+          message = this.$t("bbsExtra.article.confirmRelist", { title: row.title });
+          title = this.$t("bbsExtra.article.relistTitle");
         } else {
-          message = '是否确认下架文章"' + row.title + '"？下架后文章将不再显示在前台。';
-          title = "下架文章";
+          message = this.$t("bbsExtra.article.confirmTakeDown", { title: row.title });
+          title = this.$t("bbsExtra.article.takeDownTitle");
         }
       } else {
-        message =
-          "是否确认下架选中的" +
-          postIds.length +
-          "篇文章？下架后文章将不再显示在前台。";
-        title = "批量下架文章";
+        message = this.$t("bbsExtra.article.confirmBatchTakeDown", { count: postIds.length });
+        title = this.$t("bbsExtra.article.batchTakeDownTitle");
       }
       this.$confirm(message, title, {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+        confirmButtonText: this.$t("common.confirm"),
+        cancelButtonText: this.$t("common.cancel"),
         type: "warning",
         dangerouslyUseHTMLString: false,
       })
@@ -512,7 +509,7 @@ export default {
         })
         .then((response) => {
           this.getList();
-          const msg = response && response.msg ? response.msg : (isOffline ? "上架成功" : "下架成功");
+          const msg = response && response.msg ? response.msg : (isOffline ? this.$t("bbsExtra.article.relistSuccess") : this.$t("bbsExtra.article.takeDownSuccess"));
           this.$modal.msgSuccess(msg);
         })
         .catch(() => {
@@ -535,12 +532,12 @@ export default {
     handleAuditSwitchChange(value) {
       this.$confirm(
         value
-          ? "开启审核后，用户发布的文章将需要审核通过才能显示。是否确认开启？"
-          : "关闭审核后，用户发布的文章将直接发布。是否确认关闭？",
-        "提示",
+          ? this.$t("bbsExtra.article.confirmAuditOn")
+          : this.$t("bbsExtra.article.confirmAuditOff"),
+        this.$t("bbsExtra.article.tip"),
         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
+          confirmButtonText: this.$t("common.confirm"),
+          cancelButtonText: this.$t("common.cancel"),
           type: "warning",
         }
       )
@@ -549,10 +546,10 @@ export default {
         })
         .then((response) => {
           if (response.code === 200) {
-            this.$modal.msgSuccess(value ? "审核开关已开启" : "审核开关已关闭");
+            this.$modal.msgSuccess(value ? this.$t("bbsExtra.article.auditOnDone") : this.$t("bbsExtra.article.auditOffDone"));
           } else {
             this.auditEnabled = !value; // 恢复原状态
-            this.$modal.msgError(response.msg || "设置失败");
+            this.$modal.msgError(response.msg || this.$t("bbsExtra.article.settingFailed"));
           }
         })
         .catch(() => {
@@ -578,20 +575,20 @@ export default {
       }
 
       if (postIds.length === 0) {
-        this.$modal.msgWarning("请选择待审核的文章");
+        this.$modal.msgWarning(this.$t("bbsExtra.article.selectPending"));
         return;
       }
 
       let message = "";
       if (row.postId) {
-        message = '是否确认审核通过文章"' + row.title + '"？';
+        message = this.$t("bbsExtra.article.confirmApprove", { title: row.title });
       } else {
-        message = "是否确认审核通过选中的" + postIds.length + "篇待审核文章？";
+        message = this.$t("bbsExtra.article.confirmApproveBatch", { count: postIds.length });
       }
 
-      this.$confirm(message, "审核通过", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$confirm(message, this.$t("bbsExtra.article.approveTitle"), {
+        confirmButtonText: this.$t("common.confirm"),
+        cancelButtonText: this.$t("common.cancel"),
         type: "info",
       })
         .then(() => {
@@ -599,10 +596,10 @@ export default {
         })
         .then((response) => {
           if (response.code === 200) {
-            this.$modal.msgSuccess(response.msg || "审核通过成功");
+            this.$modal.msgSuccess(response.msg || this.$t("bbsExtra.article.approveSuccess"));
             this.getList();
           } else {
-            this.$modal.msgError(response.msg || "审核失败");
+            this.$modal.msgError(response.msg || this.$t("bbsExtra.article.approveFailed"));
           }
         })
         .catch(() => {
@@ -628,23 +625,23 @@ export default {
       }
 
       if (postIds.length === 0) {
-        this.$modal.msgWarning("请选择待审核的文章");
+        this.$modal.msgWarning(this.$t("bbsExtra.article.selectPending"));
         return;
       }
 
       let message = "";
       if (row.postId) {
-        message = '是否确认审核不通过文章"' + row.title + '"？';
+        message = this.$t("bbsExtra.article.confirmReject", { title: row.title });
       } else {
-        message = "是否确认审核不通过选中的" + postIds.length + "篇待审核文章？";
+        message = this.$t("bbsExtra.article.confirmRejectBatch", { count: postIds.length });
       }
 
-      this.$prompt("请填写审核不通过原因（将反馈给发帖人）", "审核不通过", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$prompt(this.$t("bbsExtra.article.rejectPrompt"), this.$t("bbsExtra.article.reject"), {
+        confirmButtonText: this.$t("common.confirm"),
+        cancelButtonText: this.$t("common.cancel"),
         inputPattern: /\S+/,
-        inputErrorMessage: "请填写审核不通过原因",
-        inputValue: "内容存在风险，请修改后重新提交",
+        inputErrorMessage: this.$t("bbsExtra.article.rejectReasonRequired"),
+        inputValue: this.$t("bbsExtra.article.defaultRejectReason"),
       })
         .then(({ value }) => {
           return rejectPosts({
@@ -654,10 +651,10 @@ export default {
         })
         .then((response) => {
           if (response.code === 200) {
-            this.$modal.msgSuccess(response.msg || "审核不通过成功");
+            this.$modal.msgSuccess(response.msg || this.$t("bbsExtra.article.rejectSuccess"));
             this.getList();
           } else {
-            this.$modal.msgError(response.msg || "操作失败");
+            this.$modal.msgError(response.msg || this.$t("bbsExtra.article.opFailed"));
           }
         })
         .catch(() => {
@@ -666,10 +663,14 @@ export default {
     },
     /** 置顶/取消置顶 */
     handleToggleTop(row) {
-      const action = row.isTop === "1" ? "取消置顶" : "置顶";
-      this.$confirm("是否确认" + action + '文章"' + row.title + '"？', action, {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      const isUnpin = row.isTop === "1";
+      const action = isUnpin ? this.$t("bbsExtra.article.unpin") : this.$t("bbsExtra.article.pin");
+      const confirmMsg = isUnpin
+        ? this.$t("bbsExtra.article.confirmUnpin", { title: row.title })
+        : this.$t("bbsExtra.article.confirmPin", { title: row.title });
+      this.$confirm(confirmMsg, action, {
+        confirmButtonText: this.$t("common.confirm"),
+        cancelButtonText: this.$t("common.cancel"),
         type: "info",
       })
         .then(() => {
@@ -677,10 +678,10 @@ export default {
         })
         .then((response) => {
           if (response.code === 200) {
-            this.$modal.msgSuccess(response.msg || action + "成功");
+            this.$modal.msgSuccess(response.msg || this.$t(isUnpin ? "bbsExtra.article.unpinSuccess" : "bbsExtra.article.pinSuccess"));
             this.getList();
           } else {
-            this.$modal.msgError(response.msg || action + "失败");
+            this.$modal.msgError(response.msg || this.$t(isUnpin ? "bbsExtra.article.unpinFailed" : "bbsExtra.article.pinFailed"));
           }
         })
         .catch(() => {

@@ -163,17 +163,17 @@ export default {
       manualRules: [
         {
           required: true,
-          message: this.$t ? this.$t('bbs.anonymousKeyRequired') : '请输入6位匿名秘钥',
+          message: this.$t('bbs.anonymousKeyRequired'),
           trigger: 'blur',
         },
         {
           validator: (rule, value, callback) => {
             if (!value || !value.trim()) {
-              callback(new Error(this.$t ? this.$t('bbs.anonymousKeyRequired') : '请输入6位匿名秘钥'))
+              callback(new Error(this.$t('bbs.anonymousKeyRequired')))
               return
             }
             if (!isValidKeyFormat(value)) {
-              callback(new Error(this.$t ? this.$t('bbs.anonymousKeyFormatError') : '秘钥须为6位字母或数字'))
+              callback(new Error(this.$t('bbs.anonymousKeyFormatError')))
               return
             }
             callback()
@@ -259,7 +259,7 @@ export default {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(this.generatedKey).then(() => {
-            this.$message.success(this.$t('bbs.anonymousKeyCopySuccess') || '已复制到剪贴板')
+            this.$message.success(this.$t('bbs.anonymousKeyCopySuccess'))
           }).catch(() => this.fallbackCopy())
         } else {
           this.fallbackCopy()
@@ -275,14 +275,14 @@ export default {
       input.select()
       try {
         document.execCommand('copy')
-        this.$message.success(this.$t('bbs.anonymousKeyCopySuccess') || '已复制到剪贴板')
+        this.$message.success(this.$t('bbs.anonymousKeyCopySuccess'))
       } catch (e) {}
       document.body.removeChild(input)
     },
     handleConfirm() {
       if (this.keySource === 'generate') {
         if (!this.generatedKey) {
-          this.$message.warning(this.$t('bbs.anonymousKeyGenerateFirst') || '请先生成秘钥')
+          this.$message.warning(this.$t('bbs.anonymousKeyGenerateFirst'))
           return
         }
         this.$emit('confirm', this.generatedKey, this.rememberInBrowser)
@@ -293,7 +293,7 @@ export default {
         if (!valid) return
         const key = this.manualForm.key.trim()
         if (!isValidKeyFormat(key)) {
-          this.$message.warning(this.$t('bbs.anonymousKeyFormatError') || '秘钥须为6位字母或数字')
+          this.$message.warning(this.$t('bbs.anonymousKeyFormatError'))
           return
         }
         this.$emit('confirm', key, this.rememberInBrowser)

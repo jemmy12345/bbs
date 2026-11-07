@@ -3,13 +3,13 @@
     <div v-for="n in queue" :key="n.noticeId" class="notice-popup">
       <div class="notice-popup-head">
         <el-tag size="mini" :type="n.noticeType === '2' ? 'success' : 'warning'">
-          {{ n.noticeType === '2' ? '公告' : '通知' }}
+          {{ n.noticeType === '2' ? $t('bbsExtra.noticePopup.announcement') : $t('bbsExtra.noticePopup.notice') }}
         </el-tag>
         <span class="notice-popup-title" :title="n.noticeTitle">{{ n.noticeTitle }}</span>
       </div>
       <div class="notice-popup-body ql-editor" v-html="n.noticeContent"></div>
       <div class="notice-popup-foot">
-        <el-button type="primary" size="mini" @click="markRead(n)">已读</el-button>
+        <el-button type="primary" size="mini" @click="markRead(n)">{{ $t('bbsExtra.noticePopup.read') }}</el-button>
       </div>
     </div>
   </div>

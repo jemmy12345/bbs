@@ -2,8 +2,8 @@
   <div class="bbs-dashboard">
     <!-- 顶部操作栏 -->
     <div class="dashboard-header">
-      <span class="dashboard-title">论坛运营看板</span>
-      <el-button size="small" icon="el-icon-refresh" @click="loadStats" :loading="loading">刷新</el-button>
+      <span class="dashboard-title">{{ $t('bbsExtra.dashboard.title') }}</span>
+      <el-button size="small" icon="el-icon-refresh" @click="loadStats" :loading="loading">{{ $t('bbsExtra.dashboard.refresh') }}</el-button>
     </div>
 
     <!-- KPI卡片行 -->
@@ -13,7 +13,7 @@
           <div class="kpi-icon"><i class="el-icon-document"></i></div>
           <div class="kpi-info">
             <div class="kpi-value">{{ summary.total_posts || 0 }}</div>
-            <div class="kpi-label">帖子总数</div>
+            <div class="kpi-label">{{ $t('bbsExtra.dashboard.kpiTotal') }}</div>
           </div>
         </div>
       </el-col>
@@ -22,7 +22,7 @@
           <div class="kpi-icon"><i class="el-icon-time"></i></div>
           <div class="kpi-info">
             <div class="kpi-value">{{ summary.pending_count || 0 }}</div>
-            <div class="kpi-label">待审核</div>
+            <div class="kpi-label">{{ $t('bbsExtra.dashboard.kpiPending') }}</div>
           </div>
         </div>
       </el-col>
@@ -31,7 +31,7 @@
           <div class="kpi-icon"><i class="el-icon-check"></i></div>
           <div class="kpi-info">
             <div class="kpi-value">{{ summary.published_count || 0 }}</div>
-            <div class="kpi-label">已发布</div>
+            <div class="kpi-label">{{ $t('bbsExtra.dashboard.kpiPublished') }}</div>
           </div>
         </div>
       </el-col>
@@ -40,7 +40,7 @@
           <div class="kpi-icon"><i class="el-icon-chat-dot-round"></i></div>
           <div class="kpi-info">
             <div class="kpi-value">{{ summary.total_comments || 0 }}</div>
-            <div class="kpi-label">评论总数</div>
+            <div class="kpi-label">{{ $t('bbsExtra.dashboard.kpiComments') }}</div>
           </div>
         </div>
       </el-col>
@@ -49,7 +49,7 @@
           <div class="kpi-icon"><i class="el-icon-view"></i></div>
           <div class="kpi-info">
             <div class="kpi-value">{{ formatCount(summary.total_views) }}</div>
-            <div class="kpi-label">总浏览量</div>
+            <div class="kpi-label">{{ $t('bbsExtra.dashboard.kpiViews') }}</div>
           </div>
         </div>
       </el-col>
@@ -58,7 +58,7 @@
           <div class="kpi-icon"><i class="el-icon-user"></i></div>
           <div class="kpi-info">
             <div class="kpi-value">{{ summary.anonymous_count || 0 }}</div>
-            <div class="kpi-label">匿名帖子</div>
+            <div class="kpi-label">{{ $t('bbsExtra.dashboard.kpiAnon') }}</div>
           </div>
         </div>
       </el-col>
@@ -70,7 +70,7 @@
       <el-col :xs="24" :md="14">
         <el-card class="chart-card" shadow="never">
           <div slot="header" class="card-header">
-            <span>近7天发帖趋势</span>
+            <span>{{ $t('bbsExtra.dashboard.cardTrend') }}</span>
           </div>
           <div ref="trendChart" class="chart-container"></div>
         </el-card>
@@ -79,7 +79,7 @@
       <el-col :xs="24" :md="10">
         <el-card class="chart-card" shadow="never">
           <div slot="header" class="card-header">
-            <span>帖子类型分布</span>
+            <span>{{ $t('bbsExtra.dashboard.cardType') }}</span>
           </div>
           <div ref="typeChart" class="chart-container"></div>
         </el-card>
@@ -91,7 +91,7 @@
       <el-col :xs="24" :md="10">
         <el-card class="chart-card" shadow="never">
           <div slot="header" class="card-header">
-            <span>帖子状态分布</span>
+            <span>{{ $t('bbsExtra.dashboard.cardStatus') }}</span>
           </div>
           <div ref="statusChart" class="chart-container"></div>
         </el-card>
@@ -100,7 +100,7 @@
       <el-col :xs="24" :md="14">
         <el-card class="chart-card" shadow="never">
           <div slot="header" class="card-header">
-            <span>实名 / 匿名比例</span>
+            <span>{{ $t('bbsExtra.dashboard.cardAnon') }}</span>
           </div>
           <div ref="anonChart" class="chart-container"></div>
         </el-card>
@@ -112,41 +112,41 @@
       <el-col :xs="24" :md="12">
         <el-card shadow="never">
           <div slot="header" class="card-header">
-            <span>活跃用户 Top 10</span>
+            <span>{{ $t('bbsExtra.dashboard.cardTop') }}</span>
           </div>
           <el-table :data="topUsers" size="small" stripe>
-            <el-table-column type="index" label="排名" width="55" align="center" />
-            <el-table-column label="用户" prop="nick_name" />
-            <el-table-column label="发帖数" prop="post_cnt" align="center" width="80" />
-            <el-table-column label="总浏览" prop="total_views" align="center" width="90">
+            <el-table-column type="index" :label="$t('bbsExtra.dashboard.colRank')" width="55" align="center" />
+            <el-table-column :label="$t('bbsExtra.dashboard.colUser')" prop="nick_name" />
+            <el-table-column :label="$t('bbsExtra.dashboard.colPosts')" prop="post_cnt" align="center" width="80" />
+            <el-table-column :label="$t('bbsExtra.dashboard.colViews')" prop="total_views" align="center" width="90">
               <template slot-scope="scope">{{ formatCount(scope.row.total_views) }}</template>
             </el-table-column>
-            <el-table-column label="总获赞" prop="total_likes" align="center" width="90" />
+            <el-table-column :label="$t('bbsExtra.dashboard.colLikes')" prop="total_likes" align="center" width="90" />
           </el-table>
         </el-card>
       </el-col>
       <el-col :xs="24" :md="12">
         <el-card shadow="never">
           <div slot="header" class="card-header">
-            <span>待审核帖子</span>
-            <el-button type="primary" size="mini" plain @click="$router.push('/admin/article')">前往管理</el-button>
+            <span>{{ $t('bbsExtra.dashboard.cardPending') }}</span>
+            <el-button type="primary" size="mini" plain @click="$router.push('/admin/article')">{{ $t('bbsExtra.dashboard.goManage') }}</el-button>
           </div>
           <el-table :data="pendingPosts" size="small" stripe v-loading="pendingLoading">
-            <el-table-column label="标题" prop="title" :show-overflow-tooltip="true" />
-            <el-table-column label="类型" width="80" align="center">
+            <el-table-column :label="$t('bbsExtra.dashboard.colTitle')" prop="title" :show-overflow-tooltip="true" />
+            <el-table-column :label="$t('bbsExtra.dashboard.colType')" width="80" align="center">
               <template slot-scope="scope">
                 <el-tag :type="getTypeTag(scope.row.postType)" size="mini">{{ getTypeName(scope.row.postType) }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="作者" width="90" align="center">
-              <template slot-scope="scope">{{ scope.row.isAnonymous === '1' ? '匿名' : scope.row.nickName }}</template>
+            <el-table-column :label="$t('bbsExtra.dashboard.colAuthor')" width="90" align="center">
+              <template slot-scope="scope">{{ scope.row.isAnonymous === '1' ? $t('bbs.anonymous') : scope.row.nickName }}</template>
             </el-table-column>
-            <el-table-column label="时间" width="100" align="center">
+            <el-table-column :label="$t('bbsExtra.dashboard.colTime')" width="100" align="center">
               <template slot-scope="scope">{{ formatDate(scope.row.createTime) }}</template>
             </el-table-column>
           </el-table>
           <div v-if="pendingPosts.length === 0 && !pendingLoading" class="no-pending">
-            <i class="el-icon-check"></i> 暂无待审核帖子
+            <i class="el-icon-check"></i> {{ $t('bbsExtra.dashboard.noPending') }}
           </div>
         </el-card>
       </el-col>
@@ -172,6 +172,16 @@ export default {
       topUsers: [],
       pendingPosts: [],
       charts: {}
+    }
+  },
+  watch: {
+    '$i18n.locale'() {
+      this.$nextTick(() => {
+        this.renderTrendChart()
+        this.renderTypeChart()
+        this.renderStatusChart()
+        this.renderAnonChart()
+      })
     }
   },
   mounted() {
@@ -229,7 +239,7 @@ export default {
         xAxis: { type: 'category', data: days.map(d => d.slice(5)), axisLabel: { fontSize: 11 } },
         yAxis: { type: 'value', minInterval: 1 },
         series: [{
-          name: '发帖数',
+          name: this.$t('bbsExtra.dashboard.colPosts'),
           type: 'bar',
           data: values,
           barMaxWidth: 40,
@@ -244,10 +254,10 @@ export default {
       if (!this.charts.type) {
         this.charts.type = echarts.init(el)
       }
-      const nameMap = { share: '经验分享', suggestion: '意见建议', opinion: '意见投票', announcement: '公告', discussion: '讨论' }
+      const nameMap = { share: this.$t('bbsExtra.dashboard.typeShare'), suggestion: this.$t('bbsExtra.dashboard.typeSuggestion'), opinion: this.$t('bbsExtra.dashboard.typeOpinion'), announcement: this.$t('bbsExtra.dashboard.typeAnnouncement'), discussion: this.$t('bbsExtra.dashboard.typeDiscussion') }
       const colorMap = { share: '#67C23A', suggestion: '#E6A23C', opinion: '#F56C6C', announcement: '#909399', discussion: '#409EFF' }
       const data = this.typeStats.map(item => ({
-        name: nameMap[item.post_type] || item.post_type || '未知',
+        name: nameMap[item.post_type] || item.post_type || this.$t('bbsExtra.dashboard.unknown'),
         value: Number(item.cnt),
         itemStyle: { color: colorMap[item.post_type] || '#909399' }
       }))
@@ -270,7 +280,7 @@ export default {
       if (!this.charts.status) {
         this.charts.status = echarts.init(el)
       }
-      const nameMap = { '0': '已发布', '1': '已关闭', '2': '待审核', '3': '审核不通过' }
+      const nameMap = { '0': this.$t('bbsExtra.dashboard.stPublished'), '1': this.$t('bbsExtra.dashboard.stClosed'), '2': this.$t('bbsExtra.dashboard.stPending'), '3': this.$t('bbsExtra.dashboard.stRejected') }
       const colorMap = { '0': '#67C23A', '1': '#909399', '2': '#E6A23C', '3': '#F56C6C' }
       const data = this.statusStats.map(item => ({
         name: nameMap[item.status] || item.status,
@@ -313,8 +323,8 @@ export default {
           radius: ['40%', '65%'],
           center: ['40%', '50%'],
           data: [
-            { name: '实名发帖', value: real, itemStyle: { color: '#409EFF' } },
-            { name: '匿名发帖', value: anon, itemStyle: { color: '#C0C4CC' } }
+            { name: this.$t('bbsExtra.dashboard.realPosts'), value: real, itemStyle: { color: '#409EFF' } },
+            { name: this.$t('bbsExtra.dashboard.anonPosts'), value: anon, itemStyle: { color: '#C0C4CC' } }
           ],
           label: { show: true, formatter: '{b}\n{d}%', fontSize: 12 },
           emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } }
@@ -338,7 +348,7 @@ export default {
       return { share: 'success', suggestion: 'warning', opinion: 'danger' }[type] || 'info'
     },
     getTypeName(type) {
-      return { share: '分享', suggestion: '建议', opinion: '投票', announcement: '公告', discussion: '讨论' }[type] || type || '-'
+      return { share: this.$t('bbsExtra.dashboard.shortShare'), suggestion: this.$t('bbsExtra.dashboard.shortSuggestion'), opinion: this.$t('bbsExtra.dashboard.shortOpinion'), announcement: this.$t('bbsExtra.dashboard.shortAnnouncement'), discussion: this.$t('bbsExtra.dashboard.shortDiscussion') }[type] || type || '-'
     }
   }
 }
