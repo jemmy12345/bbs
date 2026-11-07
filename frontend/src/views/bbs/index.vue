@@ -48,13 +48,17 @@
           <div class="checkin-info">
             <span class="checkin-flame">🗓️</span>
             <span class="checkin-text" v-if="checkinInfo.checked">
-              今日已签到 · 连续 <b>{{ checkinInfo.streak }}</b> 天
-              <el-tag size="mini" type="success" style="margin-left:6px;">+{{ checkinInfo.pointsEarned }} 积分</el-tag>
+              <i18n path="bbsExtra.index.checkedInStreak" tag="span">
+                <template v-slot:streak><b>{{ checkinInfo.streak }}</b></template>
+              </i18n>
+              <el-tag size="mini" type="success" style="margin-left:6px;">{{ $t('bbsExtra.index.plusPoints', { n: checkinInfo.pointsEarned }) }}</el-tag>
             </span>
             <span class="checkin-text" v-else>
-              今日还未签到
+              {{ $t('bbsExtra.index.notCheckedIn') }}
               <template v-if="checkinInfo.streak > 0">
-                · 已连续 <b>{{ checkinInfo.streak }}</b> 天
+                <i18n path="bbsExtra.index.streakSoFar" tag="span">
+                  <template v-slot:streak><b>{{ checkinInfo.streak }}</b></template>
+                </i18n>
               </template>
             </span>
           </div>
@@ -67,7 +71,7 @@
             :loading="checkinLoading"
             @click="handleCheckin"
           >
-            {{ checkinInfo.checked ? '已签到' : '立即签到' }}
+            {{ checkinInfo.checked ? $t('bbsExtra.index.checkedIn') : $t('bbsExtra.index.checkInNow') }}
           </el-button>
         </div>
 
@@ -157,7 +161,7 @@
 
         <!-- 全站热议榜 -->
         <div class="intelligence-card hot-card">
-          <div class="intelligence-title">🔥 全站热议榜</div>
+          <div class="intelligence-title">🔥 {{ $t('bbsExtra.index.hotBoard') }}</div>
           <div v-if="hotPostList.length" class="hot-list">
             <div
               v-for="(post, index) in hotPostList.slice(0, 5)"
@@ -168,16 +172,16 @@
               <span class="hot-rank">{{ index + 1 }}</span>
               <div class="hot-body">
                 <div class="hot-title">{{ truncateTitle(post.title, 30) }}</div>
-                <div class="hot-meta">{{ post.viewCount || 0 }} 浏览 · {{ post.commentCount || 0 }} 评论</div>
+                <div class="hot-meta">{{ $t('bbsExtra.index.viewsComments', { views: post.viewCount || 0, comments: post.commentCount || 0 }) }}</div>
               </div>
             </div>
           </div>
-          <div v-else class="intelligence-empty">暂无热议帖子</div>
+          <div v-else class="intelligence-empty">{{ $t('bbsExtra.index.noHot') }}</div>
         </div>
 
         <!-- 话题雷达 -->
         <div class="intelligence-card radar-card">
-          <div class="intelligence-title">📡 话题雷达</div>
+          <div class="intelligence-title">📡 {{ $t('bbsExtra.index.radar') }}</div>
           <div v-if="radarTopics.length" class="topic-chip-list">
             <span
               v-for="(topic, index) in radarTopics"
@@ -189,13 +193,13 @@
               <span class="topic-count">{{ topic.count }}</span>
             </span>
           </div>
-          <div v-else class="intelligence-empty">暂无话题数据</div>
+          <div v-else class="intelligence-empty">{{ $t('bbsExtra.index.noTopics') }}</div>
         </div>
 
         <!-- 积分榜 Top5 -->
         <div class="intelligence-card point-rank-card">
-          <div class="intelligence-title">🏆 积分榜 TOP 5</div>
-          <div class="point-rank-subtitle" style="margin-bottom:12px;">发布帖子/评论可累计积分</div>
+          <div class="intelligence-title">🏆 {{ $t('bbsExtra.index.pointBoard') }}</div>
+          <div class="point-rank-subtitle" style="margin-bottom:12px;">{{ $t('bbsExtra.index.pointTip') }}</div>
           <div v-if="pointRankList.length" class="point-rank-list">
             <div
               v-for="(item, index) in pointRankList"
@@ -204,16 +208,16 @@
             >
               <div class="point-rank-left">
                 <span class="point-rank-no">{{ index + 1 }}</span>
-                <el-avatar :size="32" :src="item.avatar">{{ (item.nickName || '用').slice(0, 1) }}</el-avatar>
-                <span class="point-rank-name">{{ item.nickName || '未知用户' }}</span>
+                <el-avatar :size="32" :src="item.avatar">{{ (item.nickName || $t('bbsExtra.index.defaultAvatarChar')).slice(0, 1) }}</el-avatar>
+                <span class="point-rank-name">{{ item.nickName || $t('bbs.unknownUser') }}</span>
                 <span class="level-badge" :style="{ background: getUserLevel(item.points).color }">
                   {{ getUserLevel(item.points).icon }} {{ getUserLevel(item.points).name }}
                 </span>
               </div>
-              <span class="point-rank-score">{{ item.points || 0 }} 分</span>
+              <span class="point-rank-score">{{ $t('bbsExtra.index.pointsUnit', { n: item.points || 0 }) }}</span>
             </div>
           </div>
-          <div v-else class="intelligence-empty">暂无积分数据</div>
+          <div v-else class="intelligence-empty">{{ $t('bbsExtra.index.noPoints') }}</div>
         </div>
 
       </div><!-- /main-right -->
@@ -288,7 +292,7 @@
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="标签">
+        <el-form-item :label="$t('bbsExtra.index.tags')">
           <el-select
             v-model="form.tags"
             multiple
@@ -297,7 +301,7 @@
             default-first-option
             clearable
             style="width: 100%"
-            placeholder="可输入标签并回车，例如：流程优化、知识库、体验改进"
+            :placeholder="$t('bbsExtra.index.tagsPlaceholder')"
           >
             <el-option
               v-for="tag in tagOptions"
@@ -306,23 +310,23 @@
               :value="tag.tagName"
             />
           </el-select>
-          <div style="font-size: 12px; color: #999; margin-top: 5px">最多建议 5 个标签，便于形成专题沉淀。</div>
+          <div style="font-size: 12px; color: #999; margin-top: 5px">{{ $t('bbsExtra.index.tagsTip') }}</div>
         </el-form-item>
-        <el-form-item label="AI助写">
+        <el-form-item :label="$t('bbsExtra.index.aiAssist')">
           <div class="ai-assist-row">
             <el-input
               v-model="aiKeywords"
-              placeholder="请输入关键词，例如：食堂改进建议、流程优化、技术分享"
+              :placeholder="$t('bbsExtra.index.aiPlaceholder')"
               clearable
             />
-            <el-button type="success" :loading="aiGenerating" @click="handleAiGenerate">AI生成内容</el-button>
+            <el-button type="success" :loading="aiGenerating" @click="handleAiGenerate">{{ $t('bbsExtra.index.aiGenerate') }}</el-button>
           </div>
-          <div style="font-size: 12px; color: #999; margin-top: 6px;">AI生成后你仍可继续编辑优化。</div>
+          <div style="font-size: 12px; color: #999; margin-top: 6px;">{{ $t('bbsExtra.index.aiTip') }}</div>
         </el-form-item>
-        <el-form-item label="灵感胶囊">
+        <el-form-item :label="$t('bbsExtra.index.inspiration')">
           <div class="inspiration-panel">
             <div class="assist-section">
-              <div class="assist-section-title">热点关键词</div>
+              <div class="assist-section-title">{{ $t('bbsExtra.index.hotKeywords') }}</div>
               <div class="capsule-list">
                 <button
                   v-for="topic in inspirationTopics"
@@ -336,7 +340,7 @@
               </div>
             </div>
             <div class="assist-section">
-              <div class="assist-section-title">结构模板</div>
+              <div class="assist-section-title">{{ $t('bbsExtra.index.structTemplates') }}</div>
               <div class="capsule-list">
                 <button
                   v-for="template in templateOptions"
@@ -351,7 +355,7 @@
             </div>
           </div>
         </el-form-item>
-        <el-form-item label="发布质量">
+        <el-form-item :label="$t('bbsExtra.index.quality')">
           <div class="quality-panel">
             <div class="quality-score-panel">
               <el-progress
@@ -362,12 +366,12 @@
               />
               <div class="quality-level">{{ publishAdvisor.level }}</div>
               <div class="quality-meta">
-                预计阅读 {{ publishAdvisor.minutes }} 分钟 · 正文 {{ publishAdvisor.contentLength }} 字
+                {{ $t('bbsExtra.index.readInfo', { minutes: publishAdvisor.minutes, length: publishAdvisor.contentLength }) }}
               </div>
             </div>
             <div class="quality-detail-panel">
               <div class="quality-block">
-                <div class="quality-block-title">当前亮点</div>
+                <div class="quality-block-title">{{ $t('bbsExtra.index.highlights') }}</div>
                 <div class="quality-tag-list">
                   <el-tag
                     v-for="item in publishAdvisor.highlights"
@@ -380,7 +384,7 @@
                 </div>
               </div>
               <div class="quality-block">
-                <div class="quality-block-title">建议补强</div>
+                <div class="quality-block-title">{{ $t('bbsExtra.index.improvements') }}</div>
                 <div class="quality-suggestion-list">
                   <div
                     v-for="item in publishAdvisor.tips"
@@ -536,9 +540,9 @@ export default {
     },
     templateOptions() {
       return [
-        { type: "share", label: "经验分享模板" },
-        { type: "suggestion", label: "建议闭环模板" },
-        { type: "opinion", label: "观点讨论模板" },
+        { type: "share", label: this.$t("bbsExtra.index.tplShare") },
+        { type: "suggestion", label: this.$t("bbsExtra.index.tplSuggestion") },
+        { type: "opinion", label: this.$t("bbsExtra.index.tplOpinion") },
       ];
     },
     publishAdvisor() {
@@ -551,28 +555,28 @@ export default {
 
       if (titleText.length >= 8 && titleText.length <= 40) {
         score += 25;
-        highlights.push("标题长度合适");
+        highlights.push(this.$t("bbsExtra.index.advTitleOk"));
       } else {
-        suggestions.push("标题建议控制在 8 到 40 个字，便于阅读与检索。");
+        suggestions.push(this.$t("bbsExtra.index.advTitleTip"));
       }
 
       if (this.form.postType) {
         score += 15;
-        highlights.push("帖子类型已明确");
+        highlights.push(this.$t("bbsExtra.index.advTypeOk"));
       } else {
-        suggestions.push("先选择帖子类型，系统才能给出更准确的治理与协同建议。");
+        suggestions.push(this.$t("bbsExtra.index.advTypeTip"));
       }
 
       if (contentLength >= 200) {
         score += 35;
-        highlights.push("正文信息量充足");
+        highlights.push(this.$t("bbsExtra.index.advBodyRich"));
       } else if (contentLength >= 80) {
         score += 25;
-        highlights.push("正文已具备基本表达");
+        highlights.push(this.$t("bbsExtra.index.advBodyBasic"));
       } else if (contentLength >= 30) {
         score += 15;
       } else {
-        suggestions.push("正文偏短，建议补充背景、现状、问题和期望结果。");
+        suggestions.push(this.$t("bbsExtra.index.advBodyShort"));
       }
 
       if (
@@ -581,40 +585,40 @@ export default {
           this.form.responseDeptId)
       ) {
         score += 15;
-        highlights.push("协同对象已明确");
+        highlights.push(this.$t("bbsExtra.index.advDeptOk"));
       } else if (
         this.form.postType === "suggestion" ||
         this.form.postType === "opinion"
       ) {
-        suggestions.push("建议/意见类帖子最好指定回应部门，便于闭环处理。");
+        suggestions.push(this.$t("bbsExtra.index.advDeptTip"));
       }
 
-      if (/(问题|建议|方案|收益|背景|现状|一、|二、|1\.|2\.)/.test(contentText)) {
+      if (/(问题|建议|方案|收益|背景|现状|一、|二、|1\.|2\.|problem|suggestion|proposal|benefit|background)/i.test(contentText)) {
         score += 10;
-        highlights.push("正文结构清晰");
+        highlights.push(this.$t("bbsExtra.index.advStructOk"));
       } else {
-        suggestions.push("可以按“背景 - 问题 - 建议 - 预期收益”结构组织内容。");
+        suggestions.push(this.$t("bbsExtra.index.advStructTip"));
       }
 
       const safeScore = Math.min(100, score);
-      let level = "待完善";
+      let level = this.$t("bbsExtra.index.lvlNeedsWork");
       let color = "#f56c6c";
       if (safeScore >= 85) {
-        level = "可直接发布";
+        level = this.$t("bbsExtra.index.lvlReady");
         color = "#67c23a";
       } else if (safeScore >= 65) {
-        level = "质量较好";
+        level = this.$t("bbsExtra.index.lvlGood");
         color = "#409eff";
       } else if (safeScore >= 45) {
-        level = "建议优化";
+        level = this.$t("bbsExtra.index.lvlImprove");
         color = "#e6a23c";
       }
 
       if (!highlights.length) {
-        highlights.push("已开启 AI 助写，可先生成初稿再细化。");
+        highlights.push(this.$t("bbsExtra.index.advAiHint"));
       }
       if (!suggestions.length) {
-        suggestions.push("内容已较完整，建议再检查措辞是否具体、可执行。");
+        suggestions.push(this.$t("bbsExtra.index.advDone"));
       }
 
       return {
@@ -857,11 +861,11 @@ export default {
             streak: data.streak || 0,
             pointsEarned: data.pointsEarned || 0,
           };
-          this.$message.success(`签到成功！连续签到 ${data.streak} 天，获得 ${data.pointsEarned} 积分 🎉`);
+          this.$message.success(this.$t('bbsExtra.index.checkinSuccess', { streak: data.streak, points: data.pointsEarned }));
           this.getPointRankList();
         })
         .catch(() => {
-          this.$message.error('签到失败，请稍后重试');
+          this.$message.error(this.$t('bbsExtra.index.checkinFailed'));
         })
         .finally(() => {
           this.checkinLoading = false;
@@ -1069,25 +1073,25 @@ export default {
         const result = response.data || response;
         const action = result.action || "allow";
         if (action === "block") {
-          await this.$alert(result.message || "内容未通过风控检测，请修改后重新提交。", "风险提示", {
+          await this.$alert(result.message || this.$t("bbsExtra.index.riskBlocked"), this.$t("bbsExtra.index.riskTitle"), {
             type: "error",
-            confirmButtonText: "我知道了",
+            confirmButtonText: this.$t("bbsExtra.index.gotIt"),
           }).catch(() => {});
           return false;
         }
         if (action === "review") {
           const message = result.riskSummary
-            ? `${result.message || "内容存在潜在风险，发布后将进入管理员审核。"}\n\n原因：${result.riskSummary}`
-            : (result.message || "内容存在潜在风险，发布后将进入管理员审核。");
-          const confirmed = await this.$alert(message, "风险提示", {
+            ? `${result.message || this.$t("bbsExtra.index.riskReview")}\n\n${this.$t("bbsExtra.index.reasonPrefix")}${result.riskSummary}`
+            : (result.message || this.$t("bbsExtra.index.riskReview"));
+          const confirmed = await this.$alert(message, this.$t("bbsExtra.index.riskTitle"), {
             type: "warning",
-            confirmButtonText: "继续发布",
+            confirmButtonText: this.$t("bbsExtra.index.continuePublish"),
           }).then(() => true).catch(() => false);
           return confirmed ? result : false;
         }
         return result;
       } catch (error) {
-        this.$modal.msgError("内容检测失败，请稍后重试");
+        this.$modal.msgError(this.$t("bbsExtra.index.checkFailed"));
         return false;
       } finally {
         loading.close();
@@ -1194,9 +1198,9 @@ export default {
         .catch((error) => {
           const message = error && error.message ? error.message : error;
           if (message && String(message).includes("敏感词")) {
-            this.$alert(message, "风险提示", {
+            this.$alert(message, this.$t("bbsExtra.index.riskTitle"), {
               type: "error",
-              confirmButtonText: "我知道了",
+              confirmButtonText: this.$t("bbsExtra.index.gotIt"),
             });
           } else if (message && typeof message === "string") {
             this.$modal.msgError(message);
@@ -1207,7 +1211,7 @@ export default {
     },
     handleAiGenerate() {
       if (!this.aiKeywords || !this.aiKeywords.trim()) {
-        this.$modal.msgWarning("请先输入关键词");
+        this.$modal.msgWarning(this.$t("bbsExtra.index.needKeywords"));
         return;
       }
       this.aiGenerating = true;
@@ -1218,7 +1222,7 @@ export default {
         .then((response) => {
           const generatedText = typeof response.data === "string" ? response.data : "";
           if (!generatedText) {
-            this.$modal.msgWarning("AI未返回可用内容，请稍后重试");
+            this.$modal.msgWarning(this.$t("bbsExtra.index.aiEmpty"));
             return;
           }
           const htmlText = generatedText
@@ -1227,7 +1231,7 @@ export default {
           this.form.content = this.form.content
             ? `${this.form.content}<p><br/></p><p>${htmlText}</p>`
             : `<p>${htmlText}</p>`;
-          this.$modal.msgSuccess("AI助写内容已生成，可继续编辑后发布");
+          this.$modal.msgSuccess(this.$t("bbsExtra.index.aiDone"));
         })
         .finally(() => {
           this.aiGenerating = false;
@@ -1249,11 +1253,11 @@ export default {
     },
     getUserLevel(points) {
       const p = points || 0;
-      if (p >= 1000) return { level: 5, name: '传说', color: '#9b59b6', icon: '👑' };
-      if (p >= 500)  return { level: 4, name: '达人',  color: '#e67e22', icon: '🔥' };
-      if (p >= 200)  return { level: 3, name: '资深',  color: '#2980b9', icon: '💎' };
-      if (p >= 50)   return { level: 2, name: '活跃',  color: '#27ae60', icon: '⭐' };
-      return           { level: 1, name: '新人',  color: '#95a5a6', icon: '🌱' };
+      if (p >= 1000) return { level: 5, name: this.$t('bbsExtra.index.lv5'), color: '#9b59b6', icon: '👑' };
+      if (p >= 500)  return { level: 4, name: this.$t('bbsExtra.index.lv4'),  color: '#e67e22', icon: '🔥' };
+      if (p >= 200)  return { level: 3, name: this.$t('bbsExtra.index.lv3'),  color: '#2980b9', icon: '💎' };
+      if (p >= 50)   return { level: 2, name: this.$t('bbsExtra.index.lv2'),  color: '#27ae60', icon: '⭐' };
+      return           { level: 1, name: this.$t('bbsExtra.index.lv1'),  color: '#95a5a6', icon: '🌱' };
     },
     extractTopicKeywords(posts) {
       const stopWords = [
@@ -1308,36 +1312,33 @@ export default {
       const commentCount = Number(post.commentCount || 0);
       const likeCount = Number(post.likeCount || 0);
       if (commentCount > 0) {
-        return `${commentCount} 条讨论 · 热度 ${hotScore}`;
+        return this.$t('bbsExtra.index.hotReasonComments', { n: commentCount, score: hotScore });
       }
       if (likeCount > 0) {
-        return `${likeCount} 次点赞 · 热度 ${hotScore}`;
+        return this.$t('bbsExtra.index.hotReasonLikes', { n: likeCount, score: hotScore });
       }
-      return `${post.viewCount || 0} 次浏览 · 热度 ${hotScore}`;
+      return this.$t('bbsExtra.index.hotReasonViews', { n: post.viewCount || 0, score: hotScore });
     },
     applyTopicToAi(topic) {
       this.aiKeywords = topic.word;
-      this.$modal.msgSuccess(`已将“${topic.word}”填入 AI 助写关键词`);
+      this.$modal.msgSuccess(this.$t('bbsExtra.index.topicApplied', { word: topic.word }));
     },
     insertTemplate(templateType) {
       const templateMap = {
         share: {
-          title: "经验分享：",
-          keywords: "经验复盘、最佳实践、避坑总结",
-          content:
-            "<p><strong>背景</strong></p><p>本次分享适用于哪些场景？先交代清楚问题背景。</p><p><strong>实践过程</strong></p><p>拆分为 2 到 3 个关键动作，说明怎么做、为什么这么做。</p><p><strong>结果与建议</strong></p><p>总结收益、踩坑点，以及可复用的建议。</p>",
+          title: this.$t("bbsExtra.index.shareTitle"),
+          keywords: this.$t("bbsExtra.index.shareKeywords"),
+          content: this.$t("bbsExtra.index.shareContent"),
         },
         suggestion: {
-          title: "优化建议：",
-          keywords: "流程优化、效率提升、员工体验",
-          content:
-            "<p><strong>现状描述</strong></p><p>当前流程或场景中遇到了什么具体问题？</p><p><strong>影响分析</strong></p><p>问题对效率、体验或协同造成了哪些影响？</p><p><strong>建议方案</strong></p><p>建议的调整动作、执行方式和优先级。</p><p><strong>预期收益</strong></p><p>如果落地，预计会带来哪些改善？</p>",
+          title: this.$t("bbsExtra.index.suggestionTitle"),
+          keywords: this.$t("bbsExtra.index.suggestionKeywords"),
+          content: this.$t("bbsExtra.index.suggestionContent"),
         },
         opinion: {
-          title: "观点讨论：",
-          keywords: "制度优化、组织协同、管理改进",
-          content:
-            "<p><strong>观点结论</strong></p><p>先用 1 到 2 句话明确你的核心观点。</p><p><strong>支撑依据</strong></p><p>结合事实、案例或数据说明原因。</p><p><strong>开放问题</strong></p><p>列出希望大家一起讨论或决策的问题点。</p>",
+          title: this.$t("bbsExtra.index.opinionTitle"),
+          keywords: this.$t("bbsExtra.index.opinionKeywords"),
+          content: this.$t("bbsExtra.index.opinionContent"),
         },
       };
       const template = templateMap[templateType];
@@ -1354,7 +1355,7 @@ export default {
       this.form.content = this.extractPlainText(this.form.content)
         ? `${this.form.content}<p><br/></p>${template.content}`
         : template.content;
-      this.$modal.msgSuccess("已插入结构模板，可继续编辑或结合 AI 扩写。");
+      this.$modal.msgSuccess(this.$t("bbsExtra.index.tplInserted"));
     },
     /** 匿名秘钥对话框确认：保存秘钥并提交待发帖子 */
     onAnonymousKeyConfirm(key, rememberInBrowser) {

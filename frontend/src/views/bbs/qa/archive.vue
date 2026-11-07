@@ -4,11 +4,11 @@
     <div class="qa-archive-banner">
       <div class="qa-archive-banner-content">
         <div>
-          <h2>问答知识库</h2>
-          <p>汇聚已解决的高质量问答，沉淀团队知识</p>
+          <h2>{{ $t('qa.archive.title') }}</h2>
+          <p>{{ $t('qa.archive.subtitle') }}</p>
         </div>
         <el-button type="text" @click="$router.push('/qa')" style="color: #fff;">
-          <i class="el-icon-arrow-left"></i> 返回问答列表
+          <i class="el-icon-arrow-left"></i> {{ $t('qa.detail.back') }}
         </el-button>
       </div>
     </div>
@@ -21,7 +21,7 @@
           class="qa-cat-tab"
           :class="{ active: queryParams.category === '' }"
           @click="handleCatChange('')"
-        >全部</span>
+        >{{ $t('qa.status.all') }}</span>
         <span
           v-for="cat in categories"
           :key="cat.value"
@@ -33,12 +33,12 @@
 
       <div class="qa-archive-search">
         <el-select v-model="queryParams.orderBy" size="small" @change="handleFilter">
-          <el-option label="最新归档" value="latest" />
-          <el-option label="浏览最多" value="view" />
+          <el-option :label="$t('qa.sort.archiveLatest')" value="latest" />
+          <el-option :label="$t('qa.sort.view')" value="view" />
         </el-select>
         <el-input
           v-model="queryParams.keyword"
-          placeholder="搜索关键词"
+          :placeholder="$t('qa.archive.searchPlaceholder')"
           size="small"
           clearable
           style="width: 200px;"
@@ -76,16 +76,16 @@
             <span>{{ q.askNickName }}</span>
             <span class="qa-archive-time">{{ formatDate(q.archiveTime || q.closeTime) }}</span>
             <span><i class="el-icon-view"></i> {{ q.viewCount || 0 }}</span>
-            <span><i class="el-icon-chat-dot-round"></i> {{ q.answerCount || 0 }} 个回答</span>
+            <span><i class="el-icon-chat-dot-round"></i> {{ $t('qa.detail.answersCount', { n: q.answerCount || 0 }) }}</span>
           </div>
         </div>
         <div class="qa-archive-reward">
           <span class="reward-num">{{ q.rewardPoints || 0 }}</span>
-          <span class="reward-label">积分</span>
+          <span class="reward-label">{{ $t('qa.common.points') }}</span>
         </div>
       </div>
 
-      <el-empty v-if="!loading && list.length === 0" description="暂无归档内容" />
+      <el-empty v-if="!loading && list.length === 0" :description="$t('qa.archive.empty')" />
     </div>
 
     <!-- 分页 -->
@@ -102,13 +102,7 @@
 <script>
 import { listQaArchive } from '@/api/bbs/qa'
 
-const CATEGORIES = [
-  { value: 'tech', label: '技术研发' },
-  { value: 'product', label: '产品设计' },
-  { value: 'hr', label: '人事行政' },
-  { value: 'admin', label: '运营管理' },
-  { value: 'other', label: '其他' },
-]
+const CATEGORY_KEYS = ['tech', 'product', 'hr', 'admin', 'other']
 
 export default {
   name: 'BbsQaArchive',
@@ -117,7 +111,6 @@ export default {
       loading: false,
       list: [],
       total: 0,
-      categories: CATEGORIES,
       queryParams: {
         category: '',
         keyword: '',
@@ -126,6 +119,11 @@ export default {
         pageSize: 12,
       },
     }
+  },
+  computed: {
+    categories() {
+      return CATEGORY_KEYS.map(v => ({ value: v, label: this.$t('qa.cat.' + v) }))
+    },
   },
   created() {
     if (this.$route.query.category) this.queryParams.category = this.$route.query.category
@@ -166,8 +164,7 @@ export default {
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     },
     categoryLabel(val) {
-      const c = CATEGORIES.find(c => c.value === val)
-      return c ? c.label : val
+      return CATEGORY_KEYS.includes(val) ? this.$t('qa.cat.' + val) : val
     },
     categoryType(val) {
       const map = { tech: 'primary', product: 'success', hr: 'warning', admin: '', other: 'info' }

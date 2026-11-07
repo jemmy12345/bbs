@@ -2,23 +2,23 @@
   <div class="qa-publish-page">
     <div class="qa-publish-wrap">
       <div class="qa-publish-header">
-        <el-button icon="el-icon-arrow-left" type="text" @click="$router.back()">返回</el-button>
-        <h2>发起悬赏提问</h2>
+        <el-button icon="el-icon-arrow-left" type="text" @click="$router.back()">{{ $t('qa.publish.back') }}</el-button>
+        <h2>{{ $t('qa.publish.title') }}</h2>
       </div>
 
       <el-form ref="form" :model="form" :rules="rules" label-width="100px" class="qa-publish-form">
         <!-- 标题 -->
-        <el-form-item label="问题标题" prop="title">
+        <el-form-item :label="$t('qa.publish.fieldTitle')" prop="title">
           <el-input
             v-model="form.title"
-            placeholder="请用一句话描述你的问题，方便他人搜索（5-100字）"
+            :placeholder="$t('qa.publish.titlePlaceholder')"
             maxlength="100"
             show-word-limit
           />
         </el-form-item>
 
         <!-- 分类 -->
-        <el-form-item label="问题分类" prop="category">
+        <el-form-item :label="$t('qa.publish.fieldCategory')" prop="category">
           <el-radio-group v-model="form.category">
             <el-radio-button v-for="cat in categories" :key="cat.value" :label="cat.value">
               {{ cat.label }}
@@ -27,7 +27,7 @@
         </el-form-item>
 
         <!-- 标签 -->
-        <el-form-item label="关键词标签">
+        <el-form-item :label="$t('qa.publish.fieldTags')">
           <div class="qa-tags-input">
             <el-tag
               v-for="tag in tagList"
@@ -46,26 +46,26 @@
               @blur="confirmTag"
             />
             <el-button v-else-if="tagList.length < 5" size="mini" type="dashed" @click="showTagInput">
-              + 添加标签
+              {{ $t('qa.publish.addTag') }}
             </el-button>
           </div>
-          <div class="form-tip">最多5个标签，每个不超过10字</div>
+          <div class="form-tip">{{ $t('qa.publish.tagTip') }}</div>
         </el-form-item>
 
         <!-- 问题内容 -->
-        <el-form-item label="问题详情" prop="content">
+        <el-form-item :label="$t('qa.publish.fieldContent')" prop="content">
           <el-input
             v-model="form.content"
             type="textarea"
             :rows="8"
-            placeholder="详细描述你的问题背景、已尝试的方案和期望的结果，帮助他人快速理解并解答……"
+            :placeholder="$t('qa.publish.contentPlaceholder')"
             maxlength="5000"
             show-word-limit
           />
         </el-form-item>
 
         <!-- 悬赏积分 -->
-        <el-form-item label="悬赏积分" prop="rewardPoints">
+        <el-form-item :label="$t('qa.publish.fieldReward')" prop="rewardPoints">
           <el-input-number
             v-model="form.rewardPoints"
             :min="1"
@@ -75,28 +75,30 @@
           />
           <span class="qa-points-tip">
             <i class="el-icon-coin"></i>
-            当前积分：<strong>{{ myPoints }}</strong>（提交后立即冻结，采纳最佳答案后发放给被采纳者）
+            <i18n path="qa.publish.pointsTip" tag="span">
+              <strong place="n">{{ myPoints }}</strong>
+            </i18n>
           </span>
         </el-form-item>
 
         <!-- 有效期 -->
-        <el-form-item label="有效期">
+        <el-form-item :label="$t('qa.publish.fieldExpiry')">
           <el-date-picker
             v-model="form.expiryTime"
             type="datetime"
-            placeholder="选择问题有效期（可选）"
+            :placeholder="$t('qa.publish.expiryPlaceholder')"
             :picker-options="datePickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
           />
-          <div class="form-tip">超过有效期未被采纳时，问题自动关闭并退还积分（留空表示无期限）</div>
+          <div class="form-tip">{{ $t('qa.publish.expiryTip') }}</div>
         </el-form-item>
 
         <!-- 提交 -->
         <el-form-item>
           <el-button type="primary" :loading="submitting" @click="handleSubmit" style="width: 160px;">
-            发布问题
+            {{ $t('qa.publish.submit') }}
           </el-button>
-          <el-button @click="$router.back()">取消</el-button>
+          <el-button @click="$router.back()">{{ $t('qa.publish.cancel') }}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -111,8 +113,8 @@ export default {
   name: 'BbsQaPublish',
   data() {
     const validatePoints = (rule, value, callback) => {
-      if (value == null || value <= 0) return callback(new Error('悬赏积分必须大于0'))
-      if (value > this.myPoints) return callback(new Error('积分不足，当前可用积分 ' + this.myPoints))
+      if (value == null || value <= 0) return callback(new Error(this.$t('qa.publish.rulePointsPositive')))
+      if (value > this.myPoints) return callback(new Error(this.$t('qa.publish.rulePointsInsufficient', { n: this.myPoints })))
       callback()
     }
     return {
@@ -128,34 +130,35 @@ export default {
         rewardPoints: 20,
         expiryTime: null,
       },
-      categories: [
-        { value: 'tech', label: '技术研发' },
-        { value: 'product', label: '产品设计' },
-        { value: 'hr', label: '人事行政' },
-        { value: 'admin', label: '运营管理' },
-        { value: 'other', label: '其他' },
-      ],
-      rules: {
-        title: [
-          { required: true, message: '请填写问题标题', trigger: 'blur' },
-          { min: 5, max: 100, message: '标题长度在5到100字之间', trigger: 'blur' },
-        ],
-        category: [{ required: true, message: '请选择分类', trigger: 'change' }],
-        content: [
-          { required: true, message: '请填写问题详情', trigger: 'blur' },
-          { min: 10, message: '问题详情至少10个字', trigger: 'blur' },
-        ],
-        rewardPoints: [
-          { required: true, message: '请填写悬赏积分', trigger: 'change' },
-          { validator: validatePoints, trigger: 'change' },
-        ],
-      },
+      validatePoints,
       datePickerOptions: {
         disabledDate(time) {
           return time.getTime() < Date.now()
         },
       },
     }
+  },
+  computed: {
+    categories() {
+      return ['tech', 'product', 'hr', 'admin', 'other'].map(v => ({ value: v, label: this.$t('qa.cat.' + v) }))
+    },
+    rules() {
+      return {
+        title: [
+          { required: true, message: this.$t('qa.publish.ruleTitleRequired'), trigger: 'blur' },
+          { min: 5, max: 100, message: this.$t('qa.publish.ruleTitleLength'), trigger: 'blur' },
+        ],
+        category: [{ required: true, message: this.$t('qa.publish.ruleCategory'), trigger: 'change' }],
+        content: [
+          { required: true, message: this.$t('qa.publish.ruleContentRequired'), trigger: 'blur' },
+          { min: 10, message: this.$t('qa.publish.ruleContentMin'), trigger: 'blur' },
+        ],
+        rewardPoints: [
+          { required: true, message: this.$t('qa.publish.ruleRewardRequired'), trigger: 'change' },
+          { validator: this.validatePoints, trigger: 'change' },
+        ],
+      }
+    },
   },
   created() {
     this.loadMyPoints()
@@ -165,7 +168,7 @@ export default {
       getInfo().then(res => {
         this.myPoints = (res.user && res.user.bbsPoints) ? res.user.bbsPoints : 0
       }).catch(() => {
-        this.$message.error('获取当前积分失败')
+        this.$message.error(this.$t('qa.publish.loadPointsFail'))
       })
     },
     showTagInput() {
@@ -189,7 +192,7 @@ export default {
       this.$refs.form.validate(valid => {
         if (!valid) return
         if (this.form.rewardPoints > this.myPoints) {
-          this.$message.error('积分不足！当前积分：' + this.myPoints)
+          this.$message.error(this.$t('qa.publish.insufficient', { n: this.myPoints }))
           return
         }
         this.submitting = true
@@ -199,12 +202,12 @@ export default {
         }
         createQaQuestion(payload)
           .then(res => {
-            this.$message.success('问题发布成功！')
+            this.$message.success(this.$t('qa.publish.success'))
             const questionId = res.data
             this.$router.replace({ path: `/qa/detail/${questionId}` })
           })
           .catch(err => {
-            this.$message.error(err.message || '发布失败，请重试')
+            this.$message.error(err.message || this.$t('qa.publish.fail'))
           })
           .finally(() => { this.submitting = false })
       })

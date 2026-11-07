@@ -2,27 +2,27 @@
   <div class="idea-page">
     <div class="idea-banner">
       <div>
-        <h2>创意提案专区</h2>
-        <p>投稿 - 评审 - 跟进 - 落地 - 公示，全流程线上化</p>
+        <h2>{{ $t('idea.index.title') }}</h2>
+        <p>{{ $t('idea.index.subtitle') }}</p>
       </div>
       <div>
-        <el-button type="primary" icon="el-icon-plus" @click="goPublish">提交创意</el-button>
-        <el-button type="success" plain @click="goWall">成果公示墙</el-button>
+        <el-button type="primary" icon="el-icon-plus" @click="goPublish">{{ $t('idea.index.submit') }}</el-button>
+        <el-button type="success" plain @click="goWall">{{ $t('idea.index.wall') }}</el-button>
       </div>
     </div>
 
     <div class="idea-toolbar">
       <el-radio-group v-model="query.mine" size="small" @change="queryList" style="margin-right:4px">
-        <el-radio-button :label="false">全部</el-radio-button>
-        <el-radio-button :label="true">我的提案</el-radio-button>
+        <el-radio-button :label="false">{{ $t('idea.index.all') }}</el-radio-button>
+        <el-radio-button :label="true">{{ $t('idea.index.mine') }}</el-radio-button>
       </el-radio-group>
-      <el-select v-model="query.status" clearable placeholder="状态" size="small" @change="queryList">
+      <el-select v-model="query.status" clearable :placeholder="$t('idea.index.status')" size="small" @change="queryList">
         <el-option v-for="s in statusOptions" :key="s.value" :label="s.label" :value="s.value" />
       </el-select>
-      <el-select v-model="query.category" clearable placeholder="分类" size="small" @change="queryList">
+      <el-select v-model="query.category" clearable :placeholder="$t('idea.index.category')" size="small" @change="queryList">
         <el-option v-for="c in categoryOptions" :key="c.value" :label="c.label" :value="c.value" />
       </el-select>
-      <el-input v-model="query.keyword" clearable size="small" placeholder="搜索提案" style="width: 220px" @keyup.enter.native="queryList">
+      <el-input v-model="query.keyword" clearable size="small" :placeholder="$t('idea.index.search')" style="width: 220px" @keyup.enter.native="queryList">
         <el-button slot="append" icon="el-icon-search" @click="queryList" />
       </el-input>
     </div>
@@ -32,25 +32,25 @@
         <div class="idea-top">
           <el-tag size="mini" :type="catType(item.category)">{{ catLabel(item.category) }}</el-tag>
           <el-tag size="mini" :type="statusType(item.status)">{{ statusLabel(item.status) }}</el-tag>
-          <el-tag v-if="item.isDraft === '1'" size="mini" type="info">草稿</el-tag>
+          <el-tag v-if="item.isDraft === '1'" size="mini" type="info">{{ $t('idea.index.draft') }}</el-tag>
         </div>
         <div class="idea-title">{{ item.title }}</div>
         <div v-if="item.status === 'REJECTED' && item.rejectReason" class="idea-note reject-note">
-          驳回原因：{{ item.rejectReason }}
+          {{ $t('idea.index.rejectReason', { reason: item.rejectReason }) }}
         </div>
         <div v-else-if="item.reviewStage && item.reviewStage !== 'NONE'" class="idea-note">
-          当前环节：{{ stageLabel(item.reviewStage) }}
-          <span v-if="item.reviewDeadline"> · 截止 {{ parseTime(item.reviewDeadline, '{y}-{m}-{d}') }}</span>
+          {{ $t('idea.index.currentStage', { stage: stageLabel(item.reviewStage) }) }}
+          <span v-if="item.reviewDeadline">{{ $t('idea.index.deadline', { date: parseTime(item.reviewDeadline, '{y}-{m}-{d}') }) }}</span>
         </div>
         <div class="idea-meta">
           <span>{{ item.submitNickName || '-' }}</span>
-          <span>评分 {{ item.avgScore || 0 }}</span>
+          <span>{{ $t('idea.index.score', { score: item.avgScore || 0 }) }}</span>
           <span>{{ parseTime(item.createTime, '{y}-{m}-{d}') }}</span>
           <el-button v-if="canEditDraft(item)" size="mini" type="text" icon="el-icon-edit"
-            @click.stop="goEditDraft(item.ideaId)">编辑草稿</el-button>
+            @click.stop="goEditDraft(item.ideaId)">{{ $t('idea.index.editDraft') }}</el-button>
         </div>
       </div>
-      <el-empty v-if="!loading && list.length === 0" description="暂无提案" />
+      <el-empty v-if="!loading && list.length === 0" :description="$t('idea.index.empty')" />
     </div>
 
     <pagination
@@ -67,29 +67,8 @@
 import { mapGetters } from 'vuex'
 import { listIdeas } from '@/api/bbs/idea'
 
-const STATUS = [
-  { value: 'DRAFT', label: '草稿' },
-  { value: 'PENDING_L1', label: '待初审' },
-  { value: 'L1_REVIEWING', label: '初审中' },
-  { value: 'L1_PASSED', label: '初审通过' },
-  { value: 'L2_REVIEWING', label: '复审中' },
-  { value: 'L2_PASSED', label: '复审通过' },
-  { value: 'L3_REVIEWING', label: '终审中' },
-  { value: 'APPROVED', label: '已立项' },
-  { value: 'IMPLEMENTING', label: '落地中' },
-  { value: 'LANDED', label: '已落地' },
-  { value: 'PUBLICIZED', label: '已公示' },
-  { value: 'REJECTED', label: '已驳回' },
-  { value: 'PAUSED', label: '暂停' },
-]
-
-const CATS = [
-  { value: 'product', label: '产品创新' },
-  { value: 'tech', label: '技术优化' },
-  { value: 'manage', label: '管理提升' },
-  { value: 'cost', label: '降本增效' },
-  { value: 'other', label: '其他' },
-]
+const STATUS_KEYS = ['DRAFT', 'PENDING_L1', 'L1_REVIEWING', 'L1_PASSED', 'L2_REVIEWING', 'L2_PASSED', 'L3_REVIEWING', 'APPROVED', 'IMPLEMENTING', 'LANDED', 'PUBLICIZED', 'REJECTED', 'PAUSED']
+const CAT_KEYS = ['product', 'tech', 'manage', 'cost', 'other']
 
 export default {
   name: 'BbsIdeaIndex',
@@ -98,8 +77,6 @@ export default {
       loading: false,
       list: [],
       total: 0,
-      statusOptions: STATUS,
-      categoryOptions: CATS,
       query: {
         status: '',
         category: '',
@@ -115,6 +92,12 @@ export default {
   },
   computed: {
     ...mapGetters(['id']),
+    statusOptions() {
+      return STATUS_KEYS.map(k => ({ value: k, label: this.$t('idea.status.' + k) }))
+    },
+    categoryOptions() {
+      return CAT_KEYS.map(k => ({ value: k, label: this.$t('idea.cat.' + k) }))
+    },
   },
   methods: {
     getList() {
@@ -144,24 +127,21 @@ export default {
       this.$router.push('/idea/wall')
     },
     statusLabel(v) {
-      const t = STATUS.find(i => i.value === v)
-      return t ? t.label : v
+      return STATUS_KEYS.includes(v) ? this.$t('idea.status.' + v) : v
     },
     statusType(v) {
       const map = { DRAFT: 'info', PENDING_L1: 'warning', L2_REVIEWING: 'warning', L3_REVIEWING: 'warning', IMPLEMENTING: '', LANDED: 'success', PUBLICIZED: 'success', REJECTED: 'danger' }
       return map[v] || 'info'
     },
     catLabel(v) {
-      const t = CATS.find(i => i.value === v)
-      return t ? t.label : v
+      return CAT_KEYS.includes(v) ? this.$t('idea.cat.' + v) : v
     },
     catType(v) {
       const map = { product: 'success', tech: 'primary', manage: 'warning', cost: 'danger', other: 'info' }
       return map[v] || 'info'
     },
     stageLabel(v) {
-      const map = { L1: '初审', L2: '复审', L3: '终审' }
-      return map[v] || v
+      return ['L1', 'L2', 'L3'].includes(v) ? this.$t('idea.stage.' + v) : v
     },
   },
 }

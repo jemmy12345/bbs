@@ -48,10 +48,10 @@
           {{ $t('bbs.home') }}
         </div>
         <div class="nav-tab" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
-          专题
+          {{ $t('layoutAuth.topic') }}
         </div>
         <div class="nav-tab" :class="{ active: currentNav === 'collect' }" @click="handleNavClick('collect')">
-          收集
+          {{ $t('layoutAuth.collect') }}
         </div>
         <!-- <div 
           class="nav-tab" 
@@ -103,11 +103,11 @@
 
       <div class="footer-item" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
         <i class="el-icon-star-on"></i>
-        <span>专题</span>
+        <span>{{ $t('layoutAuth.topic') }}</span>
       </div>
       <div class="footer-item" :class="{ active: currentNav === 'collect' }" @click="handleNavClick('collect')">
         <i class="el-icon-data-analysis"></i>
-        <span>收集</span>
+        <span>{{ $t('layoutAuth.collect') }}</span>
       </div>
       <div class="footer-item" :class="{ active: currentNav === 'home' }" @click="handleNavClick('home')">
         <i class="el-icon-menu"></i>
@@ -119,7 +119,7 @@
       </div>
       <div class="footer-item" :class="{ active: $route.path === '/usercenter' }" @click="handleUserCenter">
         <i class="el-icon-user"></i>
-        <span>{{ $t('bbs.userCenter.userCenter') || '个人中心' }}</span>
+        <span>{{ $t('bbs.userCenter.userCenter') }}</span>
       </div>
       <!-- <div class="footer-item" @click="showCategoryDrawer = true">
         <i class="el-icon-menu"></i>
@@ -351,9 +351,9 @@ export default {
       } else if (command === 'changePassword') {
         this.changePwdVisible = true;
       } else if (command === 'logout') {
-        this.$confirm('确定注销并退出系统吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('layoutAuth.logoutConfirm'), this.$t('layoutAuth.tip'), {
+          confirmButtonText: this.$t('common.confirm'),
+          cancelButtonText: this.$t('common.cancel'),
           type: 'warning'
         }).then(() => {
           this.$store.dispatch('LogOut').then(() => {

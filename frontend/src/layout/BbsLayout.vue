@@ -10,13 +10,13 @@
               {{ $t('bbs.home') }}
             </span>
             <span class="nav-item" :class="{ active: currentNav === 'topic' }" @click="handleNavClick('topic')">
-              专题
+              {{ $t('layoutAuth.topic') }}
             </span>
             <span class="nav-item" :class="{ active: currentNav === 'qa' }" @click="handleNavClick('qa')">
-              问答专区
+              {{ $t('layoutAuth.qa') }}
             </span>
             <span class="nav-item" :class="{ active: currentNav === 'idea' }" @click="handleNavClick('idea')">
-              创意提案
+              {{ $t('layoutAuth.idea') }}
             </span>
             <!-- 在线收集功能已屏蔽
             <span class="nav-item" :class="{ active: currentNav === 'collect' }" @click="handleNavClick('collect')">
@@ -360,9 +360,9 @@ export default {
       } else if (command === 'changePassword') {
         this.changePwdVisible = true;
       } else if (command === 'logout') {
-        this.$confirm('确定注销并退出系统吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('layoutAuth.logoutConfirm'), this.$t('layoutAuth.tip'), {
+          confirmButtonText: this.$t('common.confirm'),
+          cancelButtonText: this.$t('common.cancel'),
           type: 'warning'
         }).then(() => {
           this.$store.dispatch('LogOut').then(() => {

@@ -4,15 +4,15 @@
     <div class="qa-banner">
       <div class="qa-banner-content">
         <div class="qa-banner-text">
-          <h2>企业问答专区</h2>
-          <p>遇到难题？发起悬赏提问，让同事帮你解决！</p>
+          <h2>{{ $t('qa.index.title') }}</h2>
+          <p>{{ $t('qa.index.subtitle') }}</p>
         </div>
         <div class="qa-banner-actions">
           <el-button type="primary" icon="el-icon-plus" @click="handlePublish" class="qa-ask-btn">
-            我要提问
+            {{ $t('qa.index.ask') }}
           </el-button>
           <el-button icon="el-icon-collection" @click="goArchive" class="qa-kb-btn">
-            问答知识库
+            {{ $t('qa.index.kb') }}
           </el-button>
         </div>
       </div>
@@ -34,7 +34,7 @@
       <div class="qa-filter-right">
         <el-select
           v-model="queryParams.category"
-          placeholder="全部分类"
+          :placeholder="$t('qa.index.allCategories')"
           clearable
           size="small"
           @change="handleFilter"
@@ -48,18 +48,18 @@
         </el-select>
         <el-select
           v-model="queryParams.orderBy"
-          placeholder="排序"
+          :placeholder="$t('qa.index.sort')"
           size="small"
           @change="handleFilter"
         >
-          <el-option label="最新发布" value="latest" />
-          <el-option label="悬赏最高" value="reward" />
-          <el-option label="浏览最多" value="view" />
-          <el-option label="回答最多" value="answer" />
+          <el-option :label="$t('qa.sort.latest')" value="latest" />
+          <el-option :label="$t('qa.sort.reward')" value="reward" />
+          <el-option :label="$t('qa.sort.view')" value="view" />
+          <el-option :label="$t('qa.sort.answer')" value="answer" />
         </el-select>
         <el-input
           v-model="queryParams.keyword"
-          placeholder="搜索问题关键词"
+          :placeholder="$t('qa.index.searchPlaceholder')"
           size="small"
           clearable
           style="width: 200px;"
@@ -85,7 +85,7 @@
           </div>
           <div class="qa-reward">
             <span class="reward-num">{{ q.rewardPoints || 0 }}</span>
-            <span class="reward-label">积分</span>
+            <span class="reward-label">{{ $t('qa.common.points') }}</span>
           </div>
         </div>
 
@@ -96,8 +96,8 @@
               {{ categoryLabel(q.category) }}
             </el-tag>
             <span class="qa-title-text">{{ q.title }}</span>
-            <el-tag v-if="q.status === 'solved'" size="mini" type="success" effect="dark" class="qa-solved-tag">已解决</el-tag>
-            <el-tag v-if="q.status === 'archived'" size="mini" type="info" effect="dark" class="qa-solved-tag">已归档</el-tag>
+            <el-tag v-if="q.status === 'solved'" size="mini" type="success" effect="dark" class="qa-solved-tag">{{ $t('qa.status.solved') }}</el-tag>
+            <el-tag v-if="q.status === 'archived'" size="mini" type="info" effect="dark" class="qa-solved-tag">{{ $t('qa.status.archived') }}</el-tag>
           </div>
           <div class="qa-card-tags" v-if="q.tags">
             <el-tag
@@ -111,7 +111,7 @@
           </div>
           <div class="qa-card-meta">
             <el-avatar :src="q.askAvatar" :size="20" class="qa-meta-avatar" />
-            <span class="qa-meta-user">{{ q.askNickName || '匿名' }}</span>
+            <span class="qa-meta-user">{{ q.askNickName || $t('qa.common.anonymous') }}</span>
             <span class="qa-meta-dept" v-if="q.askDeptName">{{ q.askDeptName }}</span>
             <span class="qa-meta-time">{{ formatTime(q.createTime) }}</span>
           </div>
@@ -121,16 +121,16 @@
         <div class="qa-card-stats">
           <div class="qa-stat-item">
             <span class="qa-stat-num">{{ q.answerCount || 0 }}</span>
-            <span class="qa-stat-label">回答</span>
+            <span class="qa-stat-label">{{ $t('qa.index.answers') }}</span>
           </div>
           <div class="qa-stat-item">
             <span class="qa-stat-num">{{ q.viewCount || 0 }}</span>
-            <span class="qa-stat-label">浏览</span>
+            <span class="qa-stat-label">{{ $t('qa.index.views') }}</span>
           </div>
         </div>
       </div>
 
-      <el-empty v-if="!loading && questionList.length === 0" description="暂无问题，快去提问吧！" />
+      <el-empty v-if="!loading && questionList.length === 0" :description="$t('qa.index.empty')" />
     </div>
 
     <!-- 分页 -->
@@ -147,13 +147,7 @@
 <script>
 import { listQaQuestions } from '@/api/bbs/qa'
 
-const CATEGORIES = [
-  { value: 'tech', label: '技术研发' },
-  { value: 'product', label: '产品设计' },
-  { value: 'hr', label: '人事行政' },
-  { value: 'admin', label: '运营管理' },
-  { value: 'other', label: '其他' },
-]
+const CATEGORY_KEYS = ['tech', 'product', 'hr', 'admin', 'other']
 
 export default {
   name: 'BbsQaIndex',
@@ -162,13 +156,6 @@ export default {
       loading: false,
       questionList: [],
       total: 0,
-      categories: CATEGORIES,
-      statusTabs: [
-        { value: '', label: '全部' },
-        { value: 'open', label: '待解答' },
-        { value: 'solved', label: '已解决' },
-        { value: 'archived', label: '已归档' },
-      ],
       queryParams: {
         status: '',
         category: '',
@@ -178,6 +165,19 @@ export default {
         pageSize: 15,
       },
     }
+  },
+  computed: {
+    categories() {
+      return CATEGORY_KEYS.map(v => ({ value: v, label: this.$t('qa.cat.' + v) }))
+    },
+    statusTabs() {
+      return [
+        { value: '', label: this.$t('qa.status.all') },
+        { value: 'open', label: this.$t('qa.status.open') },
+        { value: 'solved', label: this.$t('qa.status.solved') },
+        { value: 'archived', label: this.$t('qa.status.archived') },
+      ]
+    },
   },
   created() {
     const q = this.$route.query
@@ -215,7 +215,7 @@ export default {
     },
     handlePublish() {
       if (!this.$store.getters.token) {
-        this.$message.warning('请先登录')
+        this.$message.warning(this.$t('qa.common.loginFirst'))
         return
       }
       this.$router.push({ path: '/qa/publish' })
@@ -231,10 +231,10 @@ export default {
       const d = new Date(t)
       const now = new Date()
       const diff = (now - d) / 1000
-      if (diff < 60) return '刚刚'
-      if (diff < 3600) return Math.floor(diff / 60) + ' 分钟前'
-      if (diff < 86400) return Math.floor(diff / 3600) + ' 小时前'
-      if (diff < 86400 * 30) return Math.floor(diff / 86400) + ' 天前'
+      if (diff < 60) return this.$t('qa.time.justNow')
+      if (diff < 3600) return this.$t('qa.time.minutesAgo', { n: Math.floor(diff / 60) })
+      if (diff < 86400) return this.$t('qa.time.hoursAgo', { n: Math.floor(diff / 3600) })
+      if (diff < 86400 * 30) return this.$t('qa.time.daysAgo', { n: Math.floor(diff / 86400) })
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     },
     statusIcon(status) {
@@ -242,8 +242,7 @@ export default {
       return map[status] || 'el-icon-question'
     },
     categoryLabel(val) {
-      const c = CATEGORIES.find(c => c.value === val)
-      return c ? c.label : val
+      return CATEGORY_KEYS.includes(val) ? this.$t('qa.cat.' + val) : val
     },
     categoryType(val) {
       const map = { tech: 'primary', product: 'success', hr: 'warning', admin: '', other: 'info' }

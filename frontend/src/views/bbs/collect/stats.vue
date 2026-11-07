@@ -1,22 +1,22 @@
 <template>
   <div class="collect-stats" v-loading="loading">
     <div class="head">
-      <el-button type="text" icon="el-icon-arrow-left" @click="$router.push('/collect')">返回列表</el-button>
-      <h2>{{ activity.title || '活动数据统计' }}</h2>
+      <el-button type="text" icon="el-icon-arrow-left" @click="$router.push('/collect')">{{ $t('collect.backToList') }}</el-button>
+      <h2>{{ activity.title || $t('collect.statsTitle') }}</h2>
       <el-button
         v-if="canExport"
         size="mini"
         type="primary"
         icon="el-icon-download"
         @click="exportCsv"
-      >导出 CSV</el-button>
+      >{{ $t('collect.exportCsv') }}</el-button>
     </div>
 
     <div v-if="activity.activityType === 'vote'" class="panel">
-      <h4>投票结果</h4>
+      <h4>{{ $t('collect.voteResult') }}</h4>
       <el-table :data="voteOptions" border>
-        <el-table-column prop="optionText" label="选项" min-width="220" />
-        <el-table-column prop="voteCount" label="票数" width="120" />
+        <el-table-column prop="optionText" :label="$t('collect.option')" min-width="220" />
+        <el-table-column prop="voteCount" :label="$t('collect.votes')" width="120" />
       </el-table>
       <div class="chart-like">
         <div v-for="(o, i) in voteOptions" :key="i" class="bar-row">
@@ -28,35 +28,35 @@
     </div>
 
     <div v-if="activity.activityType === 'survey'" class="panel">
-      <h4>问卷统计</h4>
-      <div>已提交人数：{{ surveySubmittedCount }}</div>
+      <h4>{{ $t('collect.surveyStats') }}</h4>
+      <div>{{ $t('collect.submittedCount', { count: surveySubmittedCount }) }}</div>
       <el-table :data="surveyResponses" border style="margin-top: 8px;">
-        <el-table-column prop="userNickName" label="提交人" width="160" />
-        <el-table-column prop="submitTime" label="提交时间" width="180" />
-        <el-table-column prop="answersJson" label="答案JSON" min-width="420" />
+        <el-table-column prop="userNickName" :label="$t('collect.submitter')" width="160" />
+        <el-table-column prop="submitTime" :label="$t('collect.submitTime')" width="180" />
+        <el-table-column prop="answersJson" :label="$t('collect.answersJson')" min-width="420" />
       </el-table>
     </div>
 
     <div v-if="activity.activityType === 'demand'" class="panel">
-      <h4>需求工单状态</h4>
+      <h4>{{ $t('collect.ticketStatus') }}</h4>
       <el-table :data="tickets" border>
-        <el-table-column prop="demandName" label="需求名称" min-width="180" />
-        <el-table-column prop="demandType" label="类型" width="120" />
-        <el-table-column prop="priority" label="优先级" width="100" />
-        <el-table-column prop="status" label="状态" width="120" />
-        <el-table-column prop="assigneeNickName" label="负责人" width="120" />
-        <el-table-column prop="createTime" label="提交时间" width="180" />
+        <el-table-column prop="demandName" :label="$t('collect.demandName')" min-width="180" />
+        <el-table-column prop="demandType" :label="$t('collect.colType')" width="120" />
+        <el-table-column prop="priority" :label="$t('collect.priority')" width="100" />
+        <el-table-column prop="status" :label="$t('collect.colStatus')" width="120" />
+        <el-table-column prop="assigneeNickName" :label="$t('collect.assignee')" width="120" />
+        <el-table-column prop="createTime" :label="$t('collect.submitTime')" width="180" />
       </el-table>
     </div>
 
     <div v-if="activity.activityType === 'topic'" class="panel">
-      <h4>专题参与榜单</h4>
+      <h4>{{ $t('collect.topicRankTitle') }}</h4>
       <el-table :data="topicRank" border>
-        <el-table-column type="index" width="70" label="排名" />
-        <el-table-column prop="nickName" label="用户" width="180" />
-        <el-table-column prop="submitCount" label="提交数" width="120" />
-        <el-table-column prop="totalScore" label="总分" width="120" />
-        <el-table-column prop="likeCount" label="获赞" width="120" />
+        <el-table-column type="index" width="70" :label="$t('collect.rank')" />
+        <el-table-column prop="nickName" :label="$t('collect.user')" width="180" />
+        <el-table-column prop="submitCount" :label="$t('collect.submitCount')" width="120" />
+        <el-table-column prop="totalScore" :label="$t('collect.totalScore')" width="120" />
+        <el-table-column prop="likeCount" :label="$t('collect.likesReceived')" width="120" />
       </el-table>
     </div>
   </div>
@@ -113,7 +113,7 @@ export default {
           optionText: i.optionText || '',
           voteCount: i.voteCount || 0,
         }))
-        this.downloadCsv(['选项', '票数'], rows.map(i => [i.optionText, i.voteCount]), `vote_result_${this.activity.activityId || ''}.csv`)
+        this.downloadCsv([this.$t('collect.option'), this.$t('collect.votes')], rows.map(i => [i.optionText, i.voteCount]), `vote_result_${this.activity.activityId || ''}.csv`)
         return
       }
       if (type === 'survey') {
@@ -122,7 +122,7 @@ export default {
           i.submitTime || '',
           i.answersJson || '',
         ])
-        this.downloadCsv(['提交人', '提交时间', '答案JSON'], rows, `survey_response_${this.activity.activityId || ''}.csv`)
+        this.downloadCsv([this.$t('collect.submitter'), this.$t('collect.submitTime'), this.$t('collect.answersJson')], rows, `survey_response_${this.activity.activityId || ''}.csv`)
         return
       }
       if (type === 'demand') {
@@ -135,7 +135,7 @@ export default {
           i.createTime || '',
           i.demandDetail || '',
         ])
-        this.downloadCsv(['需求名称', '类型', '优先级', '状态', '负责人', '提交时间', '需求详情'], rows, `demand_ticket_${this.activity.activityId || ''}.csv`)
+        this.downloadCsv([this.$t('collect.demandName'), this.$t('collect.colType'), this.$t('collect.priority'), this.$t('collect.colStatus'), this.$t('collect.assignee'), this.$t('collect.submitTime'), this.$t('collect.demandDetail')], rows, `demand_ticket_${this.activity.activityId || ''}.csv`)
       }
     },
     downloadCsv(headers, rows, filename) {
@@ -150,7 +150,7 @@ export default {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-      this.$message.success('CSV 导出成功')
+      this.$message.success(this.$t('collect.csvExported'))
     },
     escapeCsvCell(value) {
       const text = value == null ? '' : String(value)

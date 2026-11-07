@@ -9,7 +9,7 @@
         <div class="info-section">
           <h2 class="user-name">
             {{ name || nickName || $t('common.my') }}
-            <span class="user-points">总积分：{{ stats.bbsPoints || 0 }}</span>
+            <span class="user-points">{{ $t('bbsExtra.usercenter.totalPoints', { n: stats.bbsPoints || 0 }) }}</span>
           </h2>
           <div class="user-stats">
             <div class="stat-item">

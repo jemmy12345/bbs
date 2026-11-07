@@ -2,31 +2,31 @@
   <div class="idea-publish-page">
     <div class="idea-panel">
       <div class="header">
-        <el-button type="text" icon="el-icon-arrow-left" @click="$router.back()">返回</el-button>
-        <h2>{{ isResubmit ? '修改并重新提交' : editIdeaId ? '编辑草稿' : '创意提案投稿' }}</h2>
+        <el-button type="text" icon="el-icon-arrow-left" @click="$router.back()">{{ $t('idea.back') }}</el-button>
+        <h2>{{ isResubmit ? $t('idea.publish.titleResubmit') : editIdeaId ? $t('idea.publish.titleEditDraft') : $t('idea.publish.titleNew') }}</h2>
       </div>
 
       <el-form ref="form" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="提案名称" prop="title"><el-input v-model="form.title" maxlength="100" show-word-limit /></el-form-item>
-        <el-form-item label="提案分类" prop="category">
-          <el-select v-model="form.category" placeholder="请选择分类">
-            <el-option label="产品创新" value="product" />
-            <el-option label="技术优化" value="tech" />
-            <el-option label="管理提升" value="manage" />
-            <el-option label="降本增效" value="cost" />
-            <el-option label="其他" value="other" />
+        <el-form-item :label="$t('idea.publish.name')" prop="title"><el-input v-model="form.title" maxlength="100" show-word-limit /></el-form-item>
+        <el-form-item :label="$t('idea.publish.category')" prop="category">
+          <el-select v-model="form.category" :placeholder="$t('idea.publish.selectCategory')">
+            <el-option :label="$t('idea.cat.product')" value="product" />
+            <el-option :label="$t('idea.cat.tech')" value="tech" />
+            <el-option :label="$t('idea.cat.manage')" value="manage" />
+            <el-option :label="$t('idea.cat.cost')" value="cost" />
+            <el-option :label="$t('idea.cat.other')" value="other" />
           </el-select>
         </el-form-item>
-        <el-form-item label="提案背景" prop="backgroundText"><el-input v-model="form.backgroundText" type="textarea" :rows="3" /></el-form-item>
-        <el-form-item label="实施方案" prop="planText"><el-input v-model="form.planText" type="textarea" :rows="5" /></el-form-item>
-        <el-form-item label="预期价值" prop="expectedValue"><el-input v-model="form.expectedValue" type="textarea" :rows="3" /></el-form-item>
-        <el-form-item label="可见范围" prop="visibilityScope">
+        <el-form-item :label="$t('idea.publish.background')" prop="backgroundText"><el-input v-model="form.backgroundText" type="textarea" :rows="3" /></el-form-item>
+        <el-form-item :label="$t('idea.publish.plan')" prop="planText"><el-input v-model="form.planText" type="textarea" :rows="5" /></el-form-item>
+        <el-form-item :label="$t('idea.publish.expectedValue')" prop="expectedValue"><el-input v-model="form.expectedValue" type="textarea" :rows="3" /></el-form-item>
+        <el-form-item :label="$t('idea.publish.visibility')" prop="visibilityScope">
           <el-radio-group v-model="form.visibilityScope">
-            <el-radio label="all">全员</el-radio>
-            <el-radio label="review_group">评审可见</el-radio>
+            <el-radio label="all">{{ $t('idea.publish.visAll') }}</el-radio>
+            <el-radio label="review_group">{{ $t('idea.publish.visReview') }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="附件资料">
+        <el-form-item :label="$t('idea.publish.attachments')">
           <FileUpload
             v-model="form.attachmentUrls"
             :limit="5"
@@ -34,16 +34,16 @@
             :is-show-tip="true"
             :drag="false"
           />
-          <div class="upload-hint">选择文件后会在下方显示已上传附件</div>
+          <div class="upload-hint">{{ $t('idea.publish.uploadHint') }}</div>
         </el-form-item>
-        <el-form-item label="相关案例"><el-input v-model="form.relatedCase" type="textarea" :rows="2" /></el-form-item>
-        <el-form-item label="提案团队"><el-input v-model="form.teamName" /></el-form-item>
-        <el-form-item label="业务价值"><el-input v-model="form.bizValue" type="textarea" :rows="2" maxlength="2000" show-word-limit /></el-form-item>
+        <el-form-item :label="$t('idea.publish.relatedCase')"><el-input v-model="form.relatedCase" type="textarea" :rows="2" /></el-form-item>
+        <el-form-item :label="$t('idea.publish.team')"><el-input v-model="form.teamName" /></el-form-item>
+        <el-form-item :label="$t('idea.publish.bizValue')"><el-input v-model="form.bizValue" type="textarea" :rows="2" maxlength="2000" show-word-limit /></el-form-item>
 
         <el-form-item>
-          <el-button v-if="!isResubmit" :loading="saving" @click="saveDraft">保存草稿</el-button>
-          <el-button type="primary" :loading="submitting" @click="submit">{{ isResubmit ? '重新提交' : '提交提案' }}</el-button>
-          <span class="draft-tip" v-if="!isResubmit">保存草稿后会留在当前页面，方便继续编辑</span>
+          <el-button v-if="!isResubmit" :loading="saving" @click="saveDraft">{{ $t('idea.publish.saveDraft') }}</el-button>
+          <el-button type="primary" :loading="submitting" @click="submit">{{ isResubmit ? $t('idea.publish.resubmit') : $t('idea.publish.submit') }}</el-button>
+          <span class="draft-tip" v-if="!isResubmit">{{ $t('idea.publish.draftTip') }}</span>
         </el-form-item>
       </el-form>
     </div>
@@ -68,15 +68,19 @@ export default {
         visibilityScope: 'review_group',
         attachmentUrls: '', relatedCase: '', teamName: '', bizValue: '', content: '',
       },
-      rules: {
-        title: [{ required: true, message: '请输入提案名称', trigger: 'blur' }],
-        category: [{ required: true, message: '请选择分类', trigger: 'change' }],
-        backgroundText: [{ required: true, message: '请输入提案背景', trigger: 'blur' }],
-        planText: [{ required: true, message: '请输入实施方案', trigger: 'blur' }],
-        expectedValue: [{ required: true, message: '请输入预期价值', trigger: 'blur' }],
-        visibilityScope: [{ required: true, message: '请选择可见范围', trigger: 'change' }],
-      },
     }
+  },
+  computed: {
+    rules() {
+      return {
+        title: [{ required: true, message: this.$t('idea.publish.ruleName'), trigger: 'blur' }],
+        category: [{ required: true, message: this.$t('idea.publish.selectCategory'), trigger: 'change' }],
+        backgroundText: [{ required: true, message: this.$t('idea.publish.ruleBackground'), trigger: 'blur' }],
+        planText: [{ required: true, message: this.$t('idea.publish.rulePlan'), trigger: 'blur' }],
+        expectedValue: [{ required: true, message: this.$t('idea.publish.ruleValue'), trigger: 'blur' }],
+        visibilityScope: [{ required: true, message: this.$t('idea.publish.ruleVisibility'), trigger: 'change' }],
+      }
+    },
   },
   created() {
     this.lastSavedSnapshot = this.serializeForm(this.form)
@@ -148,7 +152,7 @@ export default {
         ? updateIdeaDraft(this.editIdeaId, this.form)
         : saveIdeaDraft(this.form)
       req.then((res) => {
-        this.$message.success('草稿保存成功')
+        this.$message.success(this.$t('idea.publish.draftSaved'))
         if (!this.editIdeaId && res && res.data) {
           this.editIdeaId = Number(res.data)
           this.$router.replace({ path: '/idea/publish', query: { ideaId: this.editIdeaId } })
@@ -166,7 +170,7 @@ export default {
           // 编辑草稿后提交时带上草稿编号，后端把该草稿转为正式提案，不再另建一条
           : submitIdea(this.editIdeaId ? { ...this.form, ideaId: this.editIdeaId } : this.form)
         req.then(() => {
-          this.$message.success(this.isResubmit ? '提案已重新提交' : '提案提交成功')
+          this.$message.success(this.isResubmit ? this.$t('idea.publish.resubmitted') : this.$t('idea.publish.submitted'))
           this.markSaved()
           this.$router.push('/idea')
         }).finally(() => { this.submitting = false })
@@ -178,7 +182,7 @@ export default {
       next()
       return
     }
-    if (window.confirm('当前提案内容尚未保存，确定离开吗？')) {
+    if (window.confirm(this.$t('idea.publish.leaveConfirm'))) {
       next()
       return
     }

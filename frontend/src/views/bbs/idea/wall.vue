@@ -1,16 +1,16 @@
 <template>
   <div class="idea-wall-page">
     <div class="hero">
-      <h2>创新成果公示墙</h2>
-      <p>沉淀企业创新成果，展示创新荣誉</p>
+      <h2>{{ $t('idea.wall.title') }}</h2>
+      <p>{{ $t('idea.wall.subtitle') }}</p>
     </div>
 
     <div class="toolbar">
       <el-select v-model="query.sortBy" size="small" @change="getList">
-        <el-option label="最新公示" value="latest" />
-        <el-option label="效果优先" value="effect" />
+        <el-option :label="$t('idea.wall.latest')" value="latest" />
+        <el-option :label="$t('idea.wall.effect')" value="effect" />
       </el-select>
-      <el-input v-model="query.keyword" clearable size="small" style="width:220px" placeholder="搜索公示内容" @keyup.enter.native="doSearch">
+      <el-input v-model="query.keyword" clearable size="small" style="width:220px" :placeholder="$t('idea.wall.search')" @keyup.enter.native="doSearch">
         <el-button slot="append" icon="el-icon-search" @click="doSearch" />
       </el-input>
     </div>
@@ -18,14 +18,14 @@
     <div class="wall-grid" v-loading="loading">
       <div class="wall-card" v-for="item in list" :key="item.ideaId">
         <div class="head">
-          <el-tag size="mini" type="success">已公示</el-tag>
-          <el-tag size="mini" type="warning">{{ item.honorBadge || '创新贡献' }}</el-tag>
+          <el-tag size="mini" type="success">{{ $t('idea.wall.published') }}</el-tag>
+          <el-tag size="mini" type="warning">{{ item.honorBadge || $t('idea.wall.defaultBadge') }}</el-tag>
         </div>
         <div class="title" @click="goDetail(item.ideaId)">{{ item.title }}</div>
-        <div class="summary">{{ item.resultSummary || '已完成成果公示' }}</div>
+        <div class="summary">{{ item.resultSummary || $t('idea.wall.defaultSummary') }}</div>
         <div class="meta">
           <span>{{ item.submitNickName }}</span>
-          <span>激励 {{ item.incentivePoints || 0 }}</span>
+          <span>{{ $t('idea.wall.incentive', { points: item.incentivePoints || 0 }) }}</span>
           <span class="like-btn" :class="{ liked: item.liked }" @click="toggleLike(item)">
             <i :class="item.liked ? 'el-icon-star-on' : 'el-icon-star-off'" /> {{ item.likeCount || 0 }}
           </span>
@@ -34,7 +34,7 @@
           </span>
         </div>
       </div>
-      <el-empty v-if="!loading && list.length === 0" description="暂无公示成果" />
+      <el-empty v-if="!loading && list.length === 0" :description="$t('idea.wall.empty')" />
     </div>
 
     <pagination
@@ -92,9 +92,9 @@ export default {
     handleShare(item) {
       const url = window.location.origin + this.$router.resolve(`/idea/detail/${item.ideaId}`).href
       this.copyText(url).then(() => {
-        this.$message.success('提案链接已复制，可粘贴分享给同事')
+        this.$message.success(this.$t('idea.wall.shareCopied'))
       }).catch(() => {
-        this.$message.warning('复制失败，请手动复制地址栏链接')
+        this.$message.warning(this.$t('idea.wall.copyFailed'))
       })
       shareIdea(item.ideaId).then(res => {
         this.$set(item, 'shareCount', res.data.shareCount)

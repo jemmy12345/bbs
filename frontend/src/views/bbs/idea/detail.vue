@@ -2,50 +2,50 @@
   <div class="idea-detail-page" v-loading="loading">
     <div v-if="idea" class="idea-detail-wrap">
       <div class="nav-row">
-        <el-button type="text" icon="el-icon-arrow-left" @click="$router.back()">返回</el-button>
+        <el-button type="text" icon="el-icon-arrow-left" @click="$router.back()">{{ $t('idea.back') }}</el-button>
       </div>
 
       <!-- 驳回提示 -->
       <el-alert v-if="idea.status === 'REJECTED' && isProposer" type="error" :closable="false">
         <span slot="title">
-          提案已被驳回：{{ idea.rejectReason || '无说明' }}
-          <el-button type="primary" size="mini" style="margin-left:16px" @click="goResubmit">修改并重新提交</el-button>
+          {{ $t('idea.detail.rejectedAlert', { reason: idea.rejectReason || $t('idea.detail.noReason') }) }}
+          <el-button type="primary" size="mini" style="margin-left:16px" @click="goResubmit">{{ $t('idea.publish.titleResubmit') }}</el-button>
         </span>
       </el-alert>
 
       <!-- 模块一：提案信息 -->
       <div class="section-card">
         <div class="section-header">
-          <span class="section-title">提案信息</span>
+          <span class="section-title">{{ $t('idea.detail.info') }}</span>
           <div class="tag-group">
             <el-tag :type="statusType(idea.status)">{{ statusLabel(idea.status) }}</el-tag>
-            <el-tag v-if="idea.isPublicized === '1' && idea.status !== 'PUBLICIZED'" type="success" style="margin-left:6px">已公示</el-tag>
+            <el-tag v-if="idea.isPublicized === '1' && idea.status !== 'PUBLICIZED'" type="success" style="margin-left:6px">{{ $t('idea.status.PUBLICIZED') }}</el-tag>
           </div>
         </div>
         <h2 class="idea-title">{{ idea.title }}</h2>
         <div class="info-meta">
-          <span>提案人：{{ idea.submitNickName || idea.submitUserId }}</span>
-          <span v-if="idea.category">· 分类：{{ categoryLabel }}</span>
-          <span v-if="idea.teamName">· 团队：{{ idea.teamName }}</span>
+          <span>{{ $t('idea.detail.proposer', { name: idea.submitNickName || idea.submitUserId }) }}</span>
+          <span v-if="idea.category">{{ $t('idea.detail.categoryOf', { name: categoryLabel }) }}</span>
+          <span v-if="idea.teamName">{{ $t('idea.detail.teamOf', { name: idea.teamName }) }}</span>
         </div>
         <div class="info-block">
-          <div class="info-label">提案背景</div>
+          <div class="info-label">{{ $t('idea.publish.background') }}</div>
           <div class="info-content">{{ idea.backgroundText }}</div>
         </div>
         <div class="info-block">
-          <div class="info-label">实施方案</div>
+          <div class="info-label">{{ $t('idea.publish.plan') }}</div>
           <div class="info-content">{{ idea.planText }}</div>
         </div>
         <div class="info-block">
-          <div class="info-label">预期价值</div>
+          <div class="info-label">{{ $t('idea.publish.expectedValue') }}</div>
           <div class="info-content">{{ idea.expectedValue }}</div>
         </div>
         <div v-if="idea.bizValue" class="info-block">
-          <div class="info-label">业务价值</div>
+          <div class="info-label">{{ $t('idea.publish.bizValue') }}</div>
           <div class="info-content">{{ idea.bizValue }}</div>
         </div>
         <div v-if="attachmentList(idea.attachmentUrls).length" class="info-block">
-          <div class="info-label">提案附件</div>
+          <div class="info-label">{{ $t('idea.detail.attachmentsLabel') }}</div>
           <div class="attachment-list">
             <a
               v-for="(file, index) in attachmentList(idea.attachmentUrls)"
@@ -60,23 +60,23 @@
           </div>
         </div>
         <div v-if="idea.relatedCase" class="info-block">
-          <div class="info-label">相关案例</div>
+          <div class="info-label">{{ $t('idea.publish.relatedCase') }}</div>
           <div class="info-content">{{ idea.relatedCase }}</div>
         </div>
 
         <!-- 落地成果（已公示时展示） -->
         <div v-if="idea.status === 'PUBLICIZED'" class="result-box" style="margin-top:16px">
-          <div class="info-label">落地成果</div>
+          <div class="info-label">{{ $t('idea.detail.result') }}</div>
           <div class="info-content">{{ idea.resultSummary }}</div>
           <div class="info-meta" style="margin-top:6px">
-            激励积分：{{ idea.incentivePoints || 0 }}；荣誉勋章：{{ idea.honorBadge || '-' }}
+            {{ $t('idea.detail.rewardInfo', { points: idea.incentivePoints || 0, badge: idea.honorBadge || '-' }) }}
           </div>
           <div style="margin-top:10px">
             <el-button size="small" :type="idea.liked ? 'warning' : 'default'" :icon="idea.liked ? 'el-icon-star-on' : 'el-icon-star-off'" @click="handleLike">
-              {{ idea.liked ? '已点赞' : '点赞' }} {{ idea.likeCount || 0 }}
+              {{ idea.liked ? $t('idea.detail.liked') : $t('idea.detail.like') }} {{ idea.likeCount || 0 }}
             </el-button>
             <el-button size="small" icon="el-icon-share" @click="handleShare(idea)">
-              分享 {{ idea.shareCount || 0 }}
+              {{ $t('idea.detail.share') }} {{ idea.shareCount || 0 }}
             </el-button>
           </div>
         </div>
@@ -85,10 +85,10 @@
       <!-- 模块二：进度时间线 -->
       <div class="section-card">
         <div class="section-header">
-          <span class="section-title">进度时间线</span>
-          <span class="section-sub">共 {{ (idea.progressList || []).length }} 条记录</span>
+          <span class="section-title">{{ $t('idea.detail.timeline') }}</span>
+          <span class="section-sub">{{ $t('idea.detail.recordCount', { count: (idea.progressList || []).length }) }}</span>
         </div>
-        <div v-if="(idea.progressList || []).length === 0" class="empty-tip">暂无进度记录</div>
+        <div v-if="(idea.progressList || []).length === 0" class="empty-tip">{{ $t('idea.detail.noProgress') }}</div>
         <el-timeline v-else style="padding-top:8px">
           <el-timeline-item
             v-for="p in (idea.progressList || [])"
@@ -120,49 +120,49 @@
       <!-- 模块三：评审意见 -->
       <div class="section-card">
         <div class="section-header">
-          <span class="section-title">评审意见</span>
-          <span class="section-sub">共 {{ (idea.reviews || []).length }} 条</span>
+          <span class="section-title">{{ $t('idea.detail.reviews') }}</span>
+          <span class="section-sub">{{ $t('idea.detail.reviewCount', { count: (idea.reviews || []).length }) }}</span>
         </div>
-        <div v-if="(idea.reviews || []).length === 0" class="empty-tip">暂无评审意见</div>
+        <div v-if="(idea.reviews || []).length === 0" class="empty-tip">{{ $t('idea.detail.noReviews') }}</div>
         <div v-for="r in (idea.reviews || [])" :key="r.reviewId" class="review-item">
           <div class="review-header">
-            <el-tag size="mini" :type="r.action === 'pass' ? 'success' : 'danger'">{{ r.action === 'pass' ? '通过' : '驳回' }}</el-tag>
-            <span class="review-stage">{{ { L1:'初审', L2:'复审', L3:'终审' }[r.stage] || r.stage }}</span>
-            <span class="review-score">评分 {{ r.score }}</span>
+            <el-tag size="mini" :type="r.action === 'pass' ? 'success' : 'danger'">{{ r.action === 'pass' ? $t('idea.detail.pass') : $t('idea.detail.reject') }}</el-tag>
+            <span class="review-stage">{{ ['L1', 'L2', 'L3'].includes(r.stage) ? $t('idea.stage.' + r.stage) : r.stage }}</span>
+            <span class="review-score">{{ $t('idea.detail.reviewScore', { score: r.score }) }}</span>
             <span class="review-user">{{ r.reviewerNickName || r.reviewerUserId }}</span>
             <span class="review-time">{{ parseTime(r.reviewTime || r.createTime) }}</span>
           </div>
-          <div v-if="r.comment" class="review-comment">意见：{{ r.comment }}</div>
-          <div v-if="r.rejectReason" class="review-reject">驳回原因：{{ r.rejectReason }}</div>
+          <div v-if="r.comment" class="review-comment">{{ $t('idea.detail.commentOf', { comment: r.comment }) }}</div>
+          <div v-if="r.rejectReason" class="review-reject">{{ $t('idea.detail.rejectReasonOf', { reason: r.rejectReason }) }}</div>
         </div>
       </div>
 
       <!-- 模块四：操作 -->
       <div v-if="canReviewCurrentStage || canUpdateProgress || canPublishResult" class="section-card">
         <div class="section-header">
-          <span class="section-title">操作</span>
+          <span class="section-title">{{ $t('idea.detail.operations') }}</span>
         </div>
 
         <!-- 评审操作 -->
         <template v-if="canReviewCurrentStage">
-          <div class="ops-subtitle">评审操作</div>
+          <div class="ops-subtitle">{{ $t('idea.detail.reviewOps') }}</div>
           <el-form ref="reviewFormRef" :model="reviewForm" :rules="effectiveReviewRules" size="small" label-width="70px">
             <el-row :gutter="12">
               <el-col :span="6">
-                <el-form-item label="评审环节">
+                <el-form-item :label="$t('idea.detail.reviewStage')">
                   <el-tag type="warning">{{ currentReviewStageLabel }}</el-tag>
                 </el-form-item>
               </el-col>
               <el-col :span="5">
-                <el-form-item label="操作" prop="action">
+                <el-form-item :label="$t('idea.detail.action')" prop="action">
                   <el-select v-model="reviewForm.action" style="width:100%">
-                    <el-option label="通过" value="pass" />
-                    <el-option label="驳回" value="reject" />
+                    <el-option :label="$t('idea.detail.pass')" value="pass" />
+                    <el-option :label="$t('idea.detail.reject')" value="reject" />
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="5">
-                <el-form-item label="评分" prop="score">
+                <el-form-item :label="$t('idea.detail.score')" prop="score">
                   <el-input-number
                     v-model="reviewForm.score"
                     :min="1"
@@ -176,45 +176,45 @@
             </el-row>
             <el-row :gutter="12">
               <el-col :span="24">
-                <el-form-item label="评审意见" prop="comment" class="review-comment-item">
+                <el-form-item :label="$t('idea.detail.comment')" prop="comment" class="review-comment-item">
                   <el-input v-model="reviewForm.comment" type="textarea" :rows="2" style="width:100%" />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row v-if="reviewForm.action === 'reject'" :gutter="12">
               <el-col :span="24">
-                <el-form-item label="驳回原因" prop="rejectReason">
-                  <el-input v-model="reviewForm.rejectReason" placeholder="请填写驳回原因（必填）" />
+                <el-form-item :label="$t('idea.detail.rejectReason')" prop="rejectReason">
+                  <el-input v-model="reviewForm.rejectReason" :placeholder="$t('idea.detail.rejectPlaceholder')" />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-form-item>
-              <el-button type="primary" @click="doReview">提交评审</el-button>
+              <el-button type="primary" @click="doReview">{{ $t('idea.detail.submitReview') }}</el-button>
             </el-form-item>
           </el-form>
         </template>
 
         <!-- 进度更新 -->
         <template v-if="canUpdateProgress">
-          <div class="ops-subtitle">进度更新 <small>（仅提案人可操作）</small></div>
+          <div class="ops-subtitle">{{ $t('idea.detail.progressUpdate') }} <small>{{ $t('idea.detail.proposerOnly') }}</small></div>
           <el-form size="small" label-width="70px">
             <el-row :gutter="12">
               <el-col :span="6">
-                <el-form-item label="进度状态">
+                <el-form-item :label="$t('idea.detail.progressStatus')">
                   <el-select v-model="progressForm.status" style="width:100%">
-                    <el-option label="推进中" value="IMPLEMENTING" />
-                    <el-option label="已落地" value="LANDED" />
-                    <el-option label="暂停" value="PAUSED" />
+                    <el-option :label="$t('idea.detail.inProgress')" value="IMPLEMENTING" />
+                    <el-option :label="$t('idea.status.LANDED')" value="LANDED" />
+                    <el-option :label="$t('idea.status.PAUSED')" value="PAUSED" />
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="5">
-                <el-form-item label="当前阶段">
+                <el-form-item :label="$t('idea.detail.currentPhase')">
                   <el-input v-model="progressForm.stage" />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="完成度">
+                <el-form-item :label="$t('idea.detail.percent')">
                   <el-input v-model.number="progressForm.percent" type="number" :min="0" :max="100" style="width:120px">
                     <template slot="append">%</template>
                   </el-input>
@@ -223,51 +223,51 @@
             </el-row>
             <el-row :gutter="12">
               <el-col :span="20">
-                <el-form-item label="进度描述">
-                  <el-input v-model="progressForm.desc" type="textarea" :rows="2" placeholder="请描述本次进度内容" />
+                <el-form-item :label="$t('idea.detail.progressDesc')">
+                  <el-input v-model="progressForm.desc" type="textarea" :rows="2" :placeholder="$t('idea.detail.progressDescPlaceholder')" />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row :gutter="12">
               <el-col :span="20">
-                <el-form-item label="进度附件">
+                <el-form-item :label="$t('idea.detail.progressAttachments')">
                   <FileUpload v-model="progressForm.attachmentUrls" :limit="5" :file-size="10" />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-form-item>
-              <el-button type="primary" @click="doProgress">提交进度</el-button>
+              <el-button type="primary" @click="doProgress">{{ $t('idea.detail.submitProgress') }}</el-button>
             </el-form-item>
           </el-form>
         </template>
 
         <!-- 成果公示 -->
         <template v-if="canPublishResult">
-          <div class="ops-subtitle">成果公示 <small>（进度已达100%，可提交公示）</small></div>
-          <el-button type="success" icon="el-icon-trophy" @click="publishDialogVisible = true">提交成果公示</el-button>
+          <div class="ops-subtitle">{{ $t('idea.detail.publishSection') }} <small>{{ $t('idea.detail.publishHint') }}</small></div>
+          <el-button type="success" icon="el-icon-trophy" @click="publishDialogVisible = true">{{ $t('idea.detail.submitPublish') }}</el-button>
         </template>
       </div>
     </div>
 
     <!-- 成果公示弹框 -->
-    <el-dialog title="提交成果公示" :visible.sync="publishDialogVisible" width="520px" :close-on-click-modal="false">
+    <el-dialog :title="$t('idea.detail.publishDialog')" :visible.sync="publishDialogVisible" width="520px" :close-on-click-modal="false">
       <el-form :model="publishForm" label-width="90px" size="small">
-        <el-form-item label="成果总结">
-          <el-input v-model="publishForm.resultSummary" type="textarea" :rows="4" placeholder="请描述提案落地成果" />
+        <el-form-item :label="$t('idea.detail.resultSummary')">
+          <el-input v-model="publishForm.resultSummary" type="textarea" :rows="4" :placeholder="$t('idea.detail.resultPlaceholder')" />
         </el-form-item>
-        <el-form-item label="激励积分">
-          <strong>{{ incentivePoints }}</strong> 积分
-          <span style="margin-left:8px;color:#909399;font-size:12px">由系统固定发放，不可修改</span>
+        <el-form-item :label="$t('idea.detail.incentive')">
+          <strong>{{ incentivePoints }}</strong> {{ $t('idea.detail.pointsUnit') }}
+          <span style="margin-left:8px;color:#909399;font-size:12px">{{ $t('idea.detail.fixedHint') }}</span>
         </el-form-item>
-        <el-form-item label="荣誉勋章">
-          <el-select v-model="publishForm.honorBadge" placeholder="请选择荣誉勋章" style="width:200px">
+        <el-form-item :label="$t('idea.detail.honorBadge')">
+          <el-select v-model="publishForm.honorBadge" :placeholder="$t('idea.detail.selectBadge')" style="width:200px">
             <el-option v-for="d in honorBadgeOptions" :key="d.value" :label="d.label" :value="d.value" />
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="publishDialogVisible = false">取消</el-button>
-        <el-button type="success" :loading="publishing" @click="doPublish">确认公示</el-button>
+        <el-button @click="publishDialogVisible = false">{{ $t('idea.detail.cancel') }}</el-button>
+        <el-button type="success" :loading="publishing" @click="doPublish">{{ $t('idea.detail.confirmPublish') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -278,12 +278,10 @@ import { getIdeaDetail, reviewIdea, addIdeaProgress, publishIdeaResult, getCurre
 import { getDicts } from '@/api/system/dict/data'
 import { mapGetters } from 'vuex'
 
-const STATUS_LABEL = {
-  DRAFT: '草稿', PENDING_L1: '待初审', L1_REVIEWING: '初审中', L1_PASSED: '初审通过',
-  L2_REVIEWING: '复审中', L2_PASSED: '复审通过', L3_REVIEWING: '终审中',
-  APPROVED: '已立项', IMPLEMENTING: '落地中', LANDED: '已落地', PUBLICIZED: '已公示', REJECTED: '已驳回',
-  PAUSED: '暂停',
-}
+const STATUS_KEYS = [
+  'DRAFT', 'PENDING_L1', 'L1_REVIEWING', 'L1_PASSED', 'L2_REVIEWING', 'L2_PASSED', 'L3_REVIEWING',
+  'APPROVED', 'IMPLEMENTING', 'LANDED', 'PUBLICIZED', 'REJECTED', 'PAUSED',
+]
 const STATUS_TYPE = {
   REJECTED: 'danger', PUBLICIZED: 'success', LANDED: 'success',
   APPROVED: 'success', IMPLEMENTING: '', DRAFT: 'info', PAUSED: 'warning',
@@ -303,18 +301,21 @@ export default {
       publishForm: { resultSummary: '', honorBadge: '创新先锋' },
       incentivePoints: 100,
       honorBadgeOptions: [],
-      reviewRules: {
-        action: [{ required: true, message: '请选择动作', trigger: 'change' }],
-        score: [{ required: true, message: '请填写评分', trigger: 'change' }],
-        rejectReason: [{ required: true, message: '驳回必须填写原因', trigger: 'blur' }],
-      },
     }
   },
   computed: {
     ...mapGetters(['id']),
+    reviewRules() {
+      return {
+        action: [{ required: true, message: this.$t('idea.detail.ruleAction'), trigger: 'change' }],
+        score: [{ required: true, message: this.$t('idea.detail.ruleScore'), trigger: 'change' }],
+        rejectReason: [{ required: true, message: this.$t('idea.detail.ruleReject'), trigger: 'blur' }],
+      }
+    },
     categoryLabel() {
-      const map = { product: '产品创新', tech: '技术优化', manage: '管理提升', cost: '降本增效', other: '其他' }
-      return this.idea ? (map[this.idea.category] || this.idea.category) : ''
+      if (!this.idea) return ''
+      const c = this.idea.category
+      return ['product', 'tech', 'manage', 'cost', 'other'].includes(c) ? this.$t('idea.cat.' + c) : c
     },
     isProposer() {
       return this.idea && String(this.idea.submitUserId) === String(this.id)
@@ -346,8 +347,9 @@ export default {
       return !!this.permission.canManageFlow
     },
     currentReviewStageLabel() {
-      const stageMap = { L1: '初审', L2: '复审', L3: '终审' }
-      return stageMap[this.idea && this.idea.reviewStage] || (this.idea && this.idea.reviewStage) || '-'
+      const stage = this.idea && this.idea.reviewStage
+      if (['L1', 'L2', 'L3'].includes(stage)) return this.$t('idea.stage.' + stage)
+      return stage || '-'
     },
     effectiveReviewRules() {
       const rules = { ...this.reviewRules }
@@ -387,9 +389,9 @@ export default {
     handleShare(idea) {
       const url = window.location.origin + this.$router.resolve(`/idea/detail/${idea.ideaId}`).href
       this.copyText(url).then(() => {
-        this.$message.success('提案链接已复制，可粘贴分享给同事')
+        this.$message.success(this.$t('idea.wall.shareCopied'))
       }).catch(() => {
-        this.$message.warning('复制失败，请手动复制地址栏链接')
+        this.$message.warning(this.$t('idea.wall.copyFailed'))
       })
       shareIdea(idea.ideaId).then(res => {
         this.$set(idea, 'shareCount', res.data.shareCount)
@@ -416,7 +418,7 @@ export default {
         if (!valid) return
         this.reviewForm.stage = this.idea.reviewStage
         reviewIdea(this.idea.ideaId, this.reviewForm).then(() => {
-          this.$message.success('评审成功')
+          this.$message.success(this.$t('idea.detail.reviewOk'))
           this.reviewForm.action = 'pass'
           this.reviewForm.score = 8
           this.reviewForm.comment = ''
@@ -427,24 +429,24 @@ export default {
     },
     doProgress() {
       if (!this.progressForm.desc) {
-        this.$message.warning('请填写进度描述')
+        this.$message.warning(this.$t('idea.detail.needDesc'))
         return
       }
       const percent = Number(this.progressForm.percent)
       if (Number.isNaN(percent) || percent < 0 || percent > 100) {
-        this.$message.warning('完成度需填写 0-100 的数字')
+        this.$message.warning(this.$t('idea.detail.percentRange'))
         return
       }
       if (percent < this.maxProgressPercent) {
-        this.$message.warning(`完成度不能低于当前已记录的 ${this.maxProgressPercent}%`)
+        this.$message.warning(this.$t('idea.detail.percentLow', { percent: this.maxProgressPercent }))
         return
       }
       if (this.progressForm.status === 'LANDED' && percent < 100) {
-        this.$message.warning('标记为已落地时，完成度需达到 100%')
+        this.$message.warning(this.$t('idea.detail.landedNeed100'))
         return
       }
       addIdeaProgress(this.idea.ideaId, this.progressForm).then(() => {
-        this.$message.success('进度更新成功')
+        this.$message.success(this.$t('idea.detail.progressOk'))
         this.progressForm.desc = ''
         this.progressForm.attachmentUrls = ''
         this.load()
@@ -452,18 +454,18 @@ export default {
     },
     doPublish() {
       if (!this.publishForm.resultSummary) {
-        this.$message.warning('请填写成果总结')
+        this.$message.warning(this.$t('idea.detail.needSummary'))
         return
       }
       this.publishing = true
       publishIdeaResult(this.idea.ideaId, this.publishForm).then(() => {
-        this.$message.success('成果公示已提交')
+        this.$message.success(this.$t('idea.detail.publishOk'))
         this.publishDialogVisible = false
         this.load()
       }).finally(() => { this.publishing = false })
     },
     statusLabel(v) {
-      return STATUS_LABEL[v] || v
+      return STATUS_KEYS.includes(v) ? this.$t('idea.status.' + v) : v
     },
     statusType(v) {
       return STATUS_TYPE[v] || 'warning'

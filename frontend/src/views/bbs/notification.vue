@@ -15,9 +15,9 @@
     </div>
 
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
-      <el-tab-pane label="互动消息" name="msg"></el-tab-pane>
-      <el-tab-pane label="通知" name="1"></el-tab-pane>
-      <el-tab-pane label="公告" name="2"></el-tab-pane>
+      <el-tab-pane :label="$t('bbsExtra.notification.tabMsg')" name="msg"></el-tab-pane>
+      <el-tab-pane :label="$t('bbsExtra.notification.tabNotice')" name="1"></el-tab-pane>
+      <el-tab-pane :label="$t('bbsExtra.notification.tabAnnounce')" name="2"></el-tab-pane>
     </el-tabs>
 
     <div v-if="activeTab !== 'msg'" class="notification-list" v-loading="loading">
@@ -30,7 +30,7 @@
       >
         <div class="notification-content">
           <div class="notification-text">
-            <el-tag size="mini" :type="n.noticeType === '2' ? 'success' : 'warning'">{{ n.noticeType === '2' ? '公告' : '通知' }}</el-tag>
+            <el-tag size="mini" :type="n.noticeType === '2' ? 'success' : 'warning'">{{ n.noticeType === '2' ? $t('bbsExtra.notification.tabAnnounce') : $t('bbsExtra.notification.tabNotice') }}</el-tag>
             {{ n.noticeTitle }}
           </div>
           <div class="notification-time">({{ parseTime(n.createTime, '{y}-{m}-{d} {h}:{i}') }})</div>
@@ -39,7 +39,7 @@
       </div>
       <div v-if="noticeList.length === 0 && !loading" class="empty-state">
         <i class="el-icon-bell"></i>
-        <p>暂无{{ activeTab === '2' ? '公告' : '通知' }}</p>
+        <p>{{ activeTab === '2' ? $t('bbsExtra.notification.noAnnounce') : $t('bbsExtra.notification.noNotice') }}</p>
       </div>
     </div>
 
@@ -179,7 +179,7 @@ export default {
     getFromUserDisplay(notification) {
       // 如果是评论或回复通知，且是匿名评论，显示匿名用户
       if ((notification.type === '1' || notification.type === '2') && notification.isAnonymous === '1') {
-        return this.$t('bbs.anonymousUser') || '匿名用户';
+        return this.$t('bbs.anonymousUser');
       }
       // 优先显示昵称，如果没有则显示用户名，最后显示用户ID
       if (notification.fromNickName) {

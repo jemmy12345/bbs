@@ -3,7 +3,7 @@
     <div v-if="question" class="qa-detail-wrap">
       <!-- 返回导航 -->
       <div class="qa-detail-nav">
-        <el-button icon="el-icon-arrow-left" type="text" @click="$router.back()">返回问答列表</el-button>
+        <el-button icon="el-icon-arrow-left" type="text" @click="$router.back()">{{ $t('qa.detail.back') }}</el-button>
       </div>
 
       <!-- 问题卡片 -->
@@ -13,22 +13,24 @@
             <el-tag size="small" :type="categoryType(question.category)" class="qa-cat-tag">
               {{ categoryLabel(question.category) }}
             </el-tag>
-            <el-tag v-if="question.status === 'solved'" size="small" type="success" effect="dark">已解决</el-tag>
-            <el-tag v-if="question.status === 'archived'" size="small" type="info" effect="dark">已归档</el-tag>
-            <el-tag v-if="question.status === 'cancelled'" size="small" type="danger" effect="dark">已撤销</el-tag>
-            <el-tag v-if="question.status === 'open'" size="small" type="primary" effect="dark">待解答</el-tag>
+            <el-tag v-if="question.status === 'solved'" size="small" type="success" effect="dark">{{ $t('qa.status.solved') }}</el-tag>
+            <el-tag v-if="question.status === 'archived'" size="small" type="info" effect="dark">{{ $t('qa.status.archived') }}</el-tag>
+            <el-tag v-if="question.status === 'cancelled'" size="small" type="danger" effect="dark">{{ $t('qa.status.cancelled') }}</el-tag>
+            <el-tag v-if="question.status === 'open'" size="small" type="primary" effect="dark">{{ $t('qa.status.open') }}</el-tag>
           </div>
           <h1 class="qa-q-title">{{ question.title }}</h1>
 
           <div class="qa-q-meta">
             <el-avatar :src="question.askAvatar" :size="32" />
-            <span class="qa-q-author">{{ question.askNickName || '匿名' }}</span>
+            <span class="qa-q-author">{{ question.askNickName || $t('qa.common.anonymous') }}</span>
             <span v-if="question.askDeptName" class="qa-q-dept">{{ question.askDeptName }}</span>
             <span class="qa-q-time">{{ formatTime(question.createTime) }}</span>
-            <span class="qa-q-views"><i class="el-icon-view"></i> {{ question.viewCount || 0 }} 浏览</span>
+            <span class="qa-q-views"><i class="el-icon-view"></i> {{ $t('qa.detail.viewsCount', { n: question.viewCount || 0 }) }}</span>
             <span class="qa-q-reward">
               <i class="el-icon-coin"></i>
-              悬赏 <strong>{{ question.rewardPoints || 0 }}</strong> 积分
+              <i18n path="qa.detail.reward" tag="span">
+                <strong place="n">{{ question.rewardPoints || 0 }}</strong>
+              </i18n>
             </span>
           </div>
         </div>
@@ -48,11 +50,11 @@
         <!-- 提问者操作区 -->
         <div class="qa-q-actions" v-if="isOwner && question.status === 'open'">
           <el-popconfirm
-            title="确认撤销问题？撤销后将退还冻结的积分"
+            :title="$t('qa.detail.cancelConfirm')"
             @confirm="handleCancel"
           >
             <el-button slot="reference" size="mini" type="danger" plain :loading="cancelling">
-              撤销问题
+              {{ $t('qa.detail.cancel') }}
             </el-button>
           </el-popconfirm>
           <el-button
@@ -61,11 +63,11 @@
             type="info"
             plain
             @click="handleArchive"
-          >归档到知识库</el-button>
+          >{{ $t('qa.detail.archive') }}</el-button>
         </div>
         <div class="qa-q-actions" v-if="isOwner && question.status === 'solved'">
           <el-button size="mini" type="info" plain @click="handleArchive">
-            归档到知识库
+            {{ $t('qa.detail.archive') }}
           </el-button>
         </div>
       </div>
@@ -74,7 +76,7 @@
       <div class="qa-answers-section">
         <h3 class="qa-answers-title">
           <i class="el-icon-chat-dot-round"></i>
-          {{ question.answerCount || (question.answers && question.answers.length) || 0 }} 个回答
+          {{ $t('qa.detail.answersCount', { n: question.answerCount || (question.answers && question.answers.length) || 0 }) }}
         </h3>
 
         <!-- 最佳答案置顶 -->
@@ -83,19 +85,19 @@
           class="qa-answer-card qa-best-answer"
         >
           <div class="qa-best-badge">
-            <i class="el-icon-trophy"></i> 最佳答案
+            <i class="el-icon-trophy"></i> {{ $t('qa.detail.best') }}
           </div>
           <div class="answer-inner">
             <div class="answer-meta">
               <el-avatar :src="bestAnswer.answerAvatar" :size="32" />
-              <span class="answer-author">{{ bestAnswer.answerNickName || '匿名' }}</span>
+              <span class="answer-author">{{ bestAnswer.answerNickName || $t('qa.common.anonymous') }}</span>
               <span v-if="bestAnswer.answerDeptName" class="answer-dept">{{ bestAnswer.answerDeptName }}</span>
               <span class="answer-time">{{ formatAnswerTime(bestAnswer.createTime) }}</span>
             </div>
             <div class="answer-content">{{ displayAnswerContent(bestAnswer) }}</div>
             <div class="answer-actions">
               <el-button size="mini" type="text" icon="el-icon-thumb" @click="handleLike(bestAnswer.answerId)">
-                点赞 {{ bestAnswer.likeCount || 0 }}
+                {{ $t('qa.detail.like', { n: bestAnswer.likeCount || 0 }) }}
               </el-button>
               <el-button
                 v-if="isOwner && question.status === 'open' && bestAnswer.isBest !== '1'"
@@ -104,7 +106,7 @@
                 icon="el-icon-trophy"
                 style="color: #e6a23c;"
                 @click="handleAccept(bestAnswer.answerId)"
-              >采纳为最佳答案</el-button>
+              >{{ $t('qa.detail.accept') }}</el-button>
             </div>
           </div>
         </div>
@@ -114,14 +116,14 @@
           <div class="answer-inner">
             <div class="answer-meta">
               <el-avatar :src="ans.answerAvatar" :size="32" />
-              <span class="answer-author">{{ ans.answerNickName || '匿名' }}</span>
+              <span class="answer-author">{{ ans.answerNickName || $t('qa.common.anonymous') }}</span>
               <span v-if="ans.answerDeptName" class="answer-dept">{{ ans.answerDeptName }}</span>
               <span class="answer-time">{{ formatAnswerTime(ans.createTime) }}</span>
             </div>
             <div class="answer-content">{{ displayAnswerContent(ans) }}</div>
             <div class="answer-actions">
               <el-button size="mini" type="text" icon="el-icon-thumb" @click="handleLike(ans.answerId)">
-                点赞 {{ ans.likeCount || 0 }}
+                {{ $t('qa.detail.like', { n: ans.likeCount || 0 }) }}
               </el-button>
               <el-button
                 v-if="isOwner && question.status === 'open' && ans.isBest !== '1'"
@@ -130,22 +132,22 @@
                 icon="el-icon-trophy"
                 style="color: #e6a23c;"
                 @click="handleAccept(ans.answerId)"
-              >采纳为最佳答案</el-button>
+              >{{ $t('qa.detail.accept') }}</el-button>
             </div>
           </div>
         </div>
 
-        <el-empty v-if="!question.answers || question.answers.length === 0" description="暂无回答，快来抢答吧！" />
+        <el-empty v-if="!question.answers || question.answers.length === 0" :description="$t('qa.detail.noAnswers')" />
       </div>
 
       <!-- 我的回答区 -->
       <div class="qa-reply-section" v-if="question.status === 'open' && !isOwner">
-        <h3 class="qa-reply-title"><i class="el-icon-edit-outline"></i> 我来回答</h3>
+        <h3 class="qa-reply-title"><i class="el-icon-edit-outline"></i> {{ $t('qa.detail.myAnswer') }}</h3>
         <el-input
           v-model="answerContent"
           type="textarea"
           :rows="6"
-          placeholder="请输入你的回答，注意与问题相关，详细清晰的回答更容易被采纳……"
+          :placeholder="$t('qa.detail.answerPlaceholder')"
           maxlength="3000"
           show-word-limit
         />
@@ -155,7 +157,7 @@
             :loading="submitting"
             :disabled="!answerContent.trim()"
             @click="handleAnswer"
-          >提交回答</el-button>
+          >{{ $t('qa.detail.submit') }}</el-button>
         </div>
       </div>
 
@@ -170,7 +172,7 @@
       </div>
     </div>
 
-    <el-empty v-if="!pageLoading && !question" description="问题不存在或已被删除" />
+    <el-empty v-if="!pageLoading && !question" :description="$t('qa.detail.notFound')" />
   </div>
 </template>
 
@@ -178,13 +180,7 @@
 import { getQaQuestionDetail, answerQaQuestion, acceptBestAnswer, cancelQaQuestion, archiveQaQuestion, likeQaAnswer } from '@/api/bbs/qa'
 import { getToken } from '@/utils/auth'
 
-const CATEGORIES = [
-  { value: 'tech', label: '技术研发' },
-  { value: 'product', label: '产品设计' },
-  { value: 'hr', label: '人事行政' },
-  { value: 'admin', label: '运营管理' },
-  { value: 'other', label: '其他' },
-]
+const CATEGORY_KEYS = ['tech', 'product', 'hr', 'admin', 'other']
 
 export default {
   name: 'BbsQaDetail',
@@ -198,6 +194,9 @@ export default {
     }
   },
   computed: {
+    categories() {
+      return CATEGORY_KEYS.map(v => ({ value: v, label: this.$t('qa.cat.' + v) }))
+    },
     isLoggedIn() { return !!getToken() },
     currentUserId() {
       const stateUser = this.$store.state.user || {}
@@ -218,10 +217,10 @@ export default {
     },
     closedTip() {
       const s = this.question && this.question.status
-      if (s === 'solved') return '该问题已解决，不再接受新的回答'
-      if (s === 'archived') return '该问题已归档至知识库'
-      if (s === 'cancelled') return '该问题已被提问者撤销'
-      return '该问题已关闭'
+      if (s === 'solved') return this.$t('qa.detail.closed.solved')
+      if (s === 'archived') return this.$t('qa.detail.closed.archived')
+      if (s === 'cancelled') return this.$t('qa.detail.closed.cancelled')
+      return this.$t('qa.detail.closed.default')
     },
   },
   created() {
@@ -233,15 +232,15 @@ export default {
       const d = new Date(t)
       const now = new Date()
       const diff = (now - d) / 1000
-      if (diff < 60) return '刚刚'
-      if (diff < 3600) return Math.floor(diff / 60) + ' 分钟前'
-      if (diff < 86400) return Math.floor(diff / 3600) + ' 小时前'
+      if (diff < 60) return this.$t('qa.time.justNow')
+      if (diff < 3600) return this.$t('qa.time.minutesAgo', { n: Math.floor(diff / 60) })
+      if (diff < 86400) return this.$t('qa.time.hoursAgo', { n: Math.floor(diff / 3600) })
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     },
     displayAnswerContent(answer) {
       const raw = answer && (answer.content || answer.answerContent || answer.answerText)
       const text = raw == null ? '' : String(raw).trim()
-      return text || '该回答暂无可展示内容'
+      return text || this.$t('qa.detail.emptyAnswer')
     },
     loadDetail() {
       const id = this.$route.params.questionId
@@ -252,32 +251,32 @@ export default {
         .finally(() => { this.pageLoading = false })
     },
     handleAnswer() {
-      if (!this.isLoggedIn) { this.$message.warning('请先登录'); return }
+      if (!this.isLoggedIn) { this.$message.warning(this.$t('qa.common.loginFirst')); return }
       if (!this.answerContent.trim()) return
       this.submitting = true
       answerQaQuestion(this.question.questionId, { content: this.answerContent.trim() })
         .then(() => {
-          this.$message.success('回答成功！')
+          this.$message.success(this.$t('qa.detail.answerSuccess'))
           this.answerContent = ''
           this.loadDetail()
         })
         .finally(() => { this.submitting = false })
     },
     handleAccept(answerId) {
-      this.$confirm('确认采纳该答案为最佳答案？采纳后悬赏积分将发放给回答者', '采纳确认', {
-        confirmButtonText: '确认采纳',
-        cancelButtonText: '再想想',
+      this.$confirm(this.$t('qa.detail.acceptConfirm'), this.$t('qa.detail.acceptTitle'), {
+        confirmButtonText: this.$t('qa.detail.acceptOk'),
+        cancelButtonText: this.$t('qa.detail.acceptCancel'),
         type: 'warning',
       }).then(() => {
         acceptBestAnswer(this.question.questionId, answerId)
           .then(() => {
-            this.$message.success('已采纳！积分已发放给回答者 🎉')
+            this.$message.success(this.$t('qa.detail.acceptSuccess'))
             this.loadDetail()
           })
       }).catch(() => {})
     },
     handleLike(answerId) {
-      if (!this.isLoggedIn) { this.$message.warning('请先登录'); return }
+      if (!this.isLoggedIn) { this.$message.warning(this.$t('qa.common.loginFirst')); return }
       likeQaAnswer(answerId).then(() => {
         const ans = this.question.answers.find(a => a.answerId === answerId)
         if (ans) ans.likeCount = (ans.likeCount || 0) + 1
@@ -287,7 +286,7 @@ export default {
       this.cancelling = true
       cancelQaQuestion(this.question.questionId)
         .then(() => {
-          this.$message.success('问题已撤销，积分已退还')
+          this.$message.success(this.$t('qa.detail.cancelSuccess'))
           this.$router.push('/qa')
         })
         .finally(() => { this.cancelling = false })
@@ -295,7 +294,7 @@ export default {
     handleArchive() {
       archiveQaQuestion(this.question.questionId)
         .then(() => {
-          this.$message.success('已归档到知识库！')
+          this.$message.success(this.$t('qa.detail.archiveSuccess'))
           this.loadDetail()
         })
     },
@@ -305,8 +304,7 @@ export default {
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
     },
     categoryLabel(val) {
-      const c = CATEGORIES.find(c => c.value === val)
-      return c ? c.label : val
+      return CATEGORY_KEYS.includes(val) ? this.$t('qa.cat.' + val) : val
     },
     categoryType(val) {
       const map = { tech: 'primary', product: 'success', hr: 'warning', admin: '', other: 'info' }

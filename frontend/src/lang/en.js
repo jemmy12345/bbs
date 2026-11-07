@@ -1,4 +1,7 @@
+import { enModules } from './modules'
+
 export default {
+  ...enModules,
   common: {
     confirm: 'Confirm',
     cancel: 'Cancel',

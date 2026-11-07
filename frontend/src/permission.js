@@ -6,6 +6,14 @@ import 'nprogress/nprogress.css'
 import { getToken, removeToken, setToken } from '@/utils/auth'
 import { isPathMatch } from '@/utils/validate'
 import { isRelogin } from '@/utils/request'
+import i18n from '@/lang'
+
+// 优先使用 titleKey 对应的多语言标题，否则回退 meta.title
+const resolveTitle = (route) => {
+  const meta = (route && route.meta) || {}
+  if (meta.titleKey && i18n.te(meta.titleKey)) return i18n.t(meta.titleKey)
+  return meta.title
+}
 
 NProgress.configure({ showSpinner: false })
 
@@ -30,7 +38,7 @@ if(to.query.code && !from.query.redirect){
   NProgress.start()
   if (getToken()) {
     console.log('有token，直接进入')
-    to.meta.title && store.dispatch('settings/setTitle', to.meta.title)
+    resolveTitle(to) && store.dispatch('settings/setTitle', resolveTitle(to))
     /* has token*/
     if (isWhiteList(to.path)) {
       next()
@@ -68,4 +76,10 @@ if(to.query.code && !from.query.redirect){
 
 router.afterEach(() => {
   NProgress.done()
+})
+
+// 切换语言时刷新页面标题
+i18n.vm.$watch('locale', () => {
+  const title = resolveTitle(router.currentRoute)
+  title && getToken() && store.dispatch('settings/setTitle', title)
 })

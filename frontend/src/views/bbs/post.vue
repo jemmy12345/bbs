@@ -112,9 +112,9 @@
             <div v-if="showFollowupSystemNotice" class="followup-status-card">
               <div class="followup-status-header">
                 <div>
-                  <div class="followup-status-title">建议闭环状态</div>
+                  <div class="followup-status-title">{{ $t('bbsExtra.post.followupTitle') }}</div>
                   <div class="followup-status-desc">
-                    面向建议/意见类帖子，用于展示部门受理和处理进度。
+                    {{ $t('bbsExtra.post.followupDesc') }}
                   </div>
                 </div>
                 <el-tag :type="followupMeta.tagType" size="small">
@@ -125,8 +125,8 @@
                 {{ followupMeta.note }}
               </div>
               <div v-if="followupLatest" class="followup-note">
-                责任人：{{ followupLatest.ownerUserName || followupLatest.ownerUserId || '未指定' }}
-                <span v-if="followupLatest.handleTime">，处理时间：{{ parseTime(followupLatest.handleTime, '{y}-{m}-{d} {h}:{i}') }}</span>
+                {{ $t('bbsExtra.post.owner') }}{{ followupLatest.ownerUserName || followupLatest.ownerUserId || $t('bbsExtra.post.unspecified') }}
+                <span v-if="followupLatest.handleTime">{{ $t('bbsExtra.post.handleTime') }}{{ parseTime(followupLatest.handleTime, '{y}-{m}-{d} {h}:{i}') }}</span>
               </div>
               <div v-if="canManageFollowup" class="followup-form">
                 <el-select
@@ -134,23 +134,23 @@
                   size="small"
                   style="width: 180px"
                 >
-                  <el-option label="已受理" value="accepted" />
-                  <el-option label="处理中" value="processing" />
-                  <el-option label="已反馈" value="feedback" />
-                  <el-option label="已解决" value="resolved" />
+                  <el-option :label="$t('bbsExtra.post.stAccepted')" value="accepted" />
+                  <el-option :label="$t('bbsExtra.post.stProcessing')" value="processing" />
+                  <el-option :label="$t('bbsExtra.post.stFeedback')" value="feedback" />
+                  <el-option :label="$t('bbsExtra.post.stResolved')" value="resolved" />
                 </el-select>
                 <el-input
                   v-model="followupForm.followupNote"
                   size="small"
                   maxlength="120"
                   show-word-limit
-                  placeholder="可填写处理说明、结论或下一步安排"
+                  :placeholder="$t('bbsExtra.post.notePh')"
                 />
                 <el-input
                   v-model="followupForm.ownerUserName"
                   size="small"
                   maxlength="50"
-                  placeholder="责任人名称（可选）"
+                  :placeholder="$t('bbsExtra.post.ownerPh')"
                 />
                 <el-button
                   type="primary"
@@ -158,18 +158,18 @@
                   :loading="followupSubmitting"
                   @click="handleFollowupUpdate"
                 >
-                  更新状态
+                  {{ $t('bbsExtra.post.updateStatus') }}
                 </el-button>
               </div>
               <div v-if="followupHistory && followupHistory.length" class="followup-history">
-                <div class="followup-history-title">处理记录</div>
+                <div class="followup-history-title">{{ $t('bbsExtra.post.history') }}</div>
                 <div
                   v-for="item in followupHistory.slice(0, 5)"
                   :key="item.recordId"
                   class="followup-history-item"
                 >
                   <span class="history-status">{{ parseFollowupRecordMeta(item).label }}</span>
-                  <span class="history-owner">{{ item.ownerUserName || item.ownerUserId || '未指定责任人' }}</span>
+                  <span class="history-owner">{{ item.ownerUserName || item.ownerUserId || $t('bbsExtra.post.noOwner') }}</span>
                   <span class="history-time">{{ parseTime(item.handleTime, '{y}-{m}-{d} {h}:{i}') }}</span>
                   <span class="history-note">{{ item.processNote || '-' }}</span>
                 </div>
@@ -211,7 +211,7 @@
                 @click="handleShare"
                 :size="isMobile ? 'small' : 'medium'"
               >
-                分享
+                {{ $t('bbsExtra.post.share') }}
               </el-button>
             </div>
           </div>
@@ -832,8 +832,8 @@ export default {
     parseFollowupMeta(auditReason) {
       const defaultMeta = {
         code: "accepted",
-        label: "待受理",
-        note: "部门接口人或管理员可在这里维护处理进展。",
+        label: this.$t("bbsExtra.post.stPending"),
+        note: this.$t("bbsExtra.post.defaultNote"),
         tagType: "info",
       };
       const text = String(auditReason || "");
@@ -845,10 +845,10 @@ export default {
       const code = separatorIndex >= 0 ? payload.substring(0, separatorIndex) : payload;
       const note = separatorIndex >= 0 ? payload.substring(separatorIndex + 1) : "";
       const metaMap = {
-        accepted: { label: "已受理", tagType: "info" },
-        processing: { label: "处理中", tagType: "warning" },
-        feedback: { label: "已反馈", tagType: "success" },
-        resolved: { label: "已解决", tagType: "success" },
+        accepted: { label: this.$t("bbsExtra.post.stAccepted"), tagType: "info" },
+        processing: { label: this.$t("bbsExtra.post.stProcessing"), tagType: "warning" },
+        feedback: { label: this.$t("bbsExtra.post.stFeedback"), tagType: "success" },
+        resolved: { label: this.$t("bbsExtra.post.stResolved"), tagType: "success" },
       };
       const target = metaMap[code] || metaMap.accepted;
       return {
@@ -863,17 +863,17 @@ export default {
         return this.parseFollowupMeta("");
       }
       const metaMap = {
-        accepted: { label: "已受理", tagType: "info" },
-        processing: { label: "处理中", tagType: "warning" },
-        feedback: { label: "已反馈", tagType: "success" },
-        resolved: { label: "已解决", tagType: "success" },
+        accepted: { label: this.$t("bbsExtra.post.stAccepted"), tagType: "info" },
+        processing: { label: this.$t("bbsExtra.post.stProcessing"), tagType: "warning" },
+        feedback: { label: this.$t("bbsExtra.post.stFeedback"), tagType: "success" },
+        resolved: { label: this.$t("bbsExtra.post.stResolved"), tagType: "success" },
       };
       const code = record.followupStatus || "accepted";
       const target = metaMap[code] || metaMap.accepted;
       return {
         code,
         label: target.label,
-        note: record.processNote || "部门接口人或管理员可在这里维护处理进展。",
+        note: record.processNote || this.$t("bbsExtra.post.defaultNote"),
         tagType: target.tagType,
       };
     },
@@ -908,7 +908,7 @@ export default {
         ? this.parseFollowupRecordMeta(this.followupLatest)
         : this.parseFollowupMeta(this.post ? this.post.auditReason : "");
       this.followupForm.followupStatus = meta.code || "accepted";
-      this.followupForm.followupNote = meta.note === "部门接口人或管理员可在这里维护处理进展。" ? "" : meta.note;
+      this.followupForm.followupNote = meta.note === this.$t("bbsExtra.post.defaultNote") ? "" : meta.note;
       this.followupForm.ownerUserId = this.followupLatest ? (this.followupLatest.ownerUserId || "") : "";
       this.followupForm.ownerUserName = this.followupLatest ? (this.followupLatest.ownerUserName || "") : "";
     },
@@ -925,7 +925,7 @@ export default {
         ownerUserName: this.followupForm.ownerUserName,
       })
         .then((response) => {
-          this.$modal.msgSuccess(response.msg || "闭环状态已更新");
+          this.$modal.msgSuccess(response.msg || this.$t("bbsExtra.post.followupUpdated"));
           this.getPostDetail();
         })
         .finally(() => {
@@ -969,15 +969,15 @@ export default {
         const result = response.data || response;
         const action = result.action || "allow";
         if (action === "block") {
-          await this.$alert(result.message || "内容未通过风控检测，请修改后重新提交。", "风险提示", {
+          await this.$alert(result.message || this.$t("bbsExtra.index.riskBlocked"), this.$t("bbsExtra.index.riskTitle"), {
             type: "error",
-            confirmButtonText: "我知道了",
+            confirmButtonText: this.$t("bbsExtra.index.gotIt"),
           }).catch(() => {});
           return false;
         }
         return result;
       } catch (error) {
-        this.$modal.msgError("内容检测失败，请稍后重试");
+        this.$modal.msgError(this.$t("bbsExtra.index.checkFailed"));
         return false;
       } finally {
         loading.close();
@@ -1038,9 +1038,9 @@ export default {
             this.getPostDetail();
           })
           .catch((error) => {
-            this.$alert(error.message || "评论未通过风控检测，请修改后重新提交。", "风险提示", {
+            this.$alert(error.message || this.$t("bbsExtra.post.commentBlocked"), this.$t("bbsExtra.index.riskTitle"), {
               type: "error",
-              confirmButtonText: "我知道了",
+              confirmButtonText: this.$t("bbsExtra.index.gotIt"),
             }).catch(() => {});
           });
       };
@@ -1118,9 +1118,9 @@ export default {
             this.getPostDetail();
           })
           .catch((error) => {
-            this.$alert(error.message || "回复未通过风控检测，请修改后重新提交。", "风险提示", {
+            this.$alert(error.message || this.$t("bbsExtra.post.replyBlocked"), this.$t("bbsExtra.index.riskTitle"), {
               type: "error",
-              confirmButtonText: "我知道了",
+              confirmButtonText: this.$t("bbsExtra.index.gotIt"),
             }).catch(() => {});
           });
       };
@@ -1169,11 +1169,11 @@ export default {
       if (preferNativeShare) {
         navigator
           .share({
-            title: this.post ? this.post.title : "帖子分享",
+            title: this.post ? this.post.title : this.$t("bbsExtra.post.sharePost"),
             url: shareUrl,
           })
           .then(() => {
-            this.$message.success("已打开系统分享面板");
+            this.$message.success(this.$t("bbsExtra.post.shareOpened"));
           })
           .catch((error) => {
             if (error && error.name === "AbortError") {
@@ -1191,7 +1191,7 @@ export default {
         navigator.clipboard
           .writeText(shareUrl)
           .then(() => {
-            this.$message.success("帖子链接已复制，快去分享吧");
+            this.$message.success(this.$t("bbsExtra.post.linkCopied"));
           })
           .catch(() => {
             this.fallbackCopyShareUrl(shareUrl);
@@ -1208,9 +1208,9 @@ export default {
       input.select();
       try {
         document.execCommand("copy");
-        this.$message.success("帖子链接已复制，快去分享吧");
+        this.$message.success(this.$t("bbsExtra.post.linkCopied"));
       } catch (e) {
-        this.$message.error("分享链接复制失败，请手动复制地址栏链接");
+        this.$message.error(this.$t("bbsExtra.post.copyFailed"));
       }
       document.body.removeChild(input);
     },

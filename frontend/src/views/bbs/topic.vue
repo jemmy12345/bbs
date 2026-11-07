@@ -1,8 +1,8 @@
 <template>
   <div class="topic-page">
     <div class="topic-header">
-      <h2>论坛专题</h2>
-      <p>按标签沉淀知识与案例，快速查看同类讨论。</p>
+      <h2>{{ $t('topic.pageTitle') }}</h2>
+      <p>{{ $t('topic.pageDesc') }}</p>
     </div>
 
     <div class="topic-toolbar">
@@ -12,7 +12,7 @@
           effect="plain"
           @click="handleTagChange('')"
         >
-          全部专题
+          {{ $t('topic.allTopics') }}
         </el-tag>
 
         <span
@@ -30,7 +30,7 @@
           <span
             v-if="tag.tagId"
             class="tag-follow-icon"
-            :title="followedTagIds.includes(tag.tagId) ? '取消订阅' : '订阅此标签'"
+            :title="followedTagIds.includes(tag.tagId) ? $t('topic.unfollow') : $t('topic.follow')"
             @click.stop="handleToggleFollow(tag)"
           >
             <i
@@ -43,7 +43,7 @@
 
       <el-input
         v-model="searchKeyword"
-        placeholder="搜索专题内帖子标题"
+        :placeholder="$t('topic.searchPlaceholder')"
         class="search-input"
         clearable
         @keyup.enter.native="handleQuery"
@@ -55,15 +55,15 @@
     <div class="topic-summary">
       <div class="summary-item">
         <div class="summary-value">{{ total }}</div>
-        <div class="summary-label">专题帖子数</div>
+        <div class="summary-label">{{ $t('topic.postCount') }}</div>
       </div>
       <div class="summary-item">
-        <div class="summary-value">{{ activeTag || '全部' }}</div>
-        <div class="summary-label">当前专题</div>
+        <div class="summary-value">{{ activeTag || $t('topic.all') }}</div>
+        <div class="summary-label">{{ $t('topic.currentTopic') }}</div>
       </div>
       <div class="summary-item">
         <div class="summary-value">{{ queryParams.pageNum }}</div>
-        <div class="summary-label">当前页</div>
+        <div class="summary-label">{{ $t('topic.currentPage') }}</div>
       </div>
     </div>
 
@@ -88,12 +88,12 @@
         </div>
         <div class="post-meta">
           <span>{{ parseTime(post.createTime, '{y}-{m}-{d}') }}</span>
-          <span>浏览 {{ post.viewCount || 0 }}</span>
-          <span>点赞 {{ post.likeCount || 0 }}</span>
-          <span>评论 {{ post.commentCount || 0 }}</span>
+          <span>{{ $t('topic.views', { n: post.viewCount || 0 }) }}</span>
+          <span>{{ $t('topic.likes', { n: post.likeCount || 0 }) }}</span>
+          <span>{{ $t('topic.comments', { n: post.commentCount || 0 }) }}</span>
         </div>
       </div>
-      <el-empty v-if="!loading && postList.length === 0" description="暂无专题内容" />
+      <el-empty v-if="!loading && postList.length === 0" :description="$t('topic.empty')" />
     </div>
 
     <pagination
@@ -217,13 +217,13 @@ export default {
             if (!this.followedTagIds.includes(tag.tagId)) {
               this.followedTagIds.push(tag.tagId)
             }
-            this.$message.success(`已订阅标签 #${tag.tagName}，有新帖将收到通知`)
+            this.$message.success(this.$t('topic.followed', { tag: tag.tagName }))
           } else {
             this.followedTagIds = this.followedTagIds.filter((id) => id !== tag.tagId)
-            this.$message.info(`已取消订阅 #${tag.tagName}`)
+            this.$message.info(this.$t('topic.unfollowed', { tag: tag.tagName }))
           }
         })
-        .catch(() => this.$message.error('操作失败'))
+        .catch(() => this.$message.error(this.$t('topic.opFailed')))
     },
   },
 }

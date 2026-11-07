@@ -1,40 +1,40 @@
 <template>
   <div class="collect-topic" v-loading="loading">
     <div v-if="data.activity" class="hero">
-      <el-button type="text" icon="el-icon-arrow-left" @click="$router.push('/collect')">返回列表</el-button>
+      <el-button type="text" icon="el-icon-arrow-left" @click="$router.push('/collect')">{{ $t('collect.backToList') }}</el-button>
       <h2>{{ data.activity.title }}</h2>
-      <p>{{ data.activity.ruleText || '暂无规则说明' }}</p>
+      <p>{{ data.activity.ruleText || $t('collect.noRule') }}</p>
       <div class="meta">
-        <span>开始：{{ data.activity.startTime || '-' }}</span>
-        <span>结束：{{ data.activity.endTime || '-' }}</span>
+        <span>{{ $t('collect.startLabel', { time: data.activity.startTime || '-' }) }}</span>
+        <span>{{ $t('collect.endLabel', { time: data.activity.endTime || '-' }) }}</span>
         <el-tag size="mini" type="success">{{ data.activity.status }}</el-tag>
       </div>
     </div>
 
     <div class="grid">
       <div class="panel">
-        <h4>活动内容合集（问答 + 提案 + 帖子）</h4>
+        <h4>{{ $t('collect.contentCollection') }}</h4>
         <div v-for="item in (data.contentList || [])" :key="item.id" class="item">
-          <div class="t">[{{ item.contentType }}] {{ item.contentTitle || ('内容#' + item.contentId) }}</div>
-          <div class="m">作者：{{ item.authorNickName }}，得分：{{ item.score }}，点赞：{{ item.likeCount }}，评论：{{ item.commentCount }}</div>
+          <div class="t">[{{ item.contentType }}] {{ item.contentTitle || $t('collect.contentNo', { id: item.contentId }) }}</div>
+          <div class="m">{{ $t('collect.itemMeta', { author: item.authorNickName, score: item.score, likes: item.likeCount, comments: item.commentCount }) }}</div>
         </div>
       </div>
 
       <div class="panel">
-        <h4>参与榜单</h4>
+        <h4>{{ $t('collect.rankTitle') }}</h4>
         <el-table :data="data.rankList || []" size="mini" border>
-          <el-table-column type="index" label="排名" width="70" />
-          <el-table-column prop="nickName" label="用户" />
-          <el-table-column prop="totalScore" label="总分" width="90" />
-          <el-table-column prop="likeCount" label="获赞" width="90" />
+          <el-table-column type="index" :label="$t('collect.rank')" width="70" />
+          <el-table-column prop="nickName" :label="$t('collect.user')" />
+          <el-table-column prop="totalScore" :label="$t('collect.totalScore')" width="90" />
+          <el-table-column prop="likeCount" :label="$t('collect.likesReceived')" width="90" />
         </el-table>
       </div>
     </div>
 
     <div class="panel">
-      <h4>活动结算与归档</h4>
-      <el-input type="textarea" :rows="3" v-model="summaryText" placeholder="填写活动总结，归档后沉淀为历史专题" />
-      <div style="margin-top: 8px;"><el-button type="warning" @click="archiveTopicNow">结束并归档</el-button></div>
+      <h4>{{ $t('collect.settlement') }}</h4>
+      <el-input type="textarea" :rows="3" v-model="summaryText" :placeholder="$t('collect.summaryPlaceholder')" />
+      <div style="margin-top: 8px;"><el-button type="warning" @click="archiveTopicNow">{{ $t('collect.endArchive') }}</el-button></div>
     </div>
   </div>
 </template>
@@ -65,7 +65,7 @@ export default {
     },
     archiveTopicNow() {
       archiveCollectTopic(this.$route.params.activityId, this.summaryText).then(() => {
-        this.$message.success('活动已归档')
+        this.$message.success(this.$t('collect.archived'))
         this.load()
       })
     },

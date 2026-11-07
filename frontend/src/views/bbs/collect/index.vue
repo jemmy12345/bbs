@@ -1,61 +1,61 @@
 <template>
   <div class="collect-page">
     <div class="hero">
-      <h2>在线收集中心</h2>
-      <p>在线投票、调研问卷、需求征集、专题话题活动统一管理</p>
+      <h2>{{ $t('collect.title') }}</h2>
+      <p>{{ $t('collect.subtitle') }}</p>
       <div class="actions">
-        <el-button type="primary" @click="showCreate('vote')">新建投票</el-button>
-        <el-button type="success" @click="showCreate('survey')">新建调研</el-button>
-        <el-button type="warning" @click="showCreate('demand')">新建表单</el-button>
-        <el-button type="danger" @click="showCreate('topic')">新建专题</el-button>
+        <el-button type="primary" @click="showCreate('vote')">{{ $t('collect.newVote') }}</el-button>
+        <el-button type="success" @click="showCreate('survey')">{{ $t('collect.newSurvey') }}</el-button>
+        <el-button type="warning" @click="showCreate('demand')">{{ $t('collect.newForm') }}</el-button>
+        <el-button type="danger" @click="showCreate('topic')">{{ $t('collect.newTopic') }}</el-button>
       </div>
     </div>
 
     <div class="toolbar">
-      <el-select v-model="query.activityType" clearable placeholder="活动类型" size="small" @change="loadList">
-        <el-option label="投票" value="vote" />
-        <el-option label="调研" value="survey" />
-        <el-option label="需求" value="demand" />
-        <el-option label="专题" value="topic" />
+      <el-select v-model="query.activityType" clearable :placeholder="$t('collect.activityType')" size="small" @change="loadList">
+        <el-option :label="$t('collect.typeVote')" value="vote" />
+        <el-option :label="$t('collect.typeSurvey')" value="survey" />
+        <el-option :label="$t('collect.typeDemand')" value="demand" />
+        <el-option :label="$t('collect.typeTopic')" value="topic" />
       </el-select>
-      <el-select v-model="query.status" clearable placeholder="活动状态" size="small" @change="loadList">
-        <el-option label="进行中" value="PUBLISHED" />
-        <el-option label="已结束" value="ENDED" />
+      <el-select v-model="query.status" clearable :placeholder="$t('collect.activityStatus')" size="small" @change="loadList">
+        <el-option :label="$t('collect.statusOngoing')" value="PUBLISHED" />
+        <el-option :label="$t('collect.statusEnded')" value="ENDED" />
       </el-select>
-      <el-input v-model="query.keyword" placeholder="搜索标题" size="small" style="width: 220px" @keyup.enter.native="doSearch">
+      <el-input v-model="query.keyword" :placeholder="$t('collect.searchTitle')" size="small" style="width: 220px" @keyup.enter.native="doSearch">
         <el-button slot="append" icon="el-icon-search" @click="doSearch" />
       </el-input>
     </div>
 
     <el-table :data="list" v-loading="loading" border>
-      <el-table-column prop="title" label="标题" min-width="220" />
-      <el-table-column prop="activityType" label="类型" width="110" />
-      <el-table-column prop="status" label="状态" width="110" />
-      <el-table-column prop="participantCount" label="参与人数" width="110" />
-      <el-table-column prop="startTime" label="开始时间" width="170" />
-      <el-table-column prop="endTime" label="结束时间" width="170" />
-      <el-table-column label="操作" min-width="280">
+      <el-table-column prop="title" :label="$t('collect.colTitle')" min-width="220" />
+      <el-table-column prop="activityType" :label="$t('collect.colType')" width="110" />
+      <el-table-column prop="status" :label="$t('collect.colStatus')" width="110" />
+      <el-table-column prop="participantCount" :label="$t('collect.colParticipants')" width="110" />
+      <el-table-column prop="startTime" :label="$t('collect.colStart')" width="170" />
+      <el-table-column prop="endTime" :label="$t('collect.colEnd')" width="170" />
+      <el-table-column :label="$t('collect.colActions')" min-width="280">
         <template slot-scope="scope">
-          <el-button size="mini" @click="goParticipate(scope.row)">参与</el-button>
+          <el-button size="mini" @click="goParticipate(scope.row)">{{ $t('collect.participate') }}</el-button>
           <el-button
             size="mini"
             type="primary"
             v-if="scope.row.activityType !== 'vote' || isVoteCreator(scope.row)"
             @click="goStats(scope.row)"
-          >数据</el-button>
-          <el-button size="mini" type="success" v-if="scope.row.activityType === 'topic'" @click="goTopic(scope.row)">专题页</el-button>
+          >{{ $t('collect.data') }}</el-button>
+          <el-button size="mini" type="success" v-if="scope.row.activityType === 'topic'" @click="goTopic(scope.row)">{{ $t('collect.topicPage') }}</el-button>
           <el-button
             size="mini"
             type="warning"
             v-if="scope.row.status === 'PUBLISHED' && (scope.row.activityType !== 'vote' || isVoteCreator(scope.row))"
             @click="endOne(scope.row)"
-          >结束</el-button>
+          >{{ $t('collect.end') }}</el-button>
           <el-button
             size="mini"
             type="danger"
             v-if="scope.row.activityType !== 'vote' || isVoteCreator(scope.row)"
             @click="removeOne(scope.row)"
-          >删除</el-button>
+          >{{ $t('collect.delete') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -70,28 +70,28 @@
 
     <el-dialog :title="createDialogTitle" :visible.sync="createVisible" width="760px" destroy-on-close>
       <el-form :model="form" label-width="110px">
-        <el-form-item label="活动标题">
+        <el-form-item :label="$t('collect.activityTitle')">
           <el-input v-model="form.title" maxlength="200" />
         </el-form-item>
         <el-row :gutter="12">
           <el-col :span="12">
-            <el-form-item label="参与范围">
+            <el-form-item :label="$t('collect.scope')">
               <el-select v-model="form.scopeType" style="width:100%" @change="handleScopeTypeChange">
-                <el-option label="全员" value="all" />
-                <el-option label="部门" value="dept" />
-                <el-option label="指定人" value="users" />
-                <el-option label="组织树(部门+人员)" value="org" />
+                <el-option :label="$t('collect.scopeAll')" value="all" />
+                <el-option :label="$t('collect.scopeDept')" value="dept" />
+                <el-option :label="$t('collect.scopeUsers')" value="users" />
+                <el-option :label="$t('collect.scopeOrg')" value="org" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="范围值" v-if="form.scopeType !== 'org'">
-              <el-input v-model="form.scopeValue" placeholder="部门ID或用户ID，逗号分隔" />
+            <el-form-item :label="$t('collect.scopeValue')" v-if="form.scopeType !== 'org'">
+              <el-input v-model="form.scopeValue" :placeholder="$t('collect.scopeValuePlaceholder')" />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-form-item v-if="form.scopeType === 'org'" label="组织树范围">
+        <el-form-item v-if="form.scopeType === 'org'" :label="$t('collect.orgScope')">
           <div class="org-tree-box" v-loading="targetTreeLoading">
             <el-tree
               ref="targetTree"
@@ -103,57 +103,57 @@
               :props="{ label: 'label', children: 'children' }"
             />
           </div>
-          <div class="org-tree-tip">可同时勾选部门和人员；勾选部门后该部门下所有人员均会收到投票通知。</div>
+          <div class="org-tree-tip">{{ $t('collect.orgTip') }}</div>
         </el-form-item>
         <el-row :gutter="12">
-          <el-col :span="12"><el-form-item label="开始时间"><el-date-picker v-model="form.startTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" style="width:100%" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="结束时间"><el-date-picker v-model="form.endTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" style="width:100%" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('collect.startTime')"><el-date-picker v-model="form.startTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" style="width:100%" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('collect.endTime')"><el-date-picker v-model="form.endTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" style="width:100%" /></el-form-item></el-col>
         </el-row>
         <el-row :gutter="12">
-          <el-col :span="8"><el-form-item label="匿名"><el-switch v-model="form.anonymousFlagBool" /></el-form-item></el-col>
-          <el-col :span="8"><el-form-item label="实时结果"><el-switch v-model="form.realtimeFlagBool" /></el-form-item></el-col>
-          <el-col :span="8"><el-form-item label="限投一次"><el-switch v-model="form.limitOnceFlagBool" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('collect.anonymous')"><el-switch v-model="form.anonymousFlagBool" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('collect.realtime')"><el-switch v-model="form.realtimeFlagBool" /></el-form-item></el-col>
+          <el-col :span="8"><el-form-item :label="$t('collect.limitOnce')"><el-switch v-model="form.limitOnceFlagBool" /></el-form-item></el-col>
         </el-row>
 
         <template v-if="createType === 'vote'">
-          <el-form-item label="投票类型">
+          <el-form-item :label="$t('collect.voteType')">
             <el-select v-model="form.voteType">
-              <el-option label="单选" value="single" />
-              <el-option label="多选" value="multiple" />
-              <el-option label="评分(1-5星)" value="score" />
+              <el-option :label="$t('collect.single')" value="single" />
+              <el-option :label="$t('collect.multiple')" value="multiple" />
+              <el-option :label="$t('collect.score')" value="score" />
             </el-select>
           </el-form-item>
-          <el-form-item label="活动描述"><el-input v-model="form.description" type="textarea" :rows="2" /></el-form-item>
-          <el-form-item label="投票选项">
+          <el-form-item :label="$t('collect.description')"><el-input v-model="form.description" type="textarea" :rows="2" /></el-form-item>
+          <el-form-item :label="$t('collect.voteOptions')">
             <div v-for="(item, idx) in form.options" :key="idx" style="display:flex; gap:8px; margin-bottom:6px;">
-              <el-input v-model="form.options[idx]" placeholder="选项内容" />
+              <el-input v-model="form.options[idx]" :placeholder="$t('collect.optionContent')" />
               <el-button icon="el-icon-delete" @click="form.options.splice(idx,1)" />
             </div>
-            <el-button size="mini" @click="form.options.push('')">新增选项</el-button>
+            <el-button size="mini" @click="form.options.push('')">{{ $t('collect.addOption') }}</el-button>
           </el-form-item>
         </template>
 
         <template v-if="createType === 'survey'">
-          <el-form-item label="问卷题目(JSON)">
-            <el-input v-model="form.questionsJson" type="textarea" :rows="8" placeholder='[{"questionType":"single","questionTitle":"你的满意度","optionJson":"["高","中","低"]","jumpLogicJson":"{}","requiredFlag":"1"}]' />
+          <el-form-item :label="$t('collect.surveyQuestions')">
+            <el-input v-model="form.questionsJson" type="textarea" :rows="8" :placeholder="surveyPlaceholder" />
           </el-form-item>
         </template>
 
         <template v-if="createType === 'demand'">
-          <el-form-item label="活动描述"><el-input v-model="form.description" type="textarea" :rows="2" /></el-form-item>
-          <el-form-item label="表单Schema(JSON)">
-            <el-input v-model="form.formSchema" type="textarea" :rows="6" placeholder='[{"field":"需求名称","required":true}]' />
+          <el-form-item :label="$t('collect.description')"><el-input v-model="form.description" type="textarea" :rows="2" /></el-form-item>
+          <el-form-item :label="$t('collect.formSchema')">
+            <el-input v-model="form.formSchema" type="textarea" :rows="6" :placeholder="schemaPlaceholder" />
           </el-form-item>
         </template>
 
         <template v-if="createType === 'topic'">
-          <el-form-item label="活动规则"><el-input v-model="form.ruleText" type="textarea" :rows="2" /></el-form-item>
-          <el-form-item label="专题内容"><el-input v-model="form.content" type="textarea" :rows="6" /></el-form-item>
+          <el-form-item :label="$t('collect.ruleText')"><el-input v-model="form.ruleText" type="textarea" :rows="2" /></el-form-item>
+          <el-form-item :label="$t('collect.topicContent')"><el-input v-model="form.content" type="textarea" :rows="6" /></el-form-item>
         </template>
       </el-form>
       <div slot="footer">
-        <el-button @click="createVisible = false">取消</el-button>
-        <el-button type="primary" :loading="creating" @click="submitCreate">创建</el-button>
+        <el-button @click="createVisible = false">{{ $t('collect.cancel') }}</el-button>
+        <el-button type="primary" :loading="creating" @click="submitCreate">{{ $t('collect.create') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -189,9 +189,21 @@ export default {
     }
   },
   computed: {
+    surveyPlaceholder() {
+      return JSON.stringify([{
+        questionType: 'single',
+        questionTitle: this.$t('collect.sampleSatisfaction'),
+        optionJson: JSON.stringify([this.$t('collect.optHigh'), this.$t('collect.optMedium'), this.$t('collect.optLow')]),
+        jumpLogicJson: '{}',
+        requiredFlag: '1',
+      }])
+    },
+    schemaPlaceholder() {
+      return JSON.stringify([{ field: this.$t('collect.sampleDemandName'), required: true }])
+    },
     createDialogTitle() {
-      const m = { vote: '新建在线投票', survey: '新建调研问卷', demand: '新建需求征集表单', topic: '新建专题话题活动' }
-      return m[this.createType] || '新建活动'
+      const m = { vote: this.$t('collect.dlgVote'), survey: this.$t('collect.dlgSurvey'), demand: this.$t('collect.dlgDemand'), topic: this.$t('collect.dlgTopic') }
+      return m[this.createType] || this.$t('collect.dlgDefault')
     },
   },
   created() {
@@ -269,12 +281,12 @@ export default {
     },
     submitCreate() {
       if (!this.form.title) {
-        this.$message.error('请输入活动标题')
+        this.$message.error(this.$t('collect.errTitle'))
         return
       }
       const common = this.buildCommonPayload()
       if (this.createType === 'vote' && common.scopeType === 'org' && !common.scopeValue) {
-        this.$message.error('请选择至少一个部门或人员')
+        this.$message.error(this.$t('collect.errOrg'))
         return
       }
       this.creating = true
@@ -286,7 +298,7 @@ export default {
         try {
           questions = JSON.parse(this.form.questionsJson || '[]')
         } catch (e) {
-          this.$message.error('问卷题目JSON格式错误')
+          this.$message.error(this.$t('collect.errSurveyJson'))
           this.creating = false
           return
         }
@@ -297,7 +309,7 @@ export default {
         p = createCollectTopic({ ...common, content: this.form.content })
       }
       p.then(() => {
-        this.$message.success('创建成功')
+        this.$message.success(this.$t('collect.created'))
         this.createVisible = false
         this.loadList()
       }).finally(() => {
@@ -315,14 +327,14 @@ export default {
     },
     endOne(row) {
       endCollectActivity(row.activityId).then(() => {
-        this.$message.success('活动已结束')
+        this.$message.success(this.$t('collect.ended'))
         this.loadList()
       })
     },
     removeOne(row) {
-      this.$confirm('确定删除该活动吗？', '提示', { type: 'warning' }).then(() => {
+      this.$confirm(this.$t('collect.confirmDelete'), this.$t('collect.tip'), { type: 'warning' }).then(() => {
         deleteCollectActivity(row.activityId).then(() => {
-          this.$message.success('已删除')
+          this.$message.success(this.$t('collect.deleted'))
           this.loadList()
         })
       }).catch(() => {})

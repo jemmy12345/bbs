@@ -1,4 +1,7 @@
+import { zhModules } from './modules'
+
 export default {
+  ...zhModules,
   common: {
     confirm: '确定',
     cancel: '取消',
