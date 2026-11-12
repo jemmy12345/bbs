@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.validation.Validator;
 import org.slf4j.Logger;
@@ -174,7 +175,7 @@ public class SysUserServiceImpl implements ISysUserService
     {
 //        String userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
         SysUser info = userMapper.checkUserNameUnique(user.getUserName());
-        if (StringUtils.isNotNull(info) && info.getUserId().equals(user.getUserId()))
+        if (StringUtils.isNotNull(info) && !Objects.equals(info.getUserId(), user.getUserId()))
         {
             return UserConstants.NOT_UNIQUE;
         }
@@ -192,7 +193,7 @@ public class SysUserServiceImpl implements ISysUserService
     {
 //        String userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
         SysUser info = userMapper.checkPhoneUnique(user.getPhonenumber());
-        if (StringUtils.isNotNull(info) && info.getUserId().equals(user.getUserId()))
+        if (StringUtils.isNotNull(info) && !Objects.equals(info.getUserId(), user.getUserId()))
         {
             return UserConstants.NOT_UNIQUE;
         }
@@ -210,7 +211,7 @@ public class SysUserServiceImpl implements ISysUserService
     {
 //        String userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
         SysUser info = userMapper.checkEmailUnique(user.getEmail());
-        if (StringUtils.isNotNull(info) && info.getUserId().equals(user.getUserId()))
+        if (StringUtils.isNotNull(info) && !Objects.equals(info.getUserId(), user.getUserId()))
         {
             return UserConstants.NOT_UNIQUE;
         }

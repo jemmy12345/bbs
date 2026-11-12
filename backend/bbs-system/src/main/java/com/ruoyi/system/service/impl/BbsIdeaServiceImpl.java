@@ -583,7 +583,6 @@ public class BbsIdeaServiceImpl implements IBbsIdeaService
         }
 
         addProgressInternal(ideaId, STATUS_PUBLICIZED, "成果公示", resultSummary, null, 100, "system", "系统");
-        notifyUser(idea.getSubmitUserId(), "【提案成果已公示】" + idea.getTitle(), resultSummary, ideaId);
     }
 
     private void validateSubmitForm(BbsIdeaProposal idea)
