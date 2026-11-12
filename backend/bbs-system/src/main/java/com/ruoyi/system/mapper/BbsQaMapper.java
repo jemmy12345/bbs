@@ -42,10 +42,6 @@ public interface BbsQaMapper
 
     int incrementAnswerCount(@Param("questionId") Long questionId);
 
-    int incrementAnswerLike(@Param("answerId") Long answerId);
-
-    int decrementAnswerLike(@Param("answerId") Long answerId);
-
     int updateQuestionAudit(@Param("questionId") Long questionId,
                              @Param("auditStatus") String auditStatus,
                              @Param("auditReason") String auditReason);

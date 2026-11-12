@@ -22,8 +22,6 @@ public class BbsQaAnswer extends BaseEntity
 
     /** 子回答（楼中楼追问）*/
     private List<BbsQaAnswer> children;
-    /** 当前用户是否已点赞此回答 */
-    private Boolean isLiked;
 
     public Long getAnswerId() { return answerId; }
     public void setAnswerId(Long answerId) { this.answerId = answerId; }
@@ -61,6 +59,4 @@ public class BbsQaAnswer extends BaseEntity
     public List<BbsQaAnswer> getChildren() { return children; }
     public void setChildren(List<BbsQaAnswer> children) { this.children = children; }
 
-    public Boolean getIsLiked() { return isLiked; }
-    public void setIsLiked(Boolean isLiked) { this.isLiked = isLiked; }
 }

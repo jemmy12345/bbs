@@ -96,9 +96,6 @@
             </div>
             <div class="answer-content">{{ displayAnswerContent(bestAnswer) }}</div>
             <div class="answer-actions">
-              <el-button size="mini" type="text" icon="el-icon-thumb" @click="handleLike(bestAnswer.answerId)">
-                {{ $t('qa.detail.like', { n: bestAnswer.likeCount || 0 }) }}
-              </el-button>
               <el-button
                 v-if="isOwner && question.status === 'open' && bestAnswer.isBest !== '1'"
                 size="mini"
@@ -122,9 +119,6 @@
             </div>
             <div class="answer-content">{{ displayAnswerContent(ans) }}</div>
             <div class="answer-actions">
-              <el-button size="mini" type="text" icon="el-icon-thumb" @click="handleLike(ans.answerId)">
-                {{ $t('qa.detail.like', { n: ans.likeCount || 0 }) }}
-              </el-button>
               <el-button
                 v-if="isOwner && question.status === 'open' && ans.isBest !== '1'"
                 size="mini"
@@ -177,7 +171,7 @@
 </template>
 
 <script>
-import { getQaQuestionDetail, answerQaQuestion, acceptBestAnswer, cancelQaQuestion, archiveQaQuestion, likeQaAnswer } from '@/api/bbs/qa'
+import { getQaQuestionDetail, answerQaQuestion, acceptBestAnswer, cancelQaQuestion, archiveQaQuestion } from '@/api/bbs/qa'
 import { getToken } from '@/utils/auth'
 
 const CATEGORY_KEYS = ['tech', 'product', 'hr', 'admin', 'other']
@@ -274,13 +268,6 @@ export default {
             this.loadDetail()
           })
       }).catch(() => {})
-    },
-    handleLike(answerId) {
-      if (!this.isLoggedIn) { this.$message.warning(this.$t('qa.common.loginFirst')); return }
-      likeQaAnswer(answerId).then(() => {
-        const ans = this.question.answers.find(a => a.answerId === answerId)
-        if (ans) ans.likeCount = (ans.likeCount || 0) + 1
-      })
     },
     handleCancel() {
       this.cancelling = true

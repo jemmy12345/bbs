@@ -115,7 +115,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                create_time, update_time
         from bbs_qa_answer
         where question_id = #{questionId} and del_flag = '0'
-        order by is_best desc, like_count desc, create_time asc
+        order by is_best desc, create_time asc
     </select>
 
     <select id="selectAnswerById" resultMap="QaAnswerResult">
@@ -205,18 +205,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update bbs_qa_question
         set answer_count = answer_count + 1, update_time = now()
         where question_id = #{questionId}
-    </update>
-
-    <update id="incrementAnswerLike">
-        update bbs_qa_answer
-        set like_count = like_count + 1, update_time = now()
-        where answer_id = #{answerId}
-    </update>
-
-    <update id="decrementAnswerLike">
-        update bbs_qa_answer
-        set like_count = greatest(like_count - 1, 0), update_time = now()
-        where answer_id = #{answerId}
     </update>
 
     <update id="updateQuestionAudit">

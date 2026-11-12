@@ -251,21 +251,6 @@ public class BbsQaServiceImpl implements IBbsQaService
 
     @Override
     @Transactional
-    public boolean toggleLikeAnswer(Long answerId, String userId)
-    {
-        BbsQaAnswer answer = bbsQaMapper.selectAnswerById(answerId);
-        if (answer == null)
-        {
-            throw new ServiceException("回答不存在");
-        }
-        // 简化实现：未维护点赞希希表，直接增加点赞
-        // 如需防重复点赞可引入 bbs_qa_answer_like 表
-        bbsQaMapper.incrementAnswerLike(answerId);
-        return true;
-    }
-
-    @Override
-    @Transactional
     public void adminAcceptBestAnswer(Long questionId, Long answerId)
     {
         BbsQaQuestion question = bbsQaMapper.selectQuestionById(questionId);

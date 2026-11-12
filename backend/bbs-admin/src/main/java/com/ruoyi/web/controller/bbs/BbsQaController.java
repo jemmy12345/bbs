@@ -103,14 +103,6 @@ public class BbsQaController extends BaseController
 
     // ============ 回答操作 ============
 
-    @ApiOperation("点赞回答")
-    @PostMapping("/answer/{answerId}/like")
-    public AjaxResult likeAnswer(@PathVariable Long answerId)
-    {
-        bbsQaService.toggleLikeAnswer(answerId, SecurityUtils.getUserId());
-        return success();
-    }
-
     // ============ 知识库 ============
 
     @ApiOperation("已归档问题列表（知识库）")

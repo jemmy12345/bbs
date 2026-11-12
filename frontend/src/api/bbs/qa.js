@@ -57,13 +57,6 @@ export function archiveQaQuestion(questionId) {
 
 // ======= 回答相关 =======
 
-export function likeQaAnswer(answerId) {
-  return request({
-    url: `/bbs/qa/answer/${answerId}/like`,
-    method: 'post'
-  })
-}
-
 // ======= 知识库（已归档）=======
 
 export function listQaArchive(params) {

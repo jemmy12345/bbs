@@ -32,9 +32,6 @@ public interface IBbsQaService
     /** 将已解决的问题归档到知识库 */
     void archiveQuestion(Long questionId, String currentUserId);
 
-    /** 点赞/取消点赞回答 */
-    boolean toggleLikeAnswer(Long answerId, String userId);
-
     /** 管理员强制采纳（逃期未采纳时） */
     void adminAcceptBestAnswer(Long questionId, Long answerId);
 
