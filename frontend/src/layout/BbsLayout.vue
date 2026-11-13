@@ -18,11 +18,6 @@
             <span class="nav-item" :class="{ active: currentNav === 'idea' }" @click="handleNavClick('idea')">
               {{ $t('layoutAuth.idea') }}
             </span>
-            <!-- 在线收集功能已屏蔽
-            <span class="nav-item" :class="{ active: currentNav === 'collect' }" @click="handleNavClick('collect')">
-              在线收集
-            </span>
-            -->
             <!-- <el-dropdown @command="handleCategoryNav" trigger="hover">
               <span class="nav-item">
                 分类 <i class="el-icon-arrow-down"></i>
@@ -228,8 +223,6 @@ export default {
         this.currentNav = 'qa';
       } else if (path.startsWith('/idea')) {
         this.currentNav = 'idea';
-      } else if (path.startsWith('/collect')) {
-        this.currentNav = 'collect';
       } else {
         if (this.$route.query.nav) {
           this.currentNav = this.$route.query.nav;
@@ -283,10 +276,6 @@ export default {
       }
       if (nav === 'idea') {
         this.$router.push({ path: '/idea' });
-        return;
-      }
-      if (nav === 'collect') {
-        this.$router.push({ path: '/collect' });
         return;
       }
       this.$router.push({

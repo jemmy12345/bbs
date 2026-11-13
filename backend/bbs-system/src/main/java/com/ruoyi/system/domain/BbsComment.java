@@ -42,9 +42,6 @@ public class BbsComment extends BaseEntity
     /** 点赞数 */
     private Integer likeCount;
 
-    /** 点踩数 */
-    private Integer dislikeCount;
-
     /** 状态（0正常 1关闭） */
     private String status;
 
@@ -65,9 +62,6 @@ public class BbsComment extends BaseEntity
 
     /** 是否已点赞 */
     private Boolean isLiked;
-
-    /** 是否已点踩 */
-    private Boolean isDisliked;
 
     /** 子评论列表 */
     private List<BbsComment> children;
@@ -266,28 +260,12 @@ public class BbsComment extends BaseEntity
         this.isOfficialReply = isOfficialReply;
     }
 
-    public Integer getDislikeCount() {
-        return dislikeCount;
-    }
-
-    public void setDislikeCount(Integer dislikeCount) {
-        this.dislikeCount = dislikeCount;
-    }
-
     public Boolean getLiked() {
         return isLiked;
     }
 
     public void setLiked(Boolean liked) {
         isLiked = liked;
-    }
-
-    public Boolean getIsDisliked() {
-        return isDisliked;
-    }
-
-    public void setIsDisliked(Boolean disliked) {
-        isDisliked = disliked;
     }
 
     public Boolean getOfficialReply() {

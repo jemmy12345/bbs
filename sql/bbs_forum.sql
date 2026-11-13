@@ -146,22 +146,7 @@ create table bbs_post_tag (
 ) engine=innodb auto_increment=1 comment = '帖子标签关联表';
 
 -- ----------------------------
--- 8、关注表
--- ----------------------------
-drop table if exists bbs_follow;
-create table bbs_follow (
-  follow_id         bigint(20)      not null auto_increment    comment '关注ID',
-  user_id           varchar(64)     not null                   comment '用户ID（关注者）',
-  follow_user_id    varchar(64)     not null                   comment '被关注用户ID',
-  create_time       datetime                                   comment '创建时间',
-  primary key (follow_id),
-  unique key uk_user_follow (user_id, follow_user_id),
-  key idx_user_id (user_id),
-  key idx_follow_user_id (follow_user_id)
-) engine=innodb auto_increment=1 comment = '关注表';
-
--- ----------------------------
--- 9、通知表
+-- 8、通知表
 -- ----------------------------
 drop table if exists bbs_notification;
 create table bbs_notification (

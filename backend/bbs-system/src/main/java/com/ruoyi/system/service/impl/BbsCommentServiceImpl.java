@@ -13,11 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.system.domain.BbsLike;
-import com.ruoyi.system.domain.BbsDislike;
 import com.ruoyi.system.domain.BbsComment;
 import com.ruoyi.system.domain.BbsPost;
 import com.ruoyi.system.mapper.BbsLikeMapper;
-import com.ruoyi.system.mapper.BbsDislikeMapper;
 import com.ruoyi.system.mapper.BbsCommentMapper;
 import com.ruoyi.system.mapper.BbsPostMapper;
 import com.ruoyi.system.service.IBbsCommentService;
@@ -33,9 +31,6 @@ public class BbsCommentServiceImpl implements IBbsCommentService
 
     @Autowired
     private BbsLikeMapper bbsLikeMapper;
-
-    @Autowired
-    private BbsDislikeMapper bbsDislikeMapper;
 
     @Autowired
     private BbsPostMapper bbsPostMapper;
@@ -63,12 +58,7 @@ public class BbsCommentServiceImpl implements IBbsCommentService
             Map<Long, Long> likeCountMap = likeList.stream()
                     .collect(Collectors.groupingBy(BbsLike::getTargetId, Collectors.counting()));
 
-            // 根据commentIdList集合，从点踩表bbs_dislike查询对应点踩集合，然后转成Map，方便对bbsComments匹配更新dislikeCount字段
-            List<BbsDislike> dislikeList = bbsDislikeMapper.selectBbsDislikeListByTargetIds(commentIdList, "2");
-            Map<Long, Long> dislikeCountMap = dislikeList.stream()
-                    .collect(Collectors.groupingBy(BbsDislike::getTargetId, Collectors.counting()));
-
-            // 获取当前登录用户信息，判断用户是否针对当前评论点赞、点踩
+            // 获取当前登录用户信息，判断用户是否针对当前评论点赞
             String currentUserId = null;
             try {
                 SysUser currentUser = SecurityUtils.getLoginUser().getUser();
@@ -89,25 +79,11 @@ public class BbsCommentServiceImpl implements IBbsCommentService
                         .collect(Collectors.toSet());
             }
 
-            // 当前用户点踩过的评论ID集合
-            Set<Long> dislikedCommentIds = null;
-            if (currentUserId != null) {
-                final String userId = currentUserId;
-                dislikedCommentIds = dislikeList.stream()
-                        .filter(dislike -> userId.equals(dislike.getUserId()))
-                        .map(BbsDislike::getTargetId)
-                        .collect(Collectors.toSet());
-            }
-
             for (BbsComment comment : bbsComments) {
                 // 更新点赞数
                 comment.setLikeCount(likeCountMap.getOrDefault(comment.getCommentId(), 0L).intValue());
-                // 更新点踩数
-                comment.setDislikeCount(dislikeCountMap.getOrDefault(comment.getCommentId(), 0L).intValue());
                 // 设置当前用户是否已点赞
                 comment.setIsLiked(likedCommentIds != null && likedCommentIds.contains(comment.getCommentId()));
-                // 设置当前用户是否已点踩
-                comment.setIsDisliked(dislikedCommentIds != null && dislikedCommentIds.contains(comment.getCommentId()));
             }
         }
 

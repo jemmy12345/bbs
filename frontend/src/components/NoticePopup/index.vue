@@ -37,7 +37,7 @@ export default {
     load() {
       const token = getToken()
       const path = this.$route.path
-      if (!token || ['/login', '/register'].includes(path)) {
+      if (!token || ['/login'].includes(path)) {
         this.queue = []
         this.loadedFor = ''
         return

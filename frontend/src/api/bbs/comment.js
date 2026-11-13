@@ -77,18 +77,6 @@ export function toggleLike(commentId) {
   })
 }
 
-// 点踩/取消点踩（评论区 targetType 固定为 2）
-export function toggleDislike(commentId) {
-  return request({
-    url: '/bbs/dislike/dislike',
-    method: 'post',
-    data: {
-      targetId: commentId,
-      targetType: '2'
-    }
-  })
-}
-
 // 个人删除评论
 export function delByPersonal(commentId, anonymousUserHash) {
   return request({

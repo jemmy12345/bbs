@@ -23,10 +23,6 @@ smart-bbs/
 
 `backend/bbs-common` 是公共模块，包含通用工具类、公共返回对象、Redis 工具、Excel 工具和基础注解。
 
-`backend/bbs-quartz` 是定时任务模块，用于后台周期性任务能力。
-
-`backend/bbs-generator` 是代码生成辅助模块，主要用于开发阶段快速生成基础代码。
-
 ## 前端目录
 
 `frontend` 是 Vue 前端工程，包含论坛前台页面、提案页面、后台管理页面和通用组件。

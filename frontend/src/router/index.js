@@ -47,11 +47,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/register',
-    component: () => import('@/views/register'),
-    hidden: true
-  },
-  {
     path: '/404',
     component: () => import('@/views/error/404'),
     hidden: true
@@ -187,12 +182,6 @@ export const constantRoutes = [
         meta: { title: '论坛专题', titleKey: 'route.topic', icon: 'message', affix: false }
       },
       {
-        path: 'enterprise',
-        component: () => import('@/views/bbs/enterprise'),
-        name: 'BbsEnterprise',
-        meta: { title: '企业增长专区', titleKey: 'route.growth', icon: 'chart', affix: false }
-      },
-      {
         path: 'qa',
         component: () => import('@/views/bbs/qa/index'),
         name: 'BbsQa',
@@ -243,34 +232,6 @@ export const constantRoutes = [
         component: () => import('@/views/bbs/idea/wall'),
         name: 'BbsIdeaWall',
         meta: { title: '成果公示墙', titleKey: 'route.ideaWall', activeMenu: '/idea' }
-      },
-      {
-        path: 'collect',
-        component: () => import('@/views/bbs/collect/index'),
-        name: 'BbsCollect',
-        hidden: true,
-        meta: { title: '在线收集', titleKey: 'route.collect', icon: 'message', affix: false }
-      },
-      {
-        path: 'collect/participate/:activityId',
-        component: () => import('@/views/bbs/collect/participate'),
-        name: 'BbsCollectParticipate',
-        hidden: true,
-        meta: { title: '参与活动', titleKey: 'route.collectJoin', activeMenu: '/collect' }
-      },
-      {
-        path: 'collect/stats/:activityId',
-        component: () => import('@/views/bbs/collect/stats'),
-        name: 'BbsCollectStats',
-        hidden: true,
-        meta: { title: '活动数据', titleKey: 'route.collectData', activeMenu: '/collect' }
-      },
-      {
-        path: 'collect/topic/:activityId',
-        component: () => import('@/views/bbs/collect/topic'),
-        name: 'BbsCollectTopic',
-        hidden: true,
-        meta: { title: '专题活动', titleKey: 'route.collectTopic', activeMenu: '/collect' }
       },
       {
         path: 'post/:postId',
@@ -336,20 +297,6 @@ export const dynamicRoutes = [
         component: () => import('@/views/system/dict/data'),
         name: 'Data',
         meta: { title: '字典数据', activeMenu: '/admin/sys-dict' }
-      }
-    ]
-  },
-  {
-    path: '/monitor/job-log',
-    component: Layout,
-    hidden: true,
-    permissions: ['monitor:job:list'],
-    children: [
-      {
-        path: 'index/:jobId(\\d+)',
-        component: () => import('@/views/monitor/job/log'),
-        name: 'JobLog',
-        meta: { title: '调度日志', activeMenu: '/monitor/job' }
       }
     ]
   }

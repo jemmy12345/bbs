@@ -49,9 +49,6 @@
           <span v-if="!loading">{{ $t('layoutAuth.login') }}</span>
           <span v-else>{{ $t('layoutAuth.logging') }}</span>
         </el-button>
-        <div style="float: right;" v-if="register">
-          <router-link class="link-type" :to="'/register'">{{ $t('layoutAuth.registerNow') }}</router-link>
-        </div>
       </el-form-item>
     </el-form>
     <!--  底部  -->
@@ -94,8 +91,6 @@ export default {
       loading: false,
       // 验证码开关
       captchaEnabled: true,
-      // 注册开关
-      register: false,
       redirect: undefined
     }
   },

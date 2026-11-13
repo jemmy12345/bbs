@@ -15,30 +15,15 @@
           {{ $t('topic.allTopics') }}
         </el-tag>
 
-        <span
+        <el-tag
           v-for="tag in hotTags"
           :key="tag.tagId || tag.tagName"
-          class="tag-follow-item"
+          :type="activeTag === tag.tagName ? 'primary' : 'info'"
+          effect="plain"
+          @click="handleTagChange(tag.tagName)"
         >
-          <el-tag
-            :type="activeTag === tag.tagName ? 'primary' : 'info'"
-            effect="plain"
-            @click="handleTagChange(tag.tagName)"
-          >
-            #{{ tag.tagName }}
-          </el-tag>
-          <span
-            v-if="tag.tagId"
-            class="tag-follow-icon"
-            :title="followedTagIds.includes(tag.tagId) ? $t('topic.unfollow') : $t('topic.follow')"
-            @click.stop="handleToggleFollow(tag)"
-          >
-            <i
-              :class="followedTagIds.includes(tag.tagId) ? 'el-icon-star-on' : 'el-icon-star-off'"
-              :style="{ color: followedTagIds.includes(tag.tagId) ? '#e6a23c' : '#c0c4cc' }"
-            ></i>
-          </span>
-        </span>
+          #{{ tag.tagName }}
+        </el-tag>
       </div>
 
       <el-input
@@ -107,7 +92,7 @@
 </template>
 
 <script>
-import { listPost, getHotTags, toggleTagFollow, getMyFollowedTagIds } from '@/api/bbs/post'
+import { listPost, getHotTags } from '@/api/bbs/post'
 
 export default {
   name: 'BbsTopic',
@@ -119,7 +104,6 @@ export default {
       total: 0,
       activeTag: '',
       searchKeyword: '',
-      followedTagIds: [],
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -133,7 +117,6 @@ export default {
     this.queryParams.title = this.searchKeyword || null
     this.getHotTags()
     this.getList()
-    this.loadFollowedTags()
   },
   watch: {
     $route(to) {
@@ -201,30 +184,6 @@ export default {
         },
       })
     },
-    loadFollowedTags() {
-      getMyFollowedTagIds()
-        .then((res) => {
-          this.followedTagIds = res.data || []
-        })
-        .catch(() => {})
-    },
-    handleToggleFollow(tag) {
-      if (!tag.tagId) return
-      toggleTagFollow(tag.tagId)
-        .then((res) => {
-          const following = res.data && res.data.following
-          if (following) {
-            if (!this.followedTagIds.includes(tag.tagId)) {
-              this.followedTagIds.push(tag.tagId)
-            }
-            this.$message.success(this.$t('topic.followed', { tag: tag.tagName }))
-          } else {
-            this.followedTagIds = this.followedTagIds.filter((id) => id !== tag.tagId)
-            this.$message.info(this.$t('topic.unfollowed', { tag: tag.tagName }))
-          }
-        })
-        .catch(() => this.$message.error(this.$t('topic.opFailed')))
-    },
   },
 }
 </script>
@@ -262,23 +221,6 @@ export default {
 
 .tag-list .el-tag {
   cursor: pointer;
-}
-
-.tag-follow-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.tag-follow-icon {
-  cursor: pointer;
-  font-size: 14px;
-  padding: 0 2px;
-  transition: color 0.2s;
-}
-
-.tag-follow-icon:hover i {
-  color: #e6a23c !important;
 }
 
 .search-input {

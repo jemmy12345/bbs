@@ -179,31 +179,6 @@ export function getHotTags(limit = 20) {
   })
 }
 
-// 更新建议/意见帖闭环状态
-export function updatePostFollowup(data) {
-  return request({
-    url: '/bbs/post/followup',
-    method: 'post',
-    data: data
-  })
-}
-
-// 获取最新闭环记录
-export function getPostFollowupLatest(postId) {
-  return request({
-    url: '/bbs/post/followup/latest/' + postId,
-    method: 'get'
-  })
-}
-
-// 获取闭环记录历史
-export function getPostFollowupHistory(postId) {
-  return request({
-    url: '/bbs/post/followup/history/' + postId,
-    method: 'get'
-  })
-}
-
 // 获取积分榜
 export function getPointRank(limit = 5) {
   return request({
@@ -224,18 +199,3 @@ export function doCheckin() {
   return request({ url: '/bbs/checkin', method: 'post' })
 }
 
-// ======= 标签订阅 =======
-// 切换标签订阅
-export function toggleTagFollow(tagId) {
-  return request({ url: '/bbs/tag/follow/' + tagId, method: 'post' })
-}
-
-// 查询标签订阅状态
-export function getTagFollowStatus(tagId) {
-  return request({ url: '/bbs/tag/follow/status/' + tagId, method: 'get' })
-}
-
-// 我的订阅标签ID列表
-export function getMyFollowedTagIds() {
-  return request({ url: '/bbs/tag/follow/my', method: 'get' })
-}

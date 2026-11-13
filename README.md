@@ -23,8 +23,6 @@ backend/
   bbs-system     论坛、评论、提案、风控等核心业务
   bbs-framework  登录认证、权限、安全过滤和框架配置
   bbs-common     通用工具、基础对象和公共能力
-  bbs-quartz     定时任务能力
-  bbs-generator  代码生成辅助模块
 ```
 
 ## 常用命令

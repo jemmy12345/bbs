@@ -9,20 +9,16 @@ import com.alibaba.fastjson2.JSON;
 import com.ruoyi.system.domain.BbsPost;
 import com.ruoyi.system.domain.BbsTag;
 import com.ruoyi.system.domain.BbsNotification;
-import com.ruoyi.system.domain.BbsPostFollowupRecord;
 import com.ruoyi.system.domain.BbsModerationCheckResult;
 import com.ruoyi.system.mapper.BbsTagMapper;
 import com.ruoyi.system.service.IBbsAiService;
 import com.ruoyi.system.service.IBbsNotificationService;
 import com.ruoyi.system.service.IBbsPostService;
-import com.ruoyi.system.service.IBbsPostFollowupRecordService;
 import com.ruoyi.system.service.IBbsPointService;
 import com.ruoyi.system.service.IBbsModerationService;
-import com.ruoyi.system.service.IBbsTagFollowService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.domain.SysConfig;
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.core.text.Convert;
 import io.swagger.annotations.Api;
@@ -61,7 +57,6 @@ import org.slf4j.LoggerFactory;
 public class BbsPostController extends BaseController
 {
     private static final Logger log = LoggerFactory.getLogger(BbsPostController.class);
-    private static final String FOLLOWUP_PREFIX = "[FOLLOWUP]";
 
     @Autowired
     private IBbsPostService bbsPostService;
@@ -79,16 +74,10 @@ public class BbsPostController extends BaseController
     private IBbsNotificationService bbsNotificationService;
 
     @Autowired
-    private IBbsPostFollowupRecordService bbsPostFollowupRecordService;
-
-    @Autowired
     private BbsTagMapper bbsTagMapper;
 
     @Autowired
     private IBbsPointService bbsPointService;
-
-    @Autowired
-    private IBbsTagFollowService bbsTagFollowService;
 
     /**
      * 获取运营看板统计数据
@@ -181,87 +170,6 @@ public class BbsPostController extends BaseController
             post.setViewCount(post.getViewCount() + 1);
         }
         return success(post);
-    }
-
-    /**
-     * 更新建议/意见类帖子的闭环状态
-     */
-    @ApiOperation("更新建议/意见类帖子的闭环状态")
-    @PostMapping("/followup")
-    public AjaxResult updateFollowup(@RequestBody Map<String, String> params)
-    {
-        String postIdText = params.get("postId");
-        String followupStatus = params.get("followupStatus");
-        String followupNote = params.get("followupNote");
-        String ownerUserId = params.get("ownerUserId");
-        String ownerUserName = params.get("ownerUserName");
-
-        if (StringUtils.isEmpty(postIdText))
-        {
-            return error("帖子编号不能为空");
-        }
-        if (!isValidFollowupStatus(followupStatus))
-        {
-            return error("闭环状态不合法");
-        }
-
-        Long postId = Convert.toLong(postIdText);
-        if (postId == null || postId <= 0)
-        {
-            return error("帖子编号不合法");
-        }
-
-        BbsPost post = bbsPostService.selectBbsPostById(postId);
-        if (post == null)
-        {
-            return error("帖子不存在");
-        }
-        if (!isSuggestionFollowupPost(post))
-        {
-            return error("仅建议/意见类帖子支持闭环状态");
-        }
-        if (!"0".equals(post.getStatus()))
-        {
-            return error("仅已发布帖子可更新闭环状态");
-        }
-        if (!canManageFollowup(post))
-        {
-            return error("无权限更新闭环状态");
-        }
-
-        SysUser currentUser = SecurityUtils.getLoginUser().getUser();
-
-        BbsPostFollowupRecord record = new BbsPostFollowupRecord();
-        record.setPostId(postId);
-        record.setFollowupStatus(followupStatus);
-        record.setProcessNote(StringUtils.isEmpty(followupNote) ? "" : StringUtils.trim(followupNote));
-        record.setOwnerUserId(StringUtils.isNotEmpty(ownerUserId) ? StringUtils.trim(ownerUserId) : "");
-        record.setOwnerUserName(StringUtils.isNotEmpty(ownerUserName) ? StringUtils.trim(ownerUserName) : "");
-        record.setHandledBy(SecurityUtils.getUsername());
-        record.setHandledByName(currentUser.getNickName());
-        record.setHandleTime(new java.util.Date());
-        record.setCreateBy(SecurityUtils.getUsername());
-        record.setUpdateBy(SecurityUtils.getUsername());
-        record.setDelFlag("0");
-        bbsPostFollowupRecordService.insertBbsPostFollowupRecord(record);
-
-        post.setAuditReason(buildFollowupAuditReason(followupStatus, followupNote));
-        bbsPostService.updateBbsPost(post);
-        return AjaxResult.success("更新成功", record);
-    }
-
-    @ApiOperation("获取帖子最新闭环记录")
-    @GetMapping("/followup/latest/{postId}")
-    public AjaxResult getFollowupLatest(@PathVariable Long postId)
-    {
-        return AjaxResult.success(bbsPostFollowupRecordService.selectLatestByPostId(postId));
-    }
-
-    @ApiOperation("获取帖子闭环记录历史")
-    @GetMapping("/followup/history/{postId}")
-    public AjaxResult getFollowupHistory(@PathVariable Long postId)
-    {
-        return AjaxResult.success(bbsPostFollowupRecordService.selectListByPostId(postId));
     }
 
     @ApiOperation("获取热门标签")
@@ -410,53 +318,16 @@ public class BbsPostController extends BaseController
                 return success("AI检测到风险，已提交管理员审核");
             }
 
-            // 审核开关开启：已进入待审核，不通知标签订阅者，等审核通过后再发布
+            // 审核开关开启：已进入待审核，等审核通过后再发布
             if (auditPending)
             {
                 return success("已提交，等待管理员审核");
             }
             
-            // 通知订阅了本帖标签的用户
-            if (bbsPost.getTags() != null && !bbsPost.getTags().isEmpty() && !"1".equals(bbsPost.getIsAnonymous()))
-            {
-                notifyTagFollowers(bbsPost);
-            }
             returnStr = "发布成功";
             return success(returnStr);
         }else{
             return error("发布失败");
-        }
-    }
-
-    private void notifyTagFollowers(BbsPost bbsPost)
-    {
-        try
-        {
-            for (BbsTag tag : bbsPost.getTags())
-            {
-                if (tag.getTagId() == null) continue;
-                List<String> followers = bbsTagFollowService.getFollowerUserIds(tag.getTagId());
-                for (String followerId : followers)
-                {
-                    // 不通知帖子作者自己
-                    if (followerId.equals(bbsPost.getUserId())) continue;
-                    BbsNotification notification = new BbsNotification();
-                    notification.setUserId(followerId);
-                    notification.setType("5");
-                    notification.setTitle("订阅的标签有新帖");
-                    notification.setContent("你订阅的标签 #" + tag.getTagName() + " 有新帖子：《" + bbsPost.getTitle() + "》");
-                    notification.setTargetType("1");
-                    notification.setTargetId(bbsPost.getPostId());
-                    notification.setFromUserId(bbsPost.getUserId());
-                    notification.setFromNickName(bbsPost.getNickName());
-                    notification.setFromAvatar(bbsPost.getAvatar());
-                    bbsNotificationService.insertBbsNotification(notification);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            log.error("标签订阅通知发送失败", e);
         }
     }
 
@@ -717,47 +588,6 @@ public class BbsPostController extends BaseController
         }
         List<BbsPost> list = bbsPostService.selectHotPostList(limit);
         return success(list);
-    }
-
-    private boolean isSuggestionFollowupPost(BbsPost post)
-    {
-        return post != null
-            && ("suggestion".equals(post.getPostType()) || "opinion".equals(post.getPostType()))
-            && post.getResponseDeptId() != null;
-    }
-
-    private boolean isValidFollowupStatus(String followupStatus)
-    {
-        return "accepted".equals(followupStatus)
-            || "processing".equals(followupStatus)
-            || "feedback".equals(followupStatus)
-            || "resolved".equals(followupStatus);
-    }
-
-    private boolean canManageFollowup(BbsPost post)
-    {
-        if (post == null)
-        {
-            return false;
-        }
-
-        SysUser currentUser = SecurityUtils.getLoginUser().getUser();
-        String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
-        boolean isAdmin = SecurityUtils.isConfigAdmin(adminConfig, currentUser)
-            || (currentUser.getRoles() != null && currentUser.getRoles().stream()
-            .anyMatch(role -> Constants.SUPER_ADMIN.equals(role.getRoleKey())));
-        if (isAdmin)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private String buildFollowupAuditReason(String followupStatus, String followupNote)
-    {
-        String sanitizedNote = StringUtils.isEmpty(followupNote) ? "" : followupNote.trim();
-        return FOLLOWUP_PREFIX + followupStatus + "|" + sanitizedNote;
     }
 
     /**

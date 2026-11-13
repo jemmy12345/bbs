@@ -55,40 +55,7 @@ WHERE u.user_name = 'zhaoliu'
     SELECT 1 FROM sys_user_role ur WHERE ur.user_id = u.user_id AND ur.role_id = 2
   );
 
--- 3) 用户岗位关联：统一赋予普通员工 post_id=4
-INSERT INTO sys_user_post (user_id, post_id)
-SELECT u.user_id, 4
-FROM sys_user u
-WHERE u.user_name = 'zhangsan'
-  AND NOT EXISTS (
-    SELECT 1 FROM sys_user_post up WHERE up.user_id = u.user_id AND up.post_id = 4
-  );
-
-INSERT INTO sys_user_post (user_id, post_id)
-SELECT u.user_id, 4
-FROM sys_user u
-WHERE u.user_name = 'lisi'
-  AND NOT EXISTS (
-    SELECT 1 FROM sys_user_post up WHERE up.user_id = u.user_id AND up.post_id = 4
-  );
-
-INSERT INTO sys_user_post (user_id, post_id)
-SELECT u.user_id, 4
-FROM sys_user u
-WHERE u.user_name = 'wangwu'
-  AND NOT EXISTS (
-    SELECT 1 FROM sys_user_post up WHERE up.user_id = u.user_id AND up.post_id = 4
-  );
-
-INSERT INTO sys_user_post (user_id, post_id)
-SELECT u.user_id, 4
-FROM sys_user u
-WHERE u.user_name = 'zhaoliu'
-  AND NOT EXISTS (
-    SELECT 1 FROM sys_user_post up WHERE up.user_id = u.user_id AND up.post_id = 4
-  );
-
--- 4) 校验
+-- 3) 校验
 SELECT user_id, user_name, nick_name, phonenumber, status
 FROM sys_user
 WHERE user_name IN ('zhangsan', 'lisi', 'wangwu', 'zhaoliu')

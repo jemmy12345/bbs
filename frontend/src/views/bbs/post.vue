@@ -95,86 +95,6 @@
               v-html="post.content"
               @click="handleCommentImageClick($event)"
             ></div>
-            <div
-              v-if="showFollowupSystemNotice"
-              class="post-system-notice"
-            >
-              <i class="el-icon-info notice-icon"></i>
-              <div class="notice-content">
-                <div class="notice-title">
-                  {{ $t("bbs.systemNoticeTitle") }}
-                </div>
-                <div class="notice-text">
-                  {{ followupSystemNoticeText }}
-                </div>
-              </div>
-            </div>
-            <div v-if="showFollowupSystemNotice" class="followup-status-card">
-              <div class="followup-status-header">
-                <div>
-                  <div class="followup-status-title">{{ $t('bbsExtra.post.followupTitle') }}</div>
-                  <div class="followup-status-desc">
-                    {{ $t('bbsExtra.post.followupDesc') }}
-                  </div>
-                </div>
-                <el-tag :type="followupMeta.tagType" size="small">
-                  {{ followupMeta.label }}
-                </el-tag>
-              </div>
-              <div v-if="followupMeta.note" class="followup-note">
-                {{ followupMeta.note }}
-              </div>
-              <div v-if="followupLatest" class="followup-note">
-                {{ $t('bbsExtra.post.owner') }}{{ followupLatest.ownerUserName || followupLatest.ownerUserId || $t('bbsExtra.post.unspecified') }}
-                <span v-if="followupLatest.handleTime">{{ $t('bbsExtra.post.handleTime') }}{{ parseTime(followupLatest.handleTime, '{y}-{m}-{d} {h}:{i}') }}</span>
-              </div>
-              <div v-if="canManageFollowup" class="followup-form">
-                <el-select
-                  v-model="followupForm.followupStatus"
-                  size="small"
-                  style="width: 180px"
-                >
-                  <el-option :label="$t('bbsExtra.post.stAccepted')" value="accepted" />
-                  <el-option :label="$t('bbsExtra.post.stProcessing')" value="processing" />
-                  <el-option :label="$t('bbsExtra.post.stFeedback')" value="feedback" />
-                  <el-option :label="$t('bbsExtra.post.stResolved')" value="resolved" />
-                </el-select>
-                <el-input
-                  v-model="followupForm.followupNote"
-                  size="small"
-                  maxlength="120"
-                  show-word-limit
-                  :placeholder="$t('bbsExtra.post.notePh')"
-                />
-                <el-input
-                  v-model="followupForm.ownerUserName"
-                  size="small"
-                  maxlength="50"
-                  :placeholder="$t('bbsExtra.post.ownerPh')"
-                />
-                <el-button
-                  type="primary"
-                  size="small"
-                  :loading="followupSubmitting"
-                  @click="handleFollowupUpdate"
-                >
-                  {{ $t('bbsExtra.post.updateStatus') }}
-                </el-button>
-              </div>
-              <div v-if="followupHistory && followupHistory.length" class="followup-history">
-                <div class="followup-history-title">{{ $t('bbsExtra.post.history') }}</div>
-                <div
-                  v-for="item in followupHistory.slice(0, 5)"
-                  :key="item.recordId"
-                  class="followup-history-item"
-                >
-                  <span class="history-status">{{ parseFollowupRecordMeta(item).label }}</span>
-                  <span class="history-owner">{{ item.ownerUserName || item.ownerUserId || $t('bbsExtra.post.noOwner') }}</span>
-                  <span class="history-time">{{ parseTime(item.handleTime, '{y}-{m}-{d} {h}:{i}') }}</span>
-                  <span class="history-note">{{ item.processNote || '-' }}</span>
-                </div>
-              </div>
-            </div>
             <div class="post-actions">
               <el-button
                 :type="post.isLiked ? 'primary' : ''"
@@ -345,20 +265,6 @@
                         :class="{ 'liked-icon': comment.isLiked }"
                       />
                       {{ comment.likeCount }}
-                    </el-button>
-                    <el-button
-                      type="text"
-                      size="small"
-                      :class="{ disliked: comment.isDisliked }"
-                      @click="handleCommentDislike(comment)"
-                    >
-                    <img
-                        :src="require('@/assets/images/diancai.svg')"
-                        :alt="$t('bbs.like')"
-                        class="like-icon"
-                        :class="{ 'liked-icon': comment.isLiked }"
-                      />
-                     {{ comment.dislikeCount || 0 }}
                     </el-button>
                     <el-button
                       v-if="canDeleteComment(comment)"
@@ -545,16 +451,12 @@ import {
   getPost,
   toggleLike,
   toggleCollect,
-  updatePostFollowup,
-  getPostFollowupLatest,
-  getPostFollowupHistory,
 } from "@/api/bbs/post";
 import {
   listComment,
   addComment,
   delByPersonal,
   toggleLike as toggleCommentLike,
-  toggleDislike as toggleCommentDislike,
 } from "@/api/bbs/comment";
 import { precheckContent } from "@/api/bbs/moderation";
 import { getToken } from "@/utils/auth";
@@ -605,15 +507,6 @@ export default {
       pendingAnonymousSubmit: null,
       pendingAnonymousPayload: null,
       currentAnonymousUserHash: "",
-      followupSubmitting: false,
-      followupLatest: null,
-      followupHistory: [],
-      followupForm: {
-        followupStatus: "accepted",
-        followupNote: "",
-        ownerUserId: "",
-        ownerUserName: "",
-      },
     };
   },
   created() {
@@ -668,38 +561,10 @@ export default {
   },
   computed: {
     ...mapGetters(["id", "roles", "permissions"]),
-    showFollowupSystemNotice() {
-      return (
-        this.post &&
-        (this.post.postType === "suggestion" ||
-          this.post.postType === "opinion") &&
-        !!this.post.responseDeptId
-      );
-    },
     isCurrentUserAdmin() {
       const permissions = this.permissions || [];
       const roles = this.roles || [];
       return permissions.includes("*:*:*") || roles.includes("admin");
-    },
-    canManageFollowup() {
-      return this.showFollowupSystemNotice && (this.isDeptContact || this.isCurrentUserAdmin);
-    },
-    followupSystemNoticeText() {
-      if (!this.showFollowupSystemNotice) return "";
-      const deptName =
-        this.post && this.post.responseDeptName
-          ? String(this.post.responseDeptName).trim()
-          : "";
-      if (deptName) {
-        return this.$t("bbs.followupNoticeWithDept", { deptName });
-      }
-      return this.$t("bbs.followupNoticeWithoutDept");
-    },
-    followupMeta() {
-      if (this.followupLatest) {
-        return this.parseFollowupRecordMeta(this.followupLatest);
-      }
-      return this.parseFollowupMeta(this.post ? this.post.auditReason : "");
     },
   },
   methods: {
@@ -810,7 +675,6 @@ export default {
       const postId = this.$route.params.postId;
       getPost(postId).then((response) => {
         this.post = response.data;
-        this.loadFollowupRecords();
         this.loading = false;
 
         // 判断当前用户是否是部门接口人
@@ -828,109 +692,6 @@ export default {
         this.commentForm.isAnonymous = "0";
         this.replyForm.isAnonymous = "0";
       }
-    },
-    parseFollowupMeta(auditReason) {
-      const defaultMeta = {
-        code: "accepted",
-        label: this.$t("bbsExtra.post.stPending"),
-        note: this.$t("bbsExtra.post.defaultNote"),
-        tagType: "info",
-      };
-      const text = String(auditReason || "");
-      if (!text.startsWith("[FOLLOWUP]")) {
-        return defaultMeta;
-      }
-      const payload = text.substring("[FOLLOWUP]".length);
-      const separatorIndex = payload.indexOf("|");
-      const code = separatorIndex >= 0 ? payload.substring(0, separatorIndex) : payload;
-      const note = separatorIndex >= 0 ? payload.substring(separatorIndex + 1) : "";
-      const metaMap = {
-        accepted: { label: this.$t("bbsExtra.post.stAccepted"), tagType: "info" },
-        processing: { label: this.$t("bbsExtra.post.stProcessing"), tagType: "warning" },
-        feedback: { label: this.$t("bbsExtra.post.stFeedback"), tagType: "success" },
-        resolved: { label: this.$t("bbsExtra.post.stResolved"), tagType: "success" },
-      };
-      const target = metaMap[code] || metaMap.accepted;
-      return {
-        code,
-        label: target.label,
-        note: note || defaultMeta.note,
-        tagType: target.tagType,
-      };
-    },
-    parseFollowupRecordMeta(record) {
-      if (!record) {
-        return this.parseFollowupMeta("");
-      }
-      const metaMap = {
-        accepted: { label: this.$t("bbsExtra.post.stAccepted"), tagType: "info" },
-        processing: { label: this.$t("bbsExtra.post.stProcessing"), tagType: "warning" },
-        feedback: { label: this.$t("bbsExtra.post.stFeedback"), tagType: "success" },
-        resolved: { label: this.$t("bbsExtra.post.stResolved"), tagType: "success" },
-      };
-      const code = record.followupStatus || "accepted";
-      const target = metaMap[code] || metaMap.accepted;
-      return {
-        code,
-        label: target.label,
-        note: record.processNote || this.$t("bbsExtra.post.defaultNote"),
-        tagType: target.tagType,
-      };
-    },
-    loadFollowupRecords() {
-      if (!this.post || !this.post.postId || !this.showFollowupSystemNotice) {
-        this.followupLatest = null;
-        this.followupHistory = [];
-        this.syncFollowupForm();
-        return;
-      }
-
-      getPostFollowupLatest(this.post.postId)
-        .then((response) => {
-          this.followupLatest = response.data || null;
-          this.syncFollowupForm();
-        })
-        .catch(() => {
-          this.followupLatest = null;
-          this.syncFollowupForm();
-        });
-
-      getPostFollowupHistory(this.post.postId)
-        .then((response) => {
-          this.followupHistory = response.data || [];
-        })
-        .catch(() => {
-          this.followupHistory = [];
-        });
-    },
-    syncFollowupForm() {
-      const meta = this.followupLatest
-        ? this.parseFollowupRecordMeta(this.followupLatest)
-        : this.parseFollowupMeta(this.post ? this.post.auditReason : "");
-      this.followupForm.followupStatus = meta.code || "accepted";
-      this.followupForm.followupNote = meta.note === this.$t("bbsExtra.post.defaultNote") ? "" : meta.note;
-      this.followupForm.ownerUserId = this.followupLatest ? (this.followupLatest.ownerUserId || "") : "";
-      this.followupForm.ownerUserName = this.followupLatest ? (this.followupLatest.ownerUserName || "") : "";
-    },
-    handleFollowupUpdate() {
-      if (!this.post || !this.post.postId) {
-        return;
-      }
-      this.followupSubmitting = true;
-      updatePostFollowup({
-        postId: String(this.post.postId),
-        followupStatus: this.followupForm.followupStatus,
-        followupNote: this.followupForm.followupNote,
-        ownerUserId: this.followupForm.ownerUserId,
-        ownerUserName: this.followupForm.ownerUserName,
-      })
-        .then((response) => {
-          this.$modal.msgSuccess(response.msg || this.$t("bbsExtra.post.followupUpdated"));
-          this.getPostDetail();
-        })
-        .finally(() => {
-          this.followupSubmitting = false;
-        });
     },
     getCommentList() {
       const postId = this.$route.params.postId;
@@ -1232,15 +993,6 @@ export default {
         this.getCommentList();
       });
     },
-    handleCommentDislike(comment) {
-      if (!getToken()) {
-        this.$modal.msgWarning(this.$t("bbs.pleaseLogin"));
-        return;
-      }
-      toggleCommentDislike(comment.commentId).then(() => {
-        this.getCommentList();
-      });
-    },
     // 获取评论图片列表
     getCommentImages(images) {
       if (!images) return [];
@@ -1300,17 +1052,6 @@ export default {
 @media screen and (max-width: 768px) {
   .bbs-post-detail {
     padding: 10px;
-  }
-
-  .followup-status-header,
-  .followup-form {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .followup-history-item {
-    grid-template-columns: 1fr;
   }
 
   .post-detail {
@@ -1456,105 +1197,6 @@ export default {
   margin-bottom: 30px;
   min-height: 200px;
   word-break: break-word;
-}
-
-.post-system-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 18px;
-  padding: 12px 14px;
-  border-radius: 4px;
-  border: 1px solid #d9ecff;
-  background: #f4f9ff;
-}
-
-.post-system-notice .notice-icon {
-  margin-top: 2px;
-  color: #409eff;
-  font-size: 16px;
-}
-
-.post-system-notice .notice-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.post-system-notice .notice-title {
-  font-size: 13px;
-  line-height: 1.4;
-  color: #409eff;
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-
-.post-system-notice .notice-text {
-  font-size: 13px;
-  line-height: 1.6;
-  color: #606266;
-}
-
-.followup-status-card {
-  margin-bottom: 18px;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #e4e7ed;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-}
-
-.followup-status-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.followup-status-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.followup-status-desc,
-.followup-note {
-  margin-top: 6px;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #606266;
-}
-
-.followup-form {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: 180px 1fr 220px auto;
-  gap: 10px;
-  align-items: center;
-}
-
-.followup-history {
-  margin-top: 12px;
-  border-top: 1px dashed #ebeef5;
-  padding-top: 10px;
-}
-
-.followup-history-title {
-  font-size: 13px;
-  color: #606266;
-  margin-bottom: 8px;
-}
-
-.followup-history-item {
-  display: grid;
-  grid-template-columns: 80px 120px 140px 1fr;
-  gap: 8px;
-  font-size: 12px;
-  color: #606266;
-  line-height: 1.6;
-  padding: 4px 0;
-}
-
-.history-status {
-  color: #409eff;
 }
 
 // 使用深度选择器确保样式能应用到 v-html 渲染的内容
@@ -1879,10 +1521,6 @@ export default {
 
 .comment-actions .liked {
   color: #409eff;
-}
-
-.comment-actions .disliked {
-  color: #f56c6c;
 }
 
 .comment-content .comment-actions {

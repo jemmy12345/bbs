@@ -9,13 +9,10 @@ CREATE TEMPORARY TABLE tmp_del_comment AS
 -- target_type：1 帖子 / 2 评论
 DELETE FROM bbs_like         WHERE (target_type='1' AND target_id IN (SELECT post_id FROM tmp_del_post))
                                 OR (target_type='2' AND target_id IN (SELECT comment_id FROM tmp_del_comment));
-DELETE FROM bbs_dislike      WHERE (target_type='1' AND target_id IN (SELECT post_id FROM tmp_del_post))
-                                OR (target_type='2' AND target_id IN (SELECT comment_id FROM tmp_del_comment));
 DELETE FROM bbs_notification WHERE (target_type='1' AND target_id IN (SELECT post_id FROM tmp_del_post))
                                 OR (target_type='2' AND target_id IN (SELECT comment_id FROM tmp_del_comment));
 DELETE FROM bbs_collect      WHERE post_id IN (SELECT post_id FROM tmp_del_post);
 DELETE FROM bbs_post_tag     WHERE post_id IN (SELECT post_id FROM tmp_del_post);
-DELETE FROM bbs_post_followup_record WHERE post_id IN (SELECT post_id FROM tmp_del_post);
 DELETE FROM bbs_comment      WHERE post_id IN (SELECT post_id FROM tmp_del_post);
 DELETE FROM bbs_post         WHERE post_id IN (SELECT post_id FROM tmp_del_post);
 

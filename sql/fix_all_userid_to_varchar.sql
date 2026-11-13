@@ -4,9 +4,6 @@
 --   bbs_collect.user_id          → varchar(64) ✅
 --   bbs_comment.user_id          → varchar(64) ✅
 --   bbs_comment.reply_user_id    → varchar(64) ✅
---   bbs_dislike.user_id          → varchar(64) ✅
---   bbs_follow.user_id           → varchar(64) ✅
---   bbs_follow.follow_user_id    → varchar(64) ✅
 --   bbs_like.user_id             → varchar(64) ✅
 --   bbs_notification.user_id     → varchar(64) ✅
 --   bbs_notification.from_user_id→ varchar(64) ✅

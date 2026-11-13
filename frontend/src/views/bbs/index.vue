@@ -448,7 +448,7 @@
 </template>
 
 <script>
-import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts, getHotTags, getPointRank, getTodayCheckin, doCheckin, getMyFollowedTagIds } from "@/api/bbs/post";
+import { listPost, addPost, getPost, updatePost, generatePostByAi, getHotPosts, getHotTags, getPointRank, getTodayCheckin, doCheckin } from "@/api/bbs/post";
 import { listCategory } from "@/api/bbs/category";
 import { precheckContent } from "@/api/bbs/moderation";
 import { listDeptForPost, listDept } from "@/api/system/dept";
@@ -512,7 +512,6 @@ export default {
       checkinInfo: { checked: false, streak: 0, pointsEarned: 0 },
       checkinLoading: false,
       // 标签订阅
-      followedTagIds: [],
     };
   },
   computed: {
@@ -670,7 +669,6 @@ export default {
     this.getPointRankList();
     this.getTagOptions();
     this.loadCheckinStatus();
-    this.loadFollowedTags();
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
 
@@ -870,14 +868,6 @@ export default {
         .finally(() => {
           this.checkinLoading = false;
         });
-    },
-    // 标签订阅
-    loadFollowedTags() {
-      getMyFollowedTagIds()
-        .then((res) => {
-          this.followedTagIds = res.data || [];
-        })
-        .catch(() => {});
     },
     getTagOptions() {
       getHotTags(50)
