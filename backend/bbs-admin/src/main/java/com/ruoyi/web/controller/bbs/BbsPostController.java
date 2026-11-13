@@ -316,6 +316,7 @@ public class BbsPostController extends BaseController
         
         // 如果不是草稿，所有前台用户（管理员、评审员、普通用户）都走同一套AI风控。
         boolean aiRisk = false;
+        boolean auditPending = false;
         String aiRiskReason = null;
         String adminConfig = sysConfigService.selectConfigByKey("sys.account.admin");
         SysUser currentUser = SecurityUtils.getLoginUser().getUser();
@@ -338,6 +339,13 @@ public class BbsPostController extends BaseController
                 aiRiskReason = moderation.getRiskSummary();
                 bbsPost.setStatus("2");
                 bbsPost.setAuditReason(aiRiskReason);
+            }
+            else if (isAuditSwitchEnabled())
+            {
+                // 审核开关开启：AI 未拦截的帖子也需进入待审核，由管理员审核后发布
+                auditPending = true;
+                bbsPost.setStatus("2");
+                bbsPost.setAuditReason(null);
             }
             else
             {
@@ -400,6 +408,12 @@ public class BbsPostController extends BaseController
             {
                 createAiRiskNotification(postId, bbsPost, aiRiskReason, currentUser, adminConfig);
                 return success("AI检测到风险，已提交管理员审核");
+            }
+
+            // 审核开关开启：已进入待审核，不通知标签订阅者，等审核通过后再发布
+            if (auditPending)
+            {
+                return success("已提交，等待管理员审核");
             }
             
             // 通知订阅了本帖标签的用户
@@ -488,6 +502,7 @@ public class BbsPostController extends BaseController
         SysUser currentUser = SecurityUtils.getLoginUser().getUser();
         String returnStr = null;
         boolean aiRisk = false;
+        boolean auditPending = false;
         String aiRiskReason = null;
         // 如果是从草稿发布（status从"4"变为其他状态），需要设置正确的状态
         boolean isPublishingFromDraft = false;
@@ -517,6 +532,13 @@ public class BbsPostController extends BaseController
                     bbsPost.setStatus("2");
                     bbsPost.setAuditReason(aiRiskReason);
                 }
+                else if (isAuditSwitchEnabled())
+                {
+                    // 审核开关开启：从草稿发布也需进入待审核
+                    auditPending = true;
+                    bbsPost.setStatus("2");
+                    bbsPost.setAuditReason(null);
+                }
                 else
                 {
                     bbsPost.setStatus("0");
@@ -532,6 +554,11 @@ public class BbsPostController extends BaseController
             {
                 createAiRiskNotification(bbsPost.getPostId(), bbsPost, aiRiskReason, currentUser, adminConfig);
                 return success("AI检测到风险，已提交管理员审核");
+            }
+
+            if (auditPending)
+            {
+                return success("已提交，等待管理员审核");
             }
 
             returnStr = isDraft ? "草稿保存成功" : "发布成功";
@@ -740,12 +767,14 @@ public class BbsPostController extends BaseController
     @GetMapping("/audit/enabled")
     public AjaxResult getAuditEnabled()
     {
+        return success(isAuditSwitchEnabled());
+    }
+
+    /** 文章审核开关是否开启（未配置时默认关闭） */
+    private boolean isAuditSwitchEnabled()
+    {
         String auditEnabled = sysConfigService.selectConfigByKey("bbs.post.audit.enabled");
-        if (StringUtils.isEmpty(auditEnabled))
-        {
-            auditEnabled = "false"; // 默认关闭
-        }
-        return success(Convert.toBool(auditEnabled));
+        return StringUtils.isNotEmpty(auditEnabled) && Convert.toBool(auditEnabled);
     }
 
     /**
