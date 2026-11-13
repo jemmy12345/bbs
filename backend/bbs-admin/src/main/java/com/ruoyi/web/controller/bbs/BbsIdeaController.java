@@ -103,10 +103,11 @@ public class BbsIdeaController extends BaseController
                                    @RequestParam(defaultValue = "1") Integer pageNum,
                                    @RequestParam(defaultValue = "10") Integer pageSize)
     {
-        PageHelper.startPage(pageNum, pageSize);
         String userId = SecurityUtils.getUserId();
         boolean isAdmin = isAdminUser();
+        // canReviewAny() 会查询评审配置表，必须在 startPage 之前执行，否则分页会被这条查询占用
         boolean canReviewAny = Boolean.TRUE.equals(mine) ? false : canReviewAny();
+        PageHelper.startPage(pageNum, pageSize);
         List<BbsIdeaProposal> list = bbsIdeaService.listIdeas(status, category, keyword, isPublicized, userId,
                 isAdmin, canReviewAny, mine);
         return getDataTable(list);
