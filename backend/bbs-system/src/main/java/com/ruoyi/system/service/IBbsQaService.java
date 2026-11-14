@@ -34,7 +34,4 @@ public interface IBbsQaService
 
     /** 管理员强制采纳（逃期未采纳时） */
     void adminAcceptBestAnswer(Long questionId, Long answerId);
-
-    /** 管理员审核问题 */
-    void auditQuestion(Long questionId, String auditStatus, String auditReason);
 }

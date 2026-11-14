@@ -24,8 +24,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="archiveTime" column="archive_time"/>
         <result property="viewCount" column="view_count"/>
         <result property="answerCount" column="answer_count"/>
-        <result property="auditStatus" column="audit_status"/>
-        <result property="auditReason" column="audit_reason"/>
         <result property="tags" column="tags"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -51,11 +49,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select question_id, title, category, reward_points, frozen_points, status,
                best_answer_id, ask_user_id, ask_nick_name, ask_avatar, ask_dept_name,
                visibility_scope, expiry_time, close_time, view_count, answer_count,
-               audit_status, tags, create_time, update_time
+               tags, create_time, update_time
         from bbs_qa_question
         <where>
             del_flag = '0'
-            and audit_status = 'approved'
             <if test="status != null and status != ''">
                 and status = #{status}
             </if>
@@ -84,7 +81,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             del_flag = '0'
             and status = 'archived'
-            and audit_status = 'approved'
             <if test="category != null and category != ''">
                 and category = #{category}
             </if>
@@ -103,7 +99,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select question_id, title, content, category, reward_points, frozen_points, status,
                best_answer_id, ask_user_id, ask_nick_name, ask_avatar, ask_dept_name,
                visibility_scope, visibility_extra, expiry_time, close_time, archive_time,
-               view_count, answer_count, audit_status, audit_reason, tags,
+               view_count, answer_count, tags,
                create_time, update_time
         from bbs_qa_question
         where question_id = #{questionId} and del_flag = '0'
@@ -141,13 +137,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into bbs_qa_question(
             title, content, category, reward_points, frozen_points, status,
             ask_user_id, ask_nick_name, ask_avatar, ask_dept_name,
-            visibility_scope, visibility_extra, expiry_time, audit_status, tags,
+            visibility_scope, visibility_extra, expiry_time, tags,
             create_by, create_time, update_time
         ) values(
             #{title}, #{content}, #{category}, #{rewardPoints}, #{frozenPoints}, #{status},
             #{askUserId}, #{askNickName}, #{askAvatar}, #{askDeptName},
             #{visibilityScope}, #{visibilityExtra}, #{expiryTime},
-            #{auditStatus, jdbcType=VARCHAR}, #{tags, jdbcType=VARCHAR},
+            #{tags, jdbcType=VARCHAR},
             #{createBy}, now(), now()
         )
     </insert>
@@ -204,14 +200,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="incrementAnswerCount">
         update bbs_qa_question
         set answer_count = answer_count + 1, update_time = now()
-        where question_id = #{questionId}
-    </update>
-
-    <update id="updateQuestionAudit">
-        update bbs_qa_question
-        set audit_status = #{auditStatus},
-            audit_reason = #{auditReason, jdbcType=VARCHAR},
-            update_time = now()
         where question_id = #{questionId}
     </update>
 

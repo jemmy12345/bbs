@@ -33,7 +33,6 @@ public class BbsPost extends BaseEntity
     private String content;
 
     /** 摘要 */
-    private String summary;
 
     /** 浏览数 */
     private Integer viewCount;
@@ -51,7 +50,6 @@ public class BbsPost extends BaseEntity
     private String isTop;
 
     /** 是否精华（0否 1是） */
-    private String isEssence;
 
     /** 是否匿名（0实名 1匿名） */
     private String isAnonymous;
@@ -187,16 +185,6 @@ public class BbsPost extends BaseEntity
         this.content = content;
     }
 
-    public String getSummary()
-    {
-        return summary;
-    }
-
-    public void setSummary(String summary)
-    {
-        this.summary = summary;
-    }
-
     public Integer getViewCount()
     {
         return viewCount;
@@ -245,16 +233,6 @@ public class BbsPost extends BaseEntity
     public void setIsTop(String isTop)
     {
         this.isTop = isTop;
-    }
-
-    public String getIsEssence()
-    {
-        return isEssence;
-    }
-
-    public void setIsEssence(String isEssence)
-    {
-        this.isEssence = isEssence;
     }
 
     public String getIsAnonymous()
@@ -423,13 +401,11 @@ public class BbsPost extends BaseEntity
             .append("userId", getUserId())
             .append("title", getTitle())
             .append("content", getContent())
-            .append("summary", getSummary())
             .append("viewCount", getViewCount())
             .append("likeCount", getLikeCount())
             .append("commentCount", getCommentCount())
             .append("collectCount", getCollectCount())
             .append("isTop", getIsTop())
-            .append("isEssence", getIsEssence())
             .append("isAnonymous", getIsAnonymous())
             .append("postType", getPostType())
             .append("responseDeptId", getResponseDeptId())

@@ -7,7 +7,7 @@
           <div class="post-content-card" v-if="post">
             <div class="post-header">
               <!-- <el-tag v-if="post.isTop === '1'" type="danger" size="small">{{ $t('bbs.top') }}</el-tag>
-              <el-tag v-if="post.isEssence === '1'" type="warning" size="small">{{ $t('bbs.essence') }}</el-tag> -->
+              -->
               <h1 class="post-title">
                 <el-tag
                   v-if="post.postType"

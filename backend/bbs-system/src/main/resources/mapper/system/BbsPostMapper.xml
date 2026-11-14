@@ -10,13 +10,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="userId"         column="user_id"         />
         <result property="title"          column="title"           />
         <result property="content"        column="content"         />
-        <result property="summary"        column="summary"         />
         <result property="viewCount"      column="view_count"      />
         <result property="likeCount"      column="like_count"      />
         <result property="commentCount"   column="comment_count"   />
         <result property="collectCount"   column="collect_count"  />
         <result property="isTop"          column="is_top"          />
-        <result property="isEssence"      column="is_essence"      />
         <result property="isAnonymous"   column="is_anonymous"    />
         <result property="isAdminPush"   column="is_admin_push"   />
         <result property="postType"      column="post_type"       />
@@ -38,8 +36,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
     
     <sql id="selectBbsPostVo">
-        select p.post_id, p.category_id, p.user_id, p.title, cast(p.content as char) as content, p.summary, 
-               p.view_count, p.like_count, p.comment_count, p.collect_count, p.is_top, p.is_essence, p.is_anonymous, p.is_admin_push,
+        select p.post_id, p.category_id, p.user_id, p.title, cast(p.content as char) as content, 
+               p.view_count, p.like_count, p.comment_count, p.collect_count, p.is_top, p.is_anonymous, p.is_admin_push,
                p.post_type, p.response_dept_id, p.status, p.audit_reason, p.del_flag, p.last_reply_time,p.create_time,p.create_by,
                p.update_by, p.update_time, p.remark,
                c.category_name, 
@@ -94,9 +92,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="isTop != null and isTop != ''">
                 AND p.is_top = #{isTop}
             </if>
-            <if test="isEssence != null and isEssence != ''">
-                AND p.is_essence = #{isEssence}
-            </if>
             <if test="topicTagName != null and topicTagName != ''">
                 AND EXISTS (
                     select 1
@@ -124,13 +119,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id,</if>
             <if test="title != null and title != ''">title,</if>
             <if test="content != null">content,</if>
-            <if test="summary != null">summary,</if>
             <if test="viewCount != null">view_count,</if>
             <if test="likeCount != null">like_count,</if>
             <if test="commentCount != null">comment_count,</if>
             <if test="collectCount != null">collect_count,</if>
             <if test="isTop != null">is_top,</if>
-            <if test="isEssence != null">is_essence,</if>
             <if test="isAnonymous != null">is_anonymous,</if>
             <if test="isAdminPush != null">is_admin_push,</if>
             <if test="postType != null">post_type,</if>
@@ -150,13 +143,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">#{userId},</if>
             <if test="title != null and title != ''">#{title},</if>
             <if test="content != null">#{content},</if>
-            <if test="summary != null">#{summary},</if>
             <if test="viewCount != null">#{viewCount},</if>
             <if test="likeCount != null">#{likeCount},</if>
             <if test="commentCount != null">#{commentCount},</if>
             <if test="collectCount != null">#{collectCount},</if>
             <if test="isTop != null">#{isTop},</if>
-            <if test="isEssence != null">#{isEssence},</if>
             <if test="isAnonymous != null">#{isAnonymous},</if>
             <if test="isAdminPush != null">#{isAdminPush},</if>
             <if test="postType != null">#{postType},</if>
@@ -179,9 +170,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="categoryId != null">category_id = #{categoryId},</if>
             <if test="title != null and title != ''">title = #{title},</if>
             <if test="content != null">content = #{content},</if>
-            <if test="summary != null">summary = #{summary},</if>
             <if test="isTop != null">is_top = #{isTop},</if>
-            <if test="isEssence != null">is_essence = #{isEssence},</if>
             <if test="isAnonymous != null">is_anonymous = #{isAnonymous},</if>
             <if test="isAdminPush != null">is_admin_push = #{isAdminPush},</if>
             <if test="postType != null">post_type = #{postType},</if>

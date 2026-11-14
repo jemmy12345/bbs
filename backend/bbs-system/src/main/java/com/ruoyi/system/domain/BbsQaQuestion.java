@@ -35,9 +35,6 @@ public class BbsQaQuestion extends BaseEntity
     private Date archiveTime;
     private Integer viewCount;
     private Integer answerCount;
-    /** 审核状态：pending/approved/rejected */
-    private String auditStatus;
-    private String auditReason;
     private String tags;
     private String delFlag;
 
@@ -103,11 +100,6 @@ public class BbsQaQuestion extends BaseEntity
     public Integer getAnswerCount() { return answerCount; }
     public void setAnswerCount(Integer answerCount) { this.answerCount = answerCount; }
 
-    public String getAuditStatus() { return auditStatus; }
-    public void setAuditStatus(String auditStatus) { this.auditStatus = auditStatus; }
-
-    public String getAuditReason() { return auditReason; }
-    public void setAuditReason(String auditReason) { this.auditReason = auditReason; }
 
     public String getTags() { return tags; }
     public void setTags(String tags) { this.tags = tags; }

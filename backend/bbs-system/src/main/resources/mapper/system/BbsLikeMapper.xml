@@ -34,8 +34,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectLikePostList" parameterType="String" resultMap="com.ruoyi.system.mapper.BbsPostMapper.BbsPostResult">
-        select p.post_id, p.category_id, p.user_id, p.title, cast(p.content as char) as content, p.summary,
-               p.view_count, p.like_count, p.comment_count, p.collect_count, p.is_top, p.is_essence,
+        select p.post_id, p.category_id, p.user_id, p.title, cast(p.content as char) as content,
+               p.view_count, p.like_count, p.comment_count, p.collect_count, p.is_top,
                p.is_anonymous, p.is_admin_push, p.status, p.del_flag, p.last_reply_time, p.last_reply_user, p.create_by, p.create_time,
                p.update_by, p.update_time, p.remark,
                c.category_name,

@@ -1141,9 +1141,6 @@ export default {
             return;
           }
 
-          const summary = this.form.content
-            .replace(/<[^>]+>/g, "")
-            .substring(0, 200);
           this.form.categoryId = "1";
           if (!this.isCurrentUserAdmin) {
             this.form.isAdminPush = "0";
@@ -1151,7 +1148,6 @@ export default {
           const data = {
             ...this.form,
             moderationToken: moderationResult.moderationToken,
-            summary: summary,
             tags: (this.form.tags || [])
               .filter((name) => !!name)
               .slice(0, 5)
@@ -1275,7 +1271,7 @@ export default {
       const keywordMap = {};
       (posts || []).forEach((post) => {
         const sourceText = this.extractPlainText(
-          `${post.title || ""} ${post.summary || ""}`
+          `${post.title || ""} ${this.extractPlainText(post.content || "").substring(0, 200)}`
         );
         const words = sourceText.match(/[\u4e00-\u9fa5]{2,6}|[A-Za-z]{4,}/g) || [];
         words.forEach((word) => {
@@ -1379,17 +1375,12 @@ export default {
         return;
       }
 
-      // 生成摘要
-      const summary = this.form.content
-        .replace(/<[^>]+>/g, "")
-        .substring(0, 200);
       this.form.categoryId = "1";
       if (!this.isCurrentUserAdmin) {
         this.form.isAdminPush = "0";
       }
       const data = {
         ...this.form,
-        summary: summary,
         status: "4", // 草稿状态
         tags: (this.form.tags || [])
           .filter((name) => !!name)

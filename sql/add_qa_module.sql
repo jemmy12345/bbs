@@ -28,8 +28,6 @@ CREATE TABLE bbs_qa_question (
     archive_time    DATETIME                              COMMENT '归档时间',
     view_count      INT           NOT NULL DEFAULT 0      COMMENT '浏览数',
     answer_count    INT           NOT NULL DEFAULT 0      COMMENT '回答数',
-    audit_status    VARCHAR(20)   NOT NULL DEFAULT 'approved' COMMENT '审核状态：pending待审核/approved已通过/rejected已拒绝',
-    audit_reason    VARCHAR(500)                          COMMENT '审核不通过原因',
     tags            VARCHAR(500)                          COMMENT '关键词标签（逗号分隔）',
     del_flag        CHAR(1)       NOT NULL DEFAULT '0'    COMMENT '删除标志（0存在 2删除）',
     create_by       VARCHAR(64)                           COMMENT '创建者',
@@ -41,7 +39,6 @@ CREATE TABLE bbs_qa_question (
     INDEX idx_status (status),
     INDEX idx_category (category),
     INDEX idx_ask_user_id (ask_user_id),
-    INDEX idx_audit_status (audit_status),
     INDEX idx_create_time (create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='企业问答-问题表';
 

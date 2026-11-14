@@ -184,9 +184,6 @@
             style="margin-right: 5px"
             >{{ $t('bbsExtra.article.top') }}</el-tag
           >
-          <el-tag v-if="scope.row.isEssence === '1'" type="warning" size="mini"
-            >{{ $t('bbs.essence') }}</el-tag
-          >
         </template>
       </el-table-column>
       <el-table-column
@@ -305,13 +302,6 @@
                 size="small"
                 style="margin-right: 5px"
                 >{{ $t('bbsExtra.article.top') }}</el-tag
-              >
-              <el-tag
-                v-if="previewPost.isEssence === '1'"
-                type="warning"
-                size="small"
-                style="margin-right: 5px"
-                >{{ $t('bbs.essence') }}</el-tag
               >
               <!-- <span style="margin-right: 10px;">分类：{{ previewPost.categoryName }}</span> -->
               <span style="margin-right: 10px"

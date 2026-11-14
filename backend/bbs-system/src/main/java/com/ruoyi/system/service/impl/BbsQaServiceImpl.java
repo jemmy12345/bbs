@@ -44,10 +44,6 @@ public class BbsQaServiceImpl implements IBbsQaService
         question.setFrozenPoints(reward);
         question.setViewCount(0);
         question.setAnswerCount(0);
-        if (question.getAuditStatus() == null)
-        {
-            question.setAuditStatus("approved"); // 默认无需审核，可配置调整
-        }
         question.setVisibilityScope("all");
         question.setVisibilityExtra(null);
         if (question.getCategory() == null)
@@ -283,11 +279,5 @@ public class BbsQaServiceImpl implements IBbsQaService
             bbsPointRecordMapper.insertIgnore(record);
             sysUserMapper.incrementBbsPoints(answer.getAnswerUserId(), points);
         }
-    }
-
-    @Override
-    public void auditQuestion(Long questionId, String auditStatus, String auditReason)
-    {
-        bbsQaMapper.updateQuestionAudit(questionId, auditStatus, auditReason);
     }
 }

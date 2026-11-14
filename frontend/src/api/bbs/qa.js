@@ -75,11 +75,3 @@ export function adminAcceptBestAnswer(questionId, answerId) {
     method: 'post'
   })
 }
-
-export function auditQaQuestion(questionId, data) {
-  return request({
-    url: `/bbs/qa/admin/question/${questionId}/audit`,
-    method: 'post',
-    data
-  })
-}

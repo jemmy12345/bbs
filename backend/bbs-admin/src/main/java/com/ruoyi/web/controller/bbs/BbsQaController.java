@@ -141,18 +141,4 @@ public class BbsQaController extends BaseController
         bbsQaService.adminAcceptBestAnswer(questionId, answerId);
         return success();
     }
-
-    @ApiOperation("管理员审核问题")
-    @PostMapping("/admin/question/{questionId}/audit")
-    public AjaxResult auditQuestion(@PathVariable Long questionId, @RequestBody Map<String, Object> body)
-    {
-        if (!isAdmin())
-        {
-            return error("无权限操作");
-        }
-        String auditStatus = String.valueOf(body.get("auditStatus"));
-        String auditReason = body.get("auditReason") == null ? null : String.valueOf(body.get("auditReason"));
-        bbsQaService.auditQuestion(questionId, auditStatus, auditReason);
-        return success();
-    }
 }
