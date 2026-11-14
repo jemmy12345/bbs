@@ -17,8 +17,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="askNickName" column="ask_nick_name"/>
         <result property="askAvatar" column="ask_avatar"/>
         <result property="askDeptName" column="ask_dept_name"/>
-        <result property="visibilityScope" column="visibility_scope"/>
-        <result property="visibilityExtra" column="visibility_extra"/>
         <result property="expiryTime" column="expiry_time"/>
         <result property="closeTime" column="close_time"/>
         <result property="archiveTime" column="archive_time"/>
@@ -32,10 +30,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap id="QaAnswerResult" type="com.ruoyi.system.domain.BbsQaAnswer">
         <id property="answerId" column="answer_id"/>
         <result property="questionId" column="question_id"/>
-        <result property="parentAnswerId" column="parent_answer_id"/>
         <result property="content" column="content"/>
         <result property="isBest" column="is_best"/>
-        <result property="likeCount" column="like_count"/>
         <result property="answerUserId" column="answer_user_id"/>
         <result property="answerNickName" column="answer_nick_name"/>
         <result property="answerAvatar" column="answer_avatar"/>
@@ -48,7 +44,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectQuestionList" resultMap="QaQuestionResult">
         select question_id, title, category, reward_points, frozen_points, status,
                best_answer_id, ask_user_id, ask_nick_name, ask_avatar, ask_dept_name,
-               visibility_scope, expiry_time, close_time, view_count, answer_count,
+               expiry_time, close_time, view_count, answer_count,
                tags, create_time, update_time
         from bbs_qa_question
         <where>
@@ -98,7 +94,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectQuestionById" resultMap="QaQuestionResult">
         select question_id, title, content, category, reward_points, frozen_points, status,
                best_answer_id, ask_user_id, ask_nick_name, ask_avatar, ask_dept_name,
-               visibility_scope, visibility_extra, expiry_time, close_time, archive_time,
+               expiry_time, close_time, archive_time,
                view_count, answer_count, tags,
                create_time, update_time
         from bbs_qa_question
@@ -106,7 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectAnswerListByQuestionId" resultMap="QaAnswerResult">
-        select answer_id, question_id, parent_answer_id, content, is_best, like_count,
+        select answer_id, question_id, content, is_best,
                answer_user_id, answer_nick_name, answer_avatar, answer_dept_name,
                create_time, update_time
         from bbs_qa_answer
@@ -115,7 +111,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectAnswerById" resultMap="QaAnswerResult">
-        select answer_id, question_id, parent_answer_id, content, is_best, like_count,
+        select answer_id, question_id, content, is_best,
                answer_user_id, answer_nick_name, answer_avatar, answer_dept_name,
                create_time, update_time
         from bbs_qa_answer
@@ -137,12 +133,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into bbs_qa_question(
             title, content, category, reward_points, frozen_points, status,
             ask_user_id, ask_nick_name, ask_avatar, ask_dept_name,
-            visibility_scope, visibility_extra, expiry_time, tags,
+            expiry_time, tags,
             create_by, create_time, update_time
         ) values(
             #{title}, #{content}, #{category}, #{rewardPoints}, #{frozenPoints}, #{status},
             #{askUserId}, #{askNickName}, #{askAvatar}, #{askDeptName},
-            #{visibilityScope}, #{visibilityExtra}, #{expiryTime},
+            #{expiryTime},
             #{tags, jdbcType=VARCHAR},
             #{createBy}, now(), now()
         )
@@ -151,11 +147,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertAnswer" parameterType="com.ruoyi.system.domain.BbsQaAnswer"
             useGeneratedKeys="true" keyProperty="answerId">
         insert into bbs_qa_answer(
-            question_id, parent_answer_id, content, is_best, like_count,
+            question_id, content, is_best,
             answer_user_id, answer_nick_name, answer_avatar, answer_dept_name,
             create_by, create_time, update_time
         ) values(
-            #{questionId}, #{parentAnswerId, jdbcType=BIGINT}, #{content}, '0', 0,
+            #{questionId}, #{content}, '0',
             #{answerUserId}, #{answerNickName}, #{answerAvatar, jdbcType=VARCHAR},
             #{answerDeptName, jdbcType=VARCHAR},
             #{createBy}, now(), now()

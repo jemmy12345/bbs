@@ -68,13 +68,12 @@ public class BbsQaController extends BaseController
     public AjaxResult answerQuestion(@PathVariable Long questionId, @RequestBody Map<String, Object> body)
     {
         String content       = body.get("content") == null ? null : String.valueOf(body.get("content"));
-        Long parentAnswerId  = body.get("parentAnswerId") == null ? null : Long.valueOf(body.get("parentAnswerId").toString());
         String userId        = SecurityUtils.getUserId();
         String nickName      = SecurityUtils.getLoginUser().getUser().getNickName();
         String avatar        = SecurityUtils.getLoginUser().getUser().getAvatar();
         String deptName      = SecurityUtils.getLoginUser().getUser().getDept() == null ? null
                 : SecurityUtils.getLoginUser().getUser().getDept().getDeptName();
-        return success(bbsQaService.answerQuestion(questionId, content, parentAnswerId, userId, nickName, avatar, deptName));
+        return success(bbsQaService.answerQuestion(questionId, content, userId, nickName, avatar, deptName));
     }
 
     @ApiOperation("采纳最佳答案")

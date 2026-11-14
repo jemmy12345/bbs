@@ -20,7 +20,7 @@ public interface IBbsQaService
     BbsQaQuestion getQuestionDetail(Long questionId, String currentUserId);
 
     /** 回答问题 */
-    Long answerQuestion(Long questionId, String content, Long parentAnswerId,
+    Long answerQuestion(Long questionId, String content,
                         String userId, String nickName, String avatar, String deptName);
 
     /** 提问者采纳最佳答案（发放悬赏积分） */

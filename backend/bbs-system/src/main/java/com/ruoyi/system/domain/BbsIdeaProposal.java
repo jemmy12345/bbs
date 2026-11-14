@@ -30,7 +30,6 @@ public class BbsIdeaProposal extends BaseEntity
     private String isDraft;
     private String reviewStage;
     private String rejectReason;
-    private java.util.Date projectTime;
     private java.util.Date landingTime;
     @Excel(name = "是否公示(1是)", sort = 11)
     private String isPublicized;
@@ -96,8 +95,6 @@ public class BbsIdeaProposal extends BaseEntity
     public String getRejectReason() { return rejectReason; }
     public void setRejectReason(String rejectReason) { this.rejectReason = rejectReason; }
 
-    public java.util.Date getProjectTime() { return projectTime; }
-    public void setProjectTime(java.util.Date projectTime) { this.projectTime = projectTime; }
 
     public java.util.Date getLandingTime() { return landingTime; }
     public void setLandingTime(java.util.Date landingTime) { this.landingTime = landingTime; }

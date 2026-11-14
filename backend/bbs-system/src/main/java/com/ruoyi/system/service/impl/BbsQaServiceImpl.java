@@ -44,8 +44,6 @@ public class BbsQaServiceImpl implements IBbsQaService
         question.setFrozenPoints(reward);
         question.setViewCount(0);
         question.setAnswerCount(0);
-        question.setVisibilityScope("all");
-        question.setVisibilityExtra(null);
         if (question.getCategory() == null)
         {
             question.setCategory("other");
@@ -111,7 +109,7 @@ public class BbsQaServiceImpl implements IBbsQaService
 
     @Override
     @Transactional
-    public Long answerQuestion(Long questionId, String content, Long parentAnswerId,
+    public Long answerQuestion(Long questionId, String content,
                                String userId, String nickName, String avatar, String deptName)
     {
         BbsQaQuestion question = bbsQaMapper.selectQuestionById(questionId);
@@ -130,10 +128,8 @@ public class BbsQaServiceImpl implements IBbsQaService
 
         BbsQaAnswer answer = new BbsQaAnswer();
         answer.setQuestionId(questionId);
-        answer.setParentAnswerId(parentAnswerId);
         answer.setContent(content);
         answer.setIsBest("0");
-        answer.setLikeCount(0);
         answer.setAnswerUserId(userId);
         answer.setAnswerNickName(nickName);
         answer.setAnswerAvatar(avatar);

@@ -25,8 +25,6 @@ public class BbsQaQuestion extends BaseEntity
     private String askAvatar;
     private String askDeptName;
     /** 可见范围：all/dept/specific */
-    private String visibilityScope;
-    private String visibilityExtra;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date expiryTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -79,11 +77,7 @@ public class BbsQaQuestion extends BaseEntity
     public String getAskDeptName() { return askDeptName; }
     public void setAskDeptName(String askDeptName) { this.askDeptName = askDeptName; }
 
-    public String getVisibilityScope() { return visibilityScope; }
-    public void setVisibilityScope(String visibilityScope) { this.visibilityScope = visibilityScope; }
 
-    public String getVisibilityExtra() { return visibilityExtra; }
-    public void setVisibilityExtra(String visibilityExtra) { this.visibilityExtra = visibilityExtra; }
 
     public Date getExpiryTime() { return expiryTime; }
     public void setExpiryTime(Date expiryTime) { this.expiryTime = expiryTime; }

@@ -10,10 +10,8 @@ public class BbsQaAnswer extends BaseEntity
 
     private Long answerId;
     private Long questionId;
-    private Long parentAnswerId;
     private String content;
     private String isBest;
-    private Integer likeCount;
     private String answerUserId;
     private String answerNickName;
     private String answerAvatar;
@@ -29,8 +27,6 @@ public class BbsQaAnswer extends BaseEntity
     public Long getQuestionId() { return questionId; }
     public void setQuestionId(Long questionId) { this.questionId = questionId; }
 
-    public Long getParentAnswerId() { return parentAnswerId; }
-    public void setParentAnswerId(Long parentAnswerId) { this.parentAnswerId = parentAnswerId; }
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
@@ -38,8 +34,6 @@ public class BbsQaAnswer extends BaseEntity
     public String getIsBest() { return isBest; }
     public void setIsBest(String isBest) { this.isBest = isBest; }
 
-    public Integer getLikeCount() { return likeCount; }
-    public void setLikeCount(Integer likeCount) { this.likeCount = likeCount; }
 
     public String getAnswerUserId() { return answerUserId; }
     public void setAnswerUserId(String answerUserId) { this.answerUserId = answerUserId; }

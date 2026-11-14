@@ -6,9 +6,9 @@
     </div>
 
     <div class="toolbar">
-      <el-select v-model="query.sortBy" size="small" @change="getList">
+      <el-select v-model="query.sortBy" size="small" @change="doSearch">
         <el-option :label="$t('idea.wall.latest')" value="latest" />
-        <el-option :label="$t('idea.wall.effect')" value="effect" />
+        <el-option :label="$t('idea.wall.like')" value="like" />
       </el-select>
       <el-input v-model="query.keyword" clearable size="small" style="width:220px" :placeholder="$t('idea.wall.search')" @keyup.enter.native="doSearch">
         <el-button slot="append" icon="el-icon-search" @click="doSearch" />
