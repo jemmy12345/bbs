@@ -91,13 +91,6 @@ public interface ISysUserService
     public void checkUserAllowed(SysUser user);
 
     /**
-     * 校验用户是否有数据权限
-     * 
-     * @param userId 用户id
-     */
-    public void checkUserDataScope(String userId);
-
-    /**
      * 新增用户信息
      * 
      * @param user 用户信息

@@ -17,14 +17,7 @@ SET visible = '0',
 WHERE menu_id IN (1, 2, 3)
    OR parent_id IN (1, 2, 3);
 
--- 3) Grant all backend menu and button permissions to admin role
-INSERT IGNORE INTO sys_role_menu(role_id, menu_id)
-SELECT r.role_id, m.menu_id
-FROM sys_role r
-JOIN sys_menu m ON 1 = 1
-WHERE r.role_key = 'admin';
-
--- 4) Ensure core system maintenance entries are visible and enabled
+-- 3) Ensure core system maintenance entries are visible and enabled
 UPDATE sys_menu
 SET visible = '0',
     status = '0',

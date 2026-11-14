@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -64,7 +63,6 @@ public class SysUserServiceImpl implements ISysUserService
      * @return 用户信息集合信息
      */
     @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysUser> selectUserList(SysUser user)
     {
         return userMapper.selectUserList(user);
@@ -77,7 +75,6 @@ public class SysUserServiceImpl implements ISysUserService
      * @return 用户信息集合信息
      */
     @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysUser> selectAllocatedList(SysUser user)
     {
         return userMapper.selectAllocatedList(user);
@@ -90,7 +87,6 @@ public class SysUserServiceImpl implements ISysUserService
      * @return 用户信息集合信息
      */
     @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysUser> selectUnallocatedList(SysUser user)
     {
         return userMapper.selectUnallocatedList(user);
@@ -202,26 +198,6 @@ public class SysUserServiceImpl implements ISysUserService
         if (StringUtils.isNotNull(user.getUserId()) && user.isAdmin())
         {
             throw new ServiceException("不允许操作超级管理员用户");
-        }
-    }
-
-    /**
-     * 校验用户是否有数据权限
-     * 
-     * @param userId 用户id
-     */
-    @Override
-    public void checkUserDataScope(String userId)
-    {
-        if (!SecurityUtils.isAdmin())
-        {
-            SysUser user = new SysUser();
-            user.setUserId(userId);
-            List<SysUser> users = SpringUtils.getAopProxy(this).selectUserList(user);
-            if (StringUtils.isEmpty(users))
-            {
-                throw new ServiceException("没有权限访问用户数据！");
-            }
         }
     }
 
@@ -414,7 +390,6 @@ public class SysUserServiceImpl implements ISysUserService
         for (String userId : userIds)
         {
             checkUserAllowed(new SysUser(userId));
-            checkUserDataScope(userId);
         }
         // 删除用户与角色关联
         userRoleMapper.deleteUserRole(userIds);
@@ -449,7 +424,6 @@ public class SysUserServiceImpl implements ISysUserService
                 if (StringUtils.isNull(u))
                 {
                     BeanValidators.validateWithException(validator, user);
-                    deptService.checkDeptDataScope(user.getDeptId());
                     String password = configService.selectConfigByKey("sys.user.initPassword");
                     user.setPassword(SecurityUtils.encryptPassword(password));
                     user.setCreateBy(operName);
@@ -461,8 +435,6 @@ public class SysUserServiceImpl implements ISysUserService
                 {
                     BeanValidators.validateWithException(validator, user);
                     checkUserAllowed(u);
-                    checkUserDataScope(u.getUserId());
-                    deptService.checkDeptDataScope(user.getDeptId());
                     user.setUserId(u.getUserId());
                     user.setDeptId(u.getDeptId());
                     user.setUpdateBy(operName);

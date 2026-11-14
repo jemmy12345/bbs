@@ -755,9 +755,6 @@ CREATE TABLE `sys_role` (
   `role_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色名称',
   `role_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色权限字符串',
   `role_sort` int NOT NULL COMMENT '显示顺序',
-  `data_scope` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '1' COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
-  `menu_check_strictly` tinyint(1) DEFAULT '1' COMMENT '菜单树选择项是否关联显示',
-  `dept_check_strictly` tinyint(1) DEFAULT '1' COMMENT '部门树选择项是否关联显示',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色状态（0正常 1停用）',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '0' COMMENT '删除标志（0代表存在 2代表删除）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '创建者',
@@ -770,34 +767,8 @@ CREATE TABLE `sys_role` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `sys_role` DISABLE KEYS */;
-INSERT INTO `sys_role` VALUES (1,'超级管理员','admin',1,'1',1,1,'0','0','admin','2026-02-02 17:07:56','admin','2026-05-02 19:37:09','超级管理员'),(2,'普通角色','common',2,'2',1,1,'0','0','admin','2026-02-02 17:07:56','',NULL,'普通角色'),(100,'提案初审员','idea_l1_reviewer',11,'1',1,1,'0','0','admin','2026-05-22 03:49:49','',NULL,'创意提案初审角色'),(101,'提案复审员','idea_l2_reviewer',12,'1',1,1,'0','0','admin','2026-05-22 03:49:49','',NULL,'创意提案复审角色'),(102,'提案终审员','idea_l3_reviewer',13,'1',1,1,'0','0','admin','2026-05-22 03:49:49','',NULL,'创意提案终审角色');
+INSERT INTO `sys_role` VALUES (1,'超级管理员','admin',1,'0','0','admin','2026-02-02 17:07:56','admin','2026-05-02 19:37:09','超级管理员'),(2,'普通角色','common',2,'0','0','admin','2026-02-02 17:07:56','',NULL,'普通角色'),(100,'提案初审员','idea_l1_reviewer',11,'0','0','admin','2026-05-22 03:49:49','',NULL,'创意提案初审角色'),(101,'提案复审员','idea_l2_reviewer',12,'0','0','admin','2026-05-22 03:49:49','',NULL,'创意提案复审角色'),(102,'提案终审员','idea_l3_reviewer',13,'0','0','admin','2026-05-22 03:49:49','',NULL,'创意提案终审角色');
 /*!40000 ALTER TABLE `sys_role` ENABLE KEYS */;
-DROP TABLE IF EXISTS `sys_role_dept`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `sys_role_dept` (
-  `role_id` bigint NOT NULL COMMENT '角色ID',
-  `dept_id` bigint NOT NULL COMMENT '部门ID',
-  PRIMARY KEY (`role_id`,`dept_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='角色和部门关联表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
-/*!40000 ALTER TABLE `sys_role_dept` DISABLE KEYS */;
-INSERT INTO `sys_role_dept` VALUES (2,100),(2,101),(2,105);
-/*!40000 ALTER TABLE `sys_role_dept` ENABLE KEYS */;
-DROP TABLE IF EXISTS `sys_role_menu`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `sys_role_menu` (
-  `role_id` bigint NOT NULL COMMENT '角色ID',
-  `menu_id` bigint NOT NULL COMMENT '菜单ID',
-  PRIMARY KEY (`role_id`,`menu_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='角色和菜单关联表';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
-/*!40000 ALTER TABLE `sys_role_menu` DISABLE KEYS */;
-INSERT INTO `sys_role_menu` VALUES (1,1),(1,100),(1,101),(1,102),(1,103),(1,105),(1,106),(1,107),(1,108),(1,500),(1,501),(1,1000),(1,1001),(1,1002),(1,1003),(1,1004),(1,1005),(1,1006),(1,1007),(1,1008),(1,1009),(1,1010),(1,1011),(1,1012),(1,1013),(1,1014),(1,1015),(1,1016),(1,1017),(1,1018),(1,1019),(1,1025),(1,1026),(1,1027),(1,1028),(1,1029),(1,1030),(1,1031),(1,1032),(1,1033),(1,1034),(1,1035),(1,1036),(1,1037),(1,1038),(1,1039),(1,1040),(1,1041),(1,1042),(1,1043),(1,1044),(1,1045),(1,2000),(1,2001),(1,2002),(1,2003),(1,2004),(1,2005),(1,2006),(2,1),(2,100),(2,101),(2,102),(2,103),(2,105),(2,106),(2,107),(2,108),(2,500),(2,501),(2,1000),(2,1001),(2,1002),(2,1003),(2,1004),(2,1005),(2,1006),(2,1007),(2,1008),(2,1009),(2,1010),(2,1011),(2,1012),(2,1013),(2,1014),(2,1015),(2,1016),(2,1017),(2,1018),(2,1019),(2,1025),(2,1026),(2,1027),(2,1028),(2,1029),(2,1030),(2,1031),(2,1032),(2,1033),(2,1034),(2,1035),(2,1036),(2,1037),(2,1038),(2,1039),(2,1040),(2,1041),(2,1042),(2,1043),(2,1044),(2,1045);
-/*!40000 ALTER TABLE `sys_role_menu` ENABLE KEYS */;
 DROP TABLE IF EXISTS `sys_user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;

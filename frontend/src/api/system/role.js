@@ -102,14 +102,6 @@ export function authUserSelectAll(data) {
   })
 }
 
-// 根据角色ID查询部门树结构
-export function deptTreeSelect(roleId) {
-  return request({
-    url: '/system/role/deptTree/' + roleId,
-    method: 'get'
-  })
-}
-
 // 角色下拉框
 export function roleOptionselect() {
   return request({

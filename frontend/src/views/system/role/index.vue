@@ -134,13 +134,13 @@
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:role:remove']"
           >删除</el-button>
-          <el-dropdown size="mini" @command="(command) => handleCommand(command, scope.row)" v-hasPermi="['system:role:edit']">
-            <el-button size="mini" type="text" icon="el-icon-d-arrow-right">更多</el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="handleAuthUser" icon="el-icon-user"
-                v-hasPermi="['system:role:edit']">分配用户</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-user"
+            @click="handleAuthUser(scope.row)"
+            v-hasPermi="['system:role:edit']"
+          >分配用户</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -180,21 +180,6 @@
             >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="菜单权限">
-          <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
-          <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event, 'menu')">全选/全不选</el-checkbox>
-          <el-checkbox v-model="form.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">父子联动</el-checkbox>
-          <el-tree
-            class="tree-border"
-            :data="menuOptions"
-            show-checkbox
-            ref="menu"
-            node-key="id"
-            :check-strictly="!form.menuCheckStrictly"
-            empty-text="加载中，请稍候"
-            :props="defaultProps"
-          ></el-tree>
-        </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
         </el-form-item>
@@ -210,7 +195,6 @@
 
 <script>
 import { listRole, getRole, delRole, addRole, updateRole, changeRoleStatus } from "@/api/system/role"
-import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu"
 
 export default {
   name: "Role",
@@ -235,13 +219,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
-      menuExpand: false,
-      menuNodeAll: false,
       // 日期范围
       dateRange: [],
-      // 菜单列表
-      menuOptions: [],
-      // 部门列表
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -252,10 +231,6 @@ export default {
       },
       // 表单参数
       form: {},
-      defaultProps: {
-        children: "children",
-        label: "label"
-      },
       // 表单校验
       rules: {
         roleName: [
@@ -284,28 +259,6 @@ export default {
         }
       )
     },
-    /** 查询菜单树结构 */
-    getMenuTreeselect() {
-      menuTreeselect().then(response => {
-        this.menuOptions = response.data
-      })
-    },
-    // 所有菜单节点数据
-    getMenuAllCheckedKeys() {
-      // 目前被选中的菜单节点
-      let checkedKeys = this.$refs.menu.getCheckedKeys()
-      // 半选中的菜单节点
-      let halfCheckedKeys = this.$refs.menu.getHalfCheckedKeys()
-      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys)
-      return checkedKeys
-    },
-    /** 根据角色ID查询菜单树结构 */
-    getRoleMenuTreeselect(roleId) {
-      return roleMenuTreeselect(roleId).then(response => {
-        this.menuOptions = response.menus
-        return response
-      })
-    },
     // 角色状态修改
     handleStatusChange(row) {
       let text = row.status === "0" ? "启用" : "停用"
@@ -324,19 +277,12 @@ export default {
     },
     // 表单重置
     reset() {
-      if (this.$refs.menu != undefined) {
-        this.$refs.menu.setCheckedKeys([])
-      }
-      this.menuExpand = false,
-      this.menuNodeAll = false,
       this.form = {
         roleId: undefined,
         roleName: undefined,
         roleKey: undefined,
         roleSort: 0,
         status: "0",
-        menuIds: [],
-        menuCheckStrictly: true,
         remark: undefined
       }
       this.resetForm("form")
@@ -358,41 +304,9 @@ export default {
       this.single = selection.length!=1
       this.multiple = !selection.length
     },
-    // 更多操作触发
-    handleCommand(command, row) {
-      switch (command) {
-        case "handleAuthUser":
-          this.handleAuthUser(row)
-          break
-        default:
-          break
-      }
-    },
-    // 树权限（展开/折叠）
-    handleCheckedTreeExpand(value, type) {
-      if (type == 'menu') {
-        let treeList = this.menuOptions
-        for (let i = 0; i < treeList.length; i++) {
-          this.$refs.menu.store.nodesMap[treeList[i].id].expanded = value
-        }
-      }
-    },
-    // 树权限（全选/全不选）
-    handleCheckedTreeNodeAll(value, type) {
-      if (type == 'menu') {
-        this.$refs.menu.setCheckedNodes(value ? this.menuOptions: [])
-      }
-    },
-    // 树权限（父子联动）
-    handleCheckedTreeConnect(value, type) {
-      if (type == 'menu') {
-        this.form.menuCheckStrictly = value ? true: false
-      }
-    },
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
-      this.getMenuTreeselect()
       this.open = true
       this.title = "添加角色"
     },
@@ -400,20 +314,9 @@ export default {
     handleUpdate(row) {
       this.reset()
       const roleId = row.roleId || this.ids
-      const roleMenu = this.getRoleMenuTreeselect(roleId)
       getRole(roleId).then(response => {
         this.form = response.data
         this.open = true
-        this.$nextTick(() => {
-          roleMenu.then(res => {
-            let checkedKeys = res.checkedKeys
-            checkedKeys.forEach((v) => {
-                this.$nextTick(()=>{
-                    this.$refs.menu.setChecked(v, true ,false)
-                })
-            })
-          })
-        })
       })
       this.title = "修改角色"
     },
@@ -427,14 +330,12 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.roleId != undefined) {
-            this.form.menuIds = this.getMenuAllCheckedKeys()
             updateRole(this.form).then(() => {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
             })
           } else {
-            this.form.menuIds = this.getMenuAllCheckedKeys()
             addRole(this.form).then(() => {
               this.$modal.msgSuccess("新增成功")
               this.open = false

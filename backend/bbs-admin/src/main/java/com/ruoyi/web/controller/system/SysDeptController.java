@@ -88,7 +88,6 @@ public class SysDeptController extends BaseController
     @GetMapping(value = "/{deptId}")
     public AjaxResult getInfo(@PathVariable Long deptId)
     {
-        deptService.checkDeptDataScope(deptId);
         return success(deptService.selectDeptById(deptId));
     }
 
@@ -117,7 +116,6 @@ public class SysDeptController extends BaseController
     public AjaxResult edit(@Validated @RequestBody SysDept dept)
     {
         Long deptId = dept.getDeptId();
-        deptService.checkDeptDataScope(deptId);
         if (!deptService.checkDeptNameUnique(dept))
         {
             return error("修改部门'" + dept.getDeptName() + "'失败，部门名称已存在");
@@ -151,7 +149,6 @@ public class SysDeptController extends BaseController
         {
             return warn("部门存在用户,不允许删除");
         }
-        deptService.checkDeptDataScope(deptId);
         return toAjax(deptService.deleteDeptById(deptId));
     }
 }

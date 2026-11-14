@@ -16,14 +16,11 @@ import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.TreeSelect;
 import com.ruoyi.common.core.domain.entity.SysMenu;
-import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.vo.MetaVo;
 import com.ruoyi.system.domain.vo.RouterVo;
 import com.ruoyi.system.mapper.SysMenuMapper;
-import com.ruoyi.system.mapper.SysRoleMapper;
-import com.ruoyi.system.mapper.SysRoleMenuMapper;
 import com.ruoyi.system.service.ISysMenuService;
 
 /**
@@ -42,12 +39,6 @@ public class SysMenuServiceImpl implements ISysMenuService
 
     @Autowired
     private SysMenuMapper menuMapper;
-
-    @Autowired
-    private SysRoleMapper roleMapper;
-
-    @Autowired
-    private SysRoleMenuMapper roleMenuMapper;
 
     /**
      * 根据用户查询系统菜单列表
@@ -70,94 +61,19 @@ public class SysMenuServiceImpl implements ISysMenuService
     @Override
     public List<SysMenu> selectMenuList(SysMenu menu, String userId)
     {
-        List<SysMenu> menuList = null;
-        // 管理员显示所有菜单信息
-        if (SecurityUtils.isAdmin(userId))
-        {
-            menuList = menuMapper.selectMenuList(menu);
-        }
-        else
-        {
-            menu.getParams().put("userId", userId);
-            menuList = menuMapper.selectMenuListByUserId(menu);
-        }
-        return menuList;
+        // 菜单管理仅管理员可访问，直接返回全部菜单
+        return menuMapper.selectMenuList(menu);
     }
 
     /**
-     * 根据用户ID查询权限
+     * 查询全部菜单树（仅管理员使用）
      * 
-     * @param userId 用户ID
-     * @return 权限列表
-     */
-    @Override
-    public Set<String> selectMenuPermsByUserId(String userId)
-    {
-        List<String> perms = menuMapper.selectMenuPermsByUserId(userId);
-        Set<String> permsSet = new HashSet<>();
-        for (String perm : perms)
-        {
-            if (StringUtils.isNotEmpty(perm))
-            {
-                permsSet.addAll(Arrays.asList(perm.trim().split(",")));
-            }
-        }
-        return permsSet;
-    }
-
-    /**
-     * 根据角色ID查询权限
-     * 
-     * @param roleId 角色ID
-     * @return 权限列表
-     */
-    @Override
-    public Set<String> selectMenuPermsByRoleId(Long roleId)
-    {
-        List<String> perms = menuMapper.selectMenuPermsByRoleId(roleId);
-        Set<String> permsSet = new HashSet<>();
-        for (String perm : perms)
-        {
-            if (StringUtils.isNotEmpty(perm))
-            {
-                permsSet.addAll(Arrays.asList(perm.trim().split(",")));
-            }
-        }
-        return permsSet;
-    }
-
-    /**
-     * 根据用户ID查询菜单
-     * 
-     * @param userId 用户名称
      * @return 菜单列表
      */
     @Override
-    public List<SysMenu> selectMenuTreeByUserId(String userId)
+    public List<SysMenu> selectMenuTreeAll()
     {
-        List<SysMenu> menus = null;
-        if (SecurityUtils.isAdmin(userId))
-        {
-            menus = menuMapper.selectMenuTreeAll();
-        }
-        else
-        {
-            menus = menuMapper.selectMenuTreeByUserId(userId);
-        }
-        return getChildPerms(menus, MENU_ROOT_ID);
-    }
-
-    /**
-     * 根据角色ID查询菜单树信息
-     * 
-     * @param roleId 角色ID
-     * @return 选中菜单列表
-     */
-    @Override
-    public List<Long> selectMenuListByRoleId(Long roleId)
-    {
-        SysRole role = roleMapper.selectRoleById(roleId);
-        return menuMapper.selectMenuListByRoleId(roleId, role.isMenuCheckStrictly());
+        return getChildPerms(menuMapper.selectMenuTreeAll(), MENU_ROOT_ID);
     }
 
     /**
@@ -281,19 +197,6 @@ public class SysMenuServiceImpl implements ISysMenuService
     public boolean hasChildByMenuId(Long menuId)
     {
         int result = menuMapper.hasChildByMenuId(menuId);
-        return result > 0;
-    }
-
-    /**
-     * 查询菜单使用数量
-     * 
-     * @param menuId 菜单ID
-     * @return 结果
-     */
-    @Override
-    public boolean checkMenuExistRole(Long menuId)
-    {
-        int result = roleMenuMapper.checkMenuExistRole(menuId);
         return result > 0;
     }
 

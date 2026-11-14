@@ -65,19 +65,6 @@ public class SysMenuController extends BaseController
     }
 
     /**
-     * 加载对应角色菜单列表树
-     */
-    @GetMapping(value = "/roleMenuTreeselect/{roleId}")
-    public AjaxResult roleMenuTreeselect(@PathVariable("roleId") Long roleId)
-    {
-        List<SysMenu> menus = menuService.selectMenuList(getUserId());
-        AjaxResult ajax = AjaxResult.success();
-        ajax.put("checkedKeys", menuService.selectMenuListByRoleId(roleId));
-        ajax.put("menus", menuService.buildMenuTreeSelect(menus));
-        return ajax;
-    }
-
-    /**
      * 新增菜单
      */
     @PreAuthorize("@ss.hasPermi('system:menu:add')")
@@ -140,10 +127,6 @@ public class SysMenuController extends BaseController
         if (menuService.hasChildByMenuId(menuId))
         {
             return warn("存在子菜单,不允许删除");
-        }
-        if (menuService.checkMenuExistRole(menuId))
-        {
-            return warn("菜单已分配,不允许删除");
         }
         return toAjax(menuService.deleteMenuById(menuId));
     }

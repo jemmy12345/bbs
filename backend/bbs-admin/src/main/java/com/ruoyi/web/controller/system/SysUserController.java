@@ -100,7 +100,6 @@ public class SysUserController extends BaseController
         AjaxResult ajax = AjaxResult.success();
         if (StringUtils.isNotNull(userId))
         {
-            userService.checkUserDataScope(userId);
             SysUser sysUser = userService.selectUserById(userId);
             ajax.put(AjaxResult.DATA_TAG, sysUser);
                 ajax.put("roleIds", sysUser.getRoles().stream().map(SysRole::getRoleId).collect(Collectors.toList()));
@@ -118,8 +117,6 @@ public class SysUserController extends BaseController
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysUser user)
     {
-        deptService.checkDeptDataScope(user.getDeptId());
-        roleService.checkRoleDataScope(user.getRoleIds());
         if (!userService.checkUserNameUnique(user))
         {
             return error("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
@@ -146,9 +143,6 @@ public class SysUserController extends BaseController
     public AjaxResult edit(@Validated @RequestBody SysUser user)
     {
         userService.checkUserAllowed(user);
-        userService.checkUserDataScope(user.getUserId());
-        deptService.checkDeptDataScope(user.getDeptId());
-        roleService.checkRoleDataScope(user.getRoleIds());
         if (!userService.checkUserNameUnique(user))
         {
             return error("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
@@ -189,7 +183,6 @@ public class SysUserController extends BaseController
     public AjaxResult resetPwd(@RequestBody SysUser user)
     {
         userService.checkUserAllowed(user);
-        userService.checkUserDataScope(user.getUserId());
         user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
         user.setUpdateBy(getUsername());
         return toAjax(userService.resetPwd(user));
@@ -204,7 +197,6 @@ public class SysUserController extends BaseController
     public AjaxResult changeStatus(@RequestBody SysUser user)
     {
         userService.checkUserAllowed(user);
-        userService.checkUserDataScope(user.getUserId());
         user.setUpdateBy(getUsername());
         return toAjax(userService.updateUserStatus(user));
     }
@@ -232,8 +224,6 @@ public class SysUserController extends BaseController
     @PutMapping("/authRole")
     public AjaxResult insertAuthRole(String userId, Long[] roleIds)
     {
-        userService.checkUserDataScope(userId);
-        roleService.checkRoleDataScope(roleIds);
         userService.insertUserAuth(userId, roleIds);
         return success();
     }

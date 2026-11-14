@@ -107,8 +107,13 @@ public class SysLoginController
     @GetMapping("getRouters")
     public AjaxResult getRouters()
     {
-        String userId = SecurityUtils.getUserId();
-        List<SysMenu> menus = menuService.selectMenuTreeByUserId(userId);
+        // 后台菜单只对管理员开放；普通用户和评审员只使用前台页面，不返回后台路由
+        java.util.Set<String> perms = SecurityUtils.getLoginUser().getPermissions();
+        if (perms == null || !perms.contains(Constants.ALL_PERMISSION))
+        {
+            return AjaxResult.success(new java.util.ArrayList<>());
+        }
+        List<SysMenu> menus = menuService.selectMenuTreeAll();
         return AjaxResult.success(menuService.buildMenus(menus));
     }
     
